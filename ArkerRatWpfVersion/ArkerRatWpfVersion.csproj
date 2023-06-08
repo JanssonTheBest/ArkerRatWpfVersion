@@ -71,6 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GlobalVariables.cs" />
     <Compile Include="RATHostSession.cs" />
     <Compile Include="RemoteDesktopWindow.xaml.cs">
       <DependentUpon>RemoteDesktopWindow.xaml</DependentUpon>

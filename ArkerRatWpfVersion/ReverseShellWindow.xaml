@@ -29,7 +29,7 @@
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="735,-8,0,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF6F6B05" BorderThickness="0" Click="MinimizeReverseShell">
+            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="735,-8,0,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF6F6B05" BorderThickness="0" Click="MinimizeReverseShell" Name="minButton">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="15"/>

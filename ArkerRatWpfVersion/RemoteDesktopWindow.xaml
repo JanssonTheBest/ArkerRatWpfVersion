@@ -15,28 +15,28 @@
     <Border CornerRadius="20" Background="#FF121114">
         <!-- NAVBAR -->
         <Grid Background="#FF121114" Margin="0,16,0,21">
-            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="775,-8,0,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseWindow">
+            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,10,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseWindow" Name="closeButton">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="15"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="755,-8,0,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF0A2108" BorderThickness="0" Click="MaximizeWindow">
+            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,30,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF0A2108" BorderThickness="0" Click="MaximizeWindow" Name="maxButton">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="15"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="735,-8,0,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF6F6B05" BorderThickness="0" Click="MinimizeWindow">
+            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,50,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF6F6B05" BorderThickness="0" Click="MinimizeWindow" Name="minButton">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="15"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Image Margin="25,10,25,40" Name="remoteDesktopVideoFrame" >
+            <Image Margin="25,10,25,40" Name="remoteDesktopVideoFrame" PreviewMouseDown="ImageControl_PreviewMouseDown">
                 <Image.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="15"/>

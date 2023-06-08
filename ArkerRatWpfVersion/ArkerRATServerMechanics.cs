@@ -21,8 +21,6 @@ namespace ArkerRAT1
 {
     static class ArkerRATServerMechanics
     {
-
-        static MainWindow mainWindow = new MainWindow();
         public static List<RATHostSession> rATClients = new List<RATHostSession>();
         public static List<int> ports = new List<int>();
         private static List<TcpListener> listeners = new List<TcpListener>();
@@ -31,7 +29,6 @@ namespace ArkerRAT1
 
         //A tag number will be used to diffrenciate the RATHostSession objects from eachother. 
         static int tag = 1;
-        public static Task<TcpClient> serverThread;
         public static async void StartServer()
         {
             StopListener();
