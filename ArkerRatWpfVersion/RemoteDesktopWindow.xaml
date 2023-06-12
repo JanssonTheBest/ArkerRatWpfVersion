@@ -15,6 +15,11 @@
     <Border CornerRadius="20" Background="#FF121114">
         <!-- NAVBAR -->
         <Grid Background="#FF121114" Margin="0,16,0,21">
+
+            <CheckBox Content="Client input sound (ON / OFF)" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="0,400,30,0" x:Name="ClientInputSoundOnOff" HorizontalAlignment="Right" Checked="CAIVOn" Unchecked="CAIVOff"/>
+            <CheckBox Content="Client output sound (ON / OFF)" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="0,400,230,0" x:Name="ClientOutputSoundOnOff" HorizontalAlignment="Right" Checked="CAOVOn" Unchecked="CAOVOff"/>
+
+
             <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,10,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseWindow" Name="closeButton">
                 <Button.Resources>
                     <Style TargetType="Border">

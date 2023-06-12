@@ -171,6 +171,8 @@ namespace ArkerRAT1
         }
         //________________________________________________________________________________________________________
         //Settings
+
+        // Opacity not  crypter
         private void crypterOn_Checked(object sender, RoutedEventArgs e)
         {
             this.Opacity = 0.95;
@@ -180,6 +182,8 @@ namespace ArkerRAT1
         {
             this.Opacity = 1;
         }
+
+
         //_________________________________________________________________________________________________________
 
         //Program
@@ -296,7 +300,11 @@ namespace ArkerRAT1
                 ArkerRATServerMechanics.rATClients[y].clientButton.Foreground = new SolidColorBrush(arkerPurple);
                 ArkerRATServerMechanics.rATClients[y].clientButton.Background = new SolidColorBrush(arkerGrey);
                 ArkerRATServerMechanics.rATClients[y].clientButton.Content = ArkerRATServerMechanics.rATClients[y].clientInfo + "\t" + ArkerRATServerMechanics.rATClients[y].ms + "ms";
-                loadClients.Items.Add(ArkerRATServerMechanics.rATClients[y].clientButton);
+
+               
+                    loadClients.Items.Add(ArkerRATServerMechanics.rATClients[y].clientButton);
+                
+                
                 CyperTools(ArkerRATServerMechanics.rATClients[y].clientButton);
             }
         }
