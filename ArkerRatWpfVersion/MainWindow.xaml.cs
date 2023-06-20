@@ -22,8 +22,10 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Resources;
 
-namespace ArkerRAT1
+namespace ArkerRatWpfVersion
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -201,8 +203,8 @@ namespace ArkerRAT1
             if (!ArkerRATServerMechanics.ports.Contains(Convert.ToInt32(portInput.Text)))
             {
                 Button serverButton = new Button();
-                serverButton.Width = 700;
-                serverButton.Height = 50;
+                serverButton.Width = 732;
+                serverButton.Height = 30;
                 System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
                 System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
                 serverButton.BorderBrush = new SolidColorBrush(arkerPurple);
@@ -233,7 +235,15 @@ namespace ArkerRAT1
             reversShellButton.Icon = new System.Windows.Controls.Image
             {
                 Stretch = Stretch.Fill,
-                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\cmd.png"))
+                Source = TryFindResource("CmdImage") as BitmapImage
+            };
+
+            MenuItem fileManager = new MenuItem();
+            fileManager.Header = "File-Manager";
+            fileManager.Icon = new System.Windows.Controls.Image
+            {
+                Stretch = Stretch.Fill,
+                Source = TryFindResource("FileManagerImage") as BitmapImage
             };
 
             MenuItem unInstall = new MenuItem();
@@ -241,7 +251,7 @@ namespace ArkerRAT1
             unInstall.Icon = new System.Windows.Controls.Image
             {
                 Stretch = Stretch.Fill,
-                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\remove.png"))
+                Source = TryFindResource("RemoveImage") as BitmapImage
             };
 
             MenuItem disconnect = new MenuItem();
@@ -249,26 +259,27 @@ namespace ArkerRAT1
             disconnect.Icon = new System.Windows.Controls.Image
             {
                 Stretch = Stretch.Fill,
-                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\remove.png"))
+                Source = TryFindResource("RemoveImage") as BitmapImage
             };
 
             MenuItem remoteDesktop = new MenuItem();
-            remoteDesktop.Header = "Remote desktop";
+            remoteDesktop.Header = "Remote-desktop";
             remoteDesktop.Icon = new System.Windows.Controls.Image
             {
                 Stretch = Stretch.Fill,
-                Source = new BitmapImage(new Uri("C:\\Users\\Alexander\\source\\repos\\ArkerRatWpfVersion\\ArkerRatWpfVersion\\icons\\desktop.png"))
+                Source = TryFindResource("RemoteDesktopImage") as BitmapImage
             };
 
             clientButton.ContextMenu = new ContextMenu();
             clientButton.ContextMenu.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(18, 17, 20));
             clientButton.ContextMenu.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(153, 102, 255));
 
-            //Tools
+            // Tools
             clientButton.ContextMenu.Items.Add(reversShellButton);
             clientButton.ContextMenu.Items.Add(remoteDesktop);
+            clientButton.ContextMenu.Items.Add(fileManager);
 
-            //Dieconnect
+            // Disconnect
             clientButton.ContextMenu.Items.Add(unInstall);
             clientButton.ContextMenu.Items.Add(disconnect);
 
@@ -282,18 +293,32 @@ namespace ArkerRAT1
                     unInstall.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Uninstall);
                     disconnect.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Disconnect);
                     remoteDesktop.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteDesktop);
+                    fileManager.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartFileManager);
                 }
             }
         }
 
+
+        private BitmapImage GetBitmapImage(string resourceName)
+        {
+            ResourceManager resourceManager = new ResourceManager("ArkerRatWpfVersion.Resources", Assembly.GetExecutingAssembly());
+            string imagePath = resourceManager.GetString(resourceName);
+
+            BitmapImage bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            bitmapImage.UriSource = new Uri(imagePath, UriKind.RelativeOrAbsolute);
+            bitmapImage.EndInit();
+
+            return bitmapImage;
+        }
         public void LoadCLients()
         {
 
             loadClients.Items.Clear();
             for (int y = 0; y < ArkerRATServerMechanics.rATClients.Count; y++)
             {
-                ArkerRATServerMechanics.rATClients[y].clientButton.Width = 700;
-                ArkerRATServerMechanics.rATClients[y].clientButton.Height = 50;
+                ArkerRATServerMechanics.rATClients[y].clientButton.Width = 732;
+                ArkerRATServerMechanics.rATClients[y].clientButton.Height = 30;
                 System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
                 System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
                 ArkerRATServerMechanics.rATClients[y].clientButton.BorderBrush = new SolidColorBrush(arkerPurple);

@@ -9,6 +9,7 @@ namespace ArkerRatWpfVersion
     public static class GlobalVariables
     {
         public static readonly object _lock = new object();
-        public static int byteSize = 4096;
+        public static int byteSize = 1024;
+
     }
 }

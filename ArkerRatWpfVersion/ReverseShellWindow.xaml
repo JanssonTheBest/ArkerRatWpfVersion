@@ -10,12 +10,19 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="Transparent"
-        MouseDown="Window_MouseDown" AllowsTransparency="True" WindowState="Minimized">
+        MouseDown="Window_MouseDown" AllowsTransparency="True" WindowState="Minimized"
+        Closing="Window_Closing"
+        >
 
-    <Border CornerRadius="20" Background="#FF121114">
+    <Window.Resources>
+        <BitmapImage x:Key="CmdImage" UriSource="Resources/cmd.png" />
+
+    </Window.Resources>
+
+    <Border CornerRadius="20" Background="#FF121114" BorderBrush="White" BorderThickness="0.5">
         <!-- NAVBAR -->
         <Grid Background="#FF121114" Margin="0,16,0,21">
-            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="775,-8,0,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseReverseShell">
+            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="775,-8,0,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseWindow" Name="closeButton">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="15"/>
@@ -36,28 +43,57 @@
                     </Style>
                 </Button.Resources>
             </Button>
-            <RichTextBox Margin="25,10,25,40" Background="#1B1820" Foreground="#FF9966FF" Name="reverseShellTextOutput" >
+            <RichTextBox Margin="25,10,25,10" Background="Black" Foreground="White" Name="reverseShellTextOutput">
                 <RichTextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="15"/>
-                        <Setter Property="Margin" Value="0"/>
+                    <Style TargetType="RichTextBox">
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="RichTextBox">
+                                    <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="15">
+                                        <ScrollViewer x:Name="PART_ContentHost" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
                     </Style>
                 </RichTextBox.Resources>
                 <FlowDocument>
                     <Paragraph>
-                        <Run Text="RichTextBox"/>
+                        <Run Text="RichTextBox" />
                     </Paragraph>
                 </FlowDocument>
             </RichTextBox>
-            <TextBox Margin="25,384,25,0" Background="#1B1820" Foreground="#FF9966FF" Name="reverseShellTextInput" Height="29" KeyDown="EnterPressed" >
-                
+
+            <TextBox Margin="25,374,25,10" Background="Black" Foreground="White" Name="reverseShellTextInput" Height="29" KeyDown="EnterPressed">
                 <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="5"/>
+                    <Style TargetType="TextBox">
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TextBox">
+                                    <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="15">
+                                        <ScrollViewer x:Name="PART_ContentHost" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
                     </Style>
                 </TextBox.Resources>
-                
             </TextBox>
+
+            <Label Content="Reverse-shell" HorizontalAlignment="Left" Margin="65,-18,0,0" Height="25" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="12" Name="windowText"/>
+
+            <Image Source="{StaticResource CmdImage}" Height="20" Width="25" Margin="45,-15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
         </Grid>
 
     </Border>

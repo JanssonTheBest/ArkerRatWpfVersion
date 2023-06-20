@@ -10,14 +10,21 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="Transparent"
-        MouseDown="Window_MouseDown" AllowsTransparency="True" WindowState="Minimized">
+        MouseDown="Window_MouseDown" AllowsTransparency="True" WindowState="Minimized"
+        Closing="Window_Closing"
+        >
+    <Window.Resources>
+        <BitmapImage x:Key="RemoteDesktopImage" UriSource="Resources/icons8-remote-desktop-96.png" />
 
-    <Border CornerRadius="20" Background="#FF121114">
+    </Window.Resources>
+
+    <Border CornerRadius="20" Background="#FF121114" BorderBrush="White" BorderThickness="0.5">
         <!-- NAVBAR -->
         <Grid Background="#FF121114" Margin="0,16,0,21">
+            <Label Content="Try re-opening the window..." Margin="314,184,314,184" Foreground="#FF9966FF" FontSize="13"/>
 
-            <CheckBox Content="Client input sound (ON / OFF)" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="0,400,30,0" x:Name="ClientInputSoundOnOff" HorizontalAlignment="Right" Checked="CAIVOn" Unchecked="CAIVOff"/>
-            <CheckBox Content="Client output sound (ON / OFF)" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="0,400,230,0" x:Name="ClientOutputSoundOnOff" HorizontalAlignment="Right" Checked="CAOVOn" Unchecked="CAOVOff"/>
+            <CheckBox Content="Client input sound (ON / OFF)" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="0,0,30,0" x:Name="ClientInputSoundOnOff" HorizontalAlignment="Right" VerticalAlignment="Bottom" Checked="CAIVOn" Unchecked="CAIVOff"/>
+            <CheckBox Content="Client output sound (ON / OFF)" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="0,0,230,0" x:Name="ClientOutputSoundOnOff" HorizontalAlignment="Right" VerticalAlignment="Bottom" Checked="CAOVOn" Unchecked="CAOVOff"/>
 
 
             <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,10,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseWindow" Name="closeButton">
@@ -49,6 +56,10 @@
                     </Style>
                 </Image.Resources>
             </Image>
+
+            <Label Content="Remote-desktop" HorizontalAlignment="Left" Margin="65,-18,0,0" Height="25" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="12" Name="windowText"/>
+
+            <Image Source="{StaticResource RemoteDesktopImage}" Height="20" Width="25" Margin="45,-16,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </Grid>
 
     </Border>

