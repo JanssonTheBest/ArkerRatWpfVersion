@@ -74,7 +74,7 @@ namespace ArkerRatWpfVersion
                     {
                         byte[] buffer = new byte[GlobalVariables.byteSize];
                         int bytesRead = await clientStream.ReadAsync(buffer, 0, buffer.Length);
-
+                        
                         if (bytesRead > 0)
                         {
                             string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -341,5 +341,26 @@ namespace ArkerRatWpfVersion
             }
         }
         //____________________________________________________________
+
+        public async void ShutDown(object sender, EventArgs e)
+        {
+            await SendData("§ShutDownStart§§ShutDownEnd§");
+
+        }
+
+        public async void Restart(object sender, EventArgs e)
+        {
+            await SendData("§RestartStart§§RestartEnd§");
+        }
+
+        public async void LogOut(object sender, EventArgs e)
+        {
+            await SendData("§LogOutStart§§LogOutEnd§");
+        }
+
+        public async void Sleep(object sender, EventArgs e)
+        {
+            await SendData("§SleepStart§§SleepEnd§");
+        }
     }
 }

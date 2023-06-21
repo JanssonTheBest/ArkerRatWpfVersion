@@ -30,6 +30,10 @@
         <BitmapImage x:Key="FileImage" UriSource="Resources/file.png" />
         <BitmapImage x:Key="DriveImage" UriSource="Resources/drive.png" />
         <BitmapImage x:Key="DownloadImage" UriSource="Resources/download.png" />
+        <BitmapImage x:Key="ShutDownImage" UriSource="Resources/ShutDown.png" />
+        <BitmapImage x:Key="RestartImage" UriSource="Resources/restart.png" />
+        <BitmapImage x:Key="LogOutImage" UriSource="Resources/LogOut.png" />
+        <BitmapImage x:Key="SleepImage" UriSource="Resources/sleep.png" />
 
 
 

