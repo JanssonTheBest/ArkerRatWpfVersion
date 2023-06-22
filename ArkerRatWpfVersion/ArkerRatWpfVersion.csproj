@@ -108,7 +108,7 @@
     <Compile Include="File-Manager.xaml.cs">
       <DependentUpon>File-Manager.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GlobalVariables.cs" />
+    <Compile Include="Global.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

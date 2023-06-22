@@ -31,7 +31,7 @@ namespace ArkerRatWpfVersion
         {
             InitializeComponent();
             clientSession = session;
-            windowText.Content += " - " + (clientSession.clientInfo.Split('\t'))[0];
+            windowText.Content += " - " + clientSession.clientInfo[0];
             clientSession.fileManagerWindowIsAlreadyOpen= true;
             clientSession.SendData("§FileManagerStart§§FileManagerEnd§");
         }
@@ -366,9 +366,6 @@ namespace ArkerRatWpfVersion
             }
         }
 
-        
-
-        //Enters the arkerrat folder for some reason, have to fix goback
         private async void GoBack(object sender, RoutedEventArgs e)
         {
             fileManager.Items.Clear();

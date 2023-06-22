@@ -27,11 +27,18 @@ namespace ArkerRatWpfVersion
         CancellationToken token;
 
         //This button is too know which client button belongs to which client.
-        public Button clientButton = new Button();
+        public DataItemClient dataItem = new DataItemClient
+        {
+            ClientName = "Unknown",
+            OS = "Unknown",
+            IPAddress = "Unknown",
+            MS = "Unknown"
+        };
+        
         public int port = 0;
         public string tags { get; set; }
         public double ms = 0;
-        public string clientInfo = "Unknown\tUnknown\tUnknown";
+        public string[] clientInfo = new string[3];
 
         public TcpClient client { get; set; }
         public NetworkStream clientStream { get; set; }
@@ -41,7 +48,7 @@ namespace ArkerRatWpfVersion
             client = tcpClient;
             clientStream = tcpClient.GetStream();
             token = source.Token;
-            clientButton.Tag = tag;
+            dataItem.Tag = tag;
             tags = tag;
 
             ReadData();
@@ -189,12 +196,12 @@ namespace ArkerRatWpfVersion
                             string info = subString.Substring(startIndexx, endIndexx - startIndexx + 1);
                             resulotion = info.Split(',');
 
-                            string tempInfo = subString.Replace("§ResulotionStart§" + info + "§ResulotionEnd§", string.Empty);
+                            string[] tempInfo = (subString.Replace("§ResulotionStart§" + info + "§ResulotionEnd§", string.Empty)).Split(',');
 
-                            clientInfo = string.Empty;
-
-                            foreach (var clientInfoData in tempInfo.Split(','))
-                                clientInfo += clientInfoData + "\t";
+                            for (int i = 0; i < tempInfo.Length; i++)
+                            {
+                                clientInfo[i] = tempInfo[i];
+                            }        
                         }                      
                     }
                     else

