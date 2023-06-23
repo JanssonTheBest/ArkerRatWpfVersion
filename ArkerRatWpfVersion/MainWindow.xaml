@@ -409,7 +409,7 @@
         <DataGridTextColumn Header="Name" Binding="{Binding ClientName}" Width="*" />
         <DataGridTextColumn Header="OS" Binding="{Binding OS}" Width="*" />
         <DataGridTextColumn Header="IP Address" Binding="{Binding IPAddress}" Width="200" />
-        <DataGridTextColumn Header="MS" Binding="{Binding MS}" Width="90" />
+        <DataGridTextColumn Header="Ping" Binding="{Binding MS}" Width="90" />
     </DataGrid.Columns>
 </DataGrid>
 

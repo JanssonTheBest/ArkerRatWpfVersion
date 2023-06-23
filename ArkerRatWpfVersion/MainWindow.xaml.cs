@@ -24,7 +24,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Resources;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace ArkerRatWpfVersion
 {
@@ -38,11 +37,15 @@ namespace ArkerRatWpfVersion
             InitializeComponent();
 
             clientDataGrid.PreviewMouseRightButtonDown += OnPreviewMouseRightButtonDown;
-
             clientDataGrid.PreviewMouseLeftButtonDown += DataGridRow_PreviewMouseLeft;
-
             loadServers.PreviewMouseRightButtonDown += OnPreviewMouseRightButtonDown;
             loadServers.PreviewMouseLeftButtonDown+= DataGridRow_PreviewMouseLeft;
+            clientDataGrid.PreviewKeyDown +=DataGridRow_PreviewKeyDown;
+            loadServers.PreviewKeyDown +=DataGridRow_PreviewKeyDown;
+
+
+            loadServers.IsTabStop = false;
+            clientDataGrid.IsTabStop = false;
 
             clientDataGrid.IsTabStop = false;
             loadServers.IsTabStop = false;
@@ -58,7 +61,7 @@ namespace ArkerRatWpfVersion
             this.Activate();
 
             //Assing the standard IP
-            Task.Run(() =>
+            Task.Run(async() =>
             {
                     try
                     {
@@ -73,10 +76,10 @@ namespace ArkerRatWpfVersion
                         int first = address.IndexOf("Address: ") + 9;
                         int last = address.LastIndexOf("</body>");
                         address = address.Substring(first, last - first);
-                        Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                        await Application.Current.Dispatcher.InvokeAsync(() =>
                         {
                             iPInput.Text = address;
-                        }));
+                        });
                     }
                     catch (Exception ex){ consoleLog.AppendText(ex.Message+ "\n");
                     consoleLog.ScrollToEnd();
@@ -84,10 +87,24 @@ namespace ArkerRatWpfVersion
             });
             
         }
+        private void DataGridRow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            loadServers.UnselectAll();
+            clientDataGrid.UnselectAll();
+            e.Handled= true;
+        }
+
 
         private void DataGridRow_PreviewMouseLeft(object sender, MouseButtonEventArgs e)
         {
-            e.Handled = true;               
+            e.Handled = true;
+            DataGridRow row = FindVisualParent<DataGridRow>(e.OriginalSource as FrameworkElement);
+
+            if (row == null)
+                return;
+
+            row.IsSelected = false;
+            row.IsTabStop = false;
         }
 
         private void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -98,9 +115,10 @@ namespace ArkerRatWpfVersion
 
             if (row != null)
             {
+                row.IsTabStop = false;
 
                 // Retrieve the corresponding DataItem
-                if(row.Item is DataItemClient)
+                if (row.Item is DataItemClient)
                 {
                     DataItemClient dataItem = (DataItemClient)row.Item;
 
@@ -225,6 +243,11 @@ namespace ArkerRatWpfVersion
                 else
                 {
                     DataItemPort dataItem = (DataItemPort)row.Item;
+
+
+                    if(dataItem ==null)
+                        return;
+
                     dataItem.ContextMenu = new ContextMenu();
                     dataItem.ContextMenu.Tag = dataItem;
 
@@ -297,37 +320,38 @@ namespace ArkerRatWpfVersion
 
         int oldCountPort = 0;
         int oldCount = 0;
-        private void UpdateUI()
+        private async void UpdateUI()
         {
             while(true)            
             {
                 if (ArkerRATServerMechanics.ports.Count != oldCountPort)
                 {
                     oldCountPort = ArkerRATServerMechanics.ports.Count;
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
                         serverAmountLabel.Content = ArkerRATServerMechanics.ports.Count;
-                    }));
+                    });
                 }
                     
                 if (ArkerRATServerMechanics.rATClients.Count() != oldCount)
                 {
                     oldCount = ArkerRATServerMechanics.rATClients.Count();
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                   await  Application.Current.Dispatcher.InvokeAsync(() =>
                     {
                         clientAmountLabel.Content = ArkerRATServerMechanics.rATClients.Count();
-                    }));
+                    });
                 }
 
-                this.Dispatcher.BeginInvoke(new Action(() =>
+               await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     //ArkerRATServerMechanics.port = Convert.ToInt32(portInput.Text);
                     LoadCLients();
-                }));
-                Thread.Sleep(1000);
+                });
+                await Task.Delay(1000);
             };
         }
 
+     
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
@@ -523,7 +547,7 @@ namespace ArkerRatWpfVersion
                     ClientName = ArkerRATServerMechanics.rATClients[y].clientInfo[0],
                     OS = ArkerRATServerMechanics.rATClients[y].clientInfo[1],
                     IPAddress = ArkerRATServerMechanics.rATClients[y].clientInfo[2],
-                    MS = Convert.ToString(ArkerRATServerMechanics.rATClients[y].ms),
+                    MS = Convert.ToString(ArkerRATServerMechanics.rATClients[y].ms)+"ms",
                         Tag = ArkerRATServerMechanics.rATClients[y].dataItem.Tag,
                         ContextMenu =null
 

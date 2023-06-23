@@ -70,12 +70,12 @@ namespace ArkerRatWpfVersion
         {
             lock (GlobalVariables._lock)
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     reverseShellTextOutput.AppendText(data);
                     reverseShellTextOutput.ScrollToEnd();
                     reverseShellTextInput.Focus();
-                }));
+                });
             }
         }
 

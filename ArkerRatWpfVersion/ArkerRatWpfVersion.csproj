@@ -105,6 +105,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ArkerNotification.xaml.cs">
+      <DependentUpon>ArkerNotification.xaml</DependentUpon>
+    </Compile>
     <Compile Include="File-Manager.xaml.cs">
       <DependentUpon>File-Manager.xaml</DependentUpon>
     </Compile>
@@ -121,6 +124,10 @@
     <Compile Include="ReverseShellWindow.xaml.cs">
       <DependentUpon>ReverseShellWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="ArkerNotification.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="File-Manager.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
