@@ -63,7 +63,7 @@
                 
             </Slider>
 
-            <Slider Width="300" HorizontalAlignment="Right" Height="auto" Margin="0,80,50,0" VerticalAlignment="Top" x:Name="inVolume">
+            <Slider Width="300" HorizontalAlignment="Right" Height="auto" Margin="0,80,50,0" VerticalAlignment="Top" x:Name="inVolume" Background="">
 
             </Slider>
 
