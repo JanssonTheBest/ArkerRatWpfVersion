@@ -23,9 +23,6 @@
         <Grid Background="#FF121114" Margin="0,16,0,21">
             <Label Content="Try re-opening the window..." Margin="314,184,314,184" Foreground="#FF9966FF" FontSize="13"/>
 
-            <CheckBox Content="Client input sound (ON / OFF)" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="0,0,30,0" x:Name="ClientInputSoundOnOff" HorizontalAlignment="Right" VerticalAlignment="Bottom" Checked="CAIVOn" Unchecked="CAIVOff"/>
-            <CheckBox Content="Client output sound (ON / OFF)" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="0,0,230,0" x:Name="ClientOutputSoundOnOff" HorizontalAlignment="Right" VerticalAlignment="Bottom" Checked="CAOVOn" Unchecked="CAOVOff"/>
-
 
             <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,10,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseWindow" Name="closeButton">
                 <Button.Resources>

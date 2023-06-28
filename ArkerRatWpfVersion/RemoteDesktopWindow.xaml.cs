@@ -40,7 +40,6 @@ GlobalVariables.byteSize = 262144;
             }
 
             Task.Run(()=> FrameBuffer());
-            Task.Run(()=> StartReceivingAudio());
             //ResetWhenTheDelayOfFramesIsToLarge();
 
             clientSession.remoteDesktopWindowIsAlreadyOpen = true;
@@ -77,14 +76,12 @@ GlobalVariables.byteSize = 262144;
         public async void CloseWindow(object sender, RoutedEventArgs e)
         {
             await clientSession.SendData("§RemoteDesktopStart§close§RemoteDesktopEnd§");
-            StopReceivingAudio();
             clientSession.remoteDesktopWindowIsAlreadyOpen = false;
             frameQue = new ConcurrentQueue<string>();
-            clientAudioQue = new ConcurrentQueue<string>();
 
 
 
-            while (frameQue.Count > 0 || clientAudioQue.Count > 0)
+            while (frameQue.Count > 0)
             {
                 await Task.Delay(100);
             }
@@ -95,7 +92,9 @@ GlobalVariables.byteSize = 262144;
                 clientSession.data = "§PingStart§§PingEnd§";
             }
 
+            if(!clientSession.remoteAudioWindowIsAlreadyOpen)
             GlobalVariables.byteSize = 1024;
+            
             close = true;
             Close();
         }
@@ -146,7 +145,6 @@ GlobalVariables.byteSize = 262144;
        
 
         public ConcurrentQueue<string> frameQue = new ConcurrentQueue<string>();
-        public ConcurrentQueue<string> clientAudioQue = new ConcurrentQueue<string>();
 
 
 
@@ -163,204 +161,6 @@ GlobalVariables.byteSize = 262144;
                            ReceiveFrameChunk(temp);
                    }
             }
-        }
-
-   
-
-
-        private BufferedWaveProvider waveProvider;
-        private WaveOutEvent waveOut;
-        private CancellationTokenSource cancellationSource;
-        private Task audioTask;
-        //private const int DelayThresholdMilliseconds = 1500;
-        //private int currentDelayMilliseconds = 0;
-
-
-
-        private const int DelayThresholdMilliseconds = 1500;
-        private const int MaxBufferMilliseconds = 3000; // Maximum buffer size to prevent excessive buffering
-        private int currentDelayMilliseconds = 0;
-        private int desiredBufferMilliseconds = 500; // Initial buffer size
-
-        private void StartReceivingAudio()
-        {
-            if (waveProvider == null)
-            {
-                waveProvider = new BufferedWaveProvider(new WaveFormat(41100, 1));
-                waveOut = new WaveOutEvent();
-                waveOut.DeviceNumber = 0;
-                waveOut.Init(waveProvider);
-                waveOut.Play();
-            }
-
-            if (cancellationSource == null)
-            {
-                cancellationSource = new CancellationTokenSource();
-                audioTask = Task.Run(async () => await ReceiveAudioChunks(cancellationSource.Token));
-            }
-        }
-
-        private async void StopReceivingAudio()
-        {
-            if (cancellationSource != null)
-            {
-                cancellationSource.Cancel();
-                cancellationSource = null;
-            }
-
-            if (audioTask != null)
-            {
-                await audioTask;
-                audioTask = null;
-            }
-
-            if (waveOut != null)
-            {
-                waveOut.Stop();
-                waveOut.Dispose();
-                waveOut = null;
-            }
-
-            if (waveProvider != null)
-            {
-                waveProvider.ClearBuffer();
-                waveProvider = null;
-            }
-        }
-
-        private async Task ReceiveAudioChunks(CancellationToken cancellationToken)
-        {
-            while (!cancellationToken.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen)
-            {
-                if (clientAudioQue.Count > 10)
-                    clientAudioQue = new ConcurrentQueue<string>();
-
-                string dataIn = string.Empty;
-                string dataOut = string.Empty;
-
-                bool inReceived = false;
-                bool outReceived = false;
-
-                Task inTask = Task.Run(async() =>
-                {
-                    while (!cancellationToken.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen && !inReceived && cAIVOn)
-                    {
-                        if (clientAudioQue.TryDequeue(out dataIn))
-                        {
-                            byte[] audioInBytes = Convert.FromBase64String(dataIn);
-                            try
-                            {
-                                waveProvider.AddSamples(audioInBytes, 0, audioInBytes.Length);
-                                inReceived = true;
-                            }
-                            catch (Exception ex)
-                            {
-                                // Handle the exception appropriately
-                            }
-                        }
-                        await Task.Delay(10);
-                    }
-                });
-
-                Task outTask = Task.Run(async() =>
-                {
-                    while (!cancellationToken.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen && !outReceived && cAOVOn)
-                    {
-                        if (clientAudioQue.TryDequeue(out dataOut))
-                        {
-                            byte[] audioOutBytes = Convert.FromBase64String(dataOut);
-                            try
-                            {
-                                waveProvider.AddSamples(audioOutBytes, 0, audioOutBytes.Length);
-                                outReceived = true;
-                            }
-                            catch (Exception ex)
-                            {
-                                // Handle the exception appropriately
-                            }
-                        }
-                        await Task.Delay(10);
-                    }
-                });
-
-                await Task.WhenAll(inTask, outTask); // Wait until both in and out audio chunks are received
-
-                // Calculate the current delay based on the buffered bytes
-                int currentBufferedBytes = waveProvider.BufferedBytes;
-                int currentBufferedMilliseconds = (int)((currentBufferedBytes / (float)waveProvider.WaveFormat.AverageBytesPerSecond) * 1000);
-                currentDelayMilliseconds = currentBufferedMilliseconds - DelayThresholdMilliseconds;
-
-                // Adjust the desired buffer size based on the current delay
-                if (currentDelayMilliseconds >= DelayThresholdMilliseconds)
-                {
-                    desiredBufferMilliseconds = 250; // Decrease buffer size to speed up audio
-                }
-                else
-                {
-                    desiredBufferMilliseconds = 1000; // Restore original buffer size
-                }
-                try
-                {
-                    CombineAudioChunks();
-                }
-                catch (Exception ex) { }
-                
-                if (string.IsNullOrEmpty(dataIn) && string.IsNullOrEmpty(dataOut))
-                {
-                    await Task.Delay(10); // Delay to avoid hard looping
-                }
-            }
-        }
-
-        private void CombineAudioChunks()
-        {
-            byte[] inBuffer = new byte[waveProvider.BufferedBytes];
-            byte[] outBuffer = new byte[waveProvider.BufferedBytes];
-            int bytesReadIn = waveProvider.Read(inBuffer, 0, inBuffer.Length);
-            int bytesReadOut = waveProvider.Read(outBuffer, 0, outBuffer.Length);
-            waveProvider.ClearBuffer();
-
-            int maxBytesRead = Math.Max(bytesReadIn, bytesReadOut);
-
-            if (maxBytesRead > 0)
-            {
-                byte[] combinedBuffer = new byte[maxBytesRead];
-
-                // Copy inBuffer to combinedBuffer
-                Buffer.BlockCopy(inBuffer, 0, combinedBuffer, 0, bytesReadIn);
-
-                // Mix outBuffer with combinedBuffer
-                for (int i = 0; i < bytesReadOut; i += 2)
-                {
-                    short outSample = BitConverter.ToInt16(outBuffer, i);
-
-                    if (i < bytesReadIn)
-                    {
-                        short combinedSample = BitConverter.ToInt16(combinedBuffer, i);
-
-                        // Calculate the scaling factor based on the relative volume of the samples
-                        float inVolume = Math.Abs(combinedSample) / (float)short.MaxValue;
-                        float outVolume = Math.Abs(outSample) / (float)short.MaxValue;
-                        float scalingFactor = inVolume / (inVolume + outVolume);
-
-                        // Mix the samples with the scaling factor
-                        short mixedSample = (short)((combinedSample * scalingFactor) + (outSample * (1 - scalingFactor)));
-
-                        byte[] mixedBytes = BitConverter.GetBytes(mixedSample);
-                        mixedBytes.CopyTo(combinedBuffer, i);
-                    }
-                    else
-                    {
-                        byte[] outBytes = BitConverter.GetBytes(outSample);
-                        outBytes.CopyTo(combinedBuffer, i);
-                    }
-                }
-                waveProvider.AddSamples(combinedBuffer, 0, maxBytesRead);
-            }
-
-            // Adjust the buffer size based on the desired buffer milliseconds
-            int desiredBufferBytes = (int)((desiredBufferMilliseconds / 1000f) * waveProvider.WaveFormat.AverageBytesPerSecond);
-            waveProvider.BufferLength = Math.Min(desiredBufferBytes, MaxBufferMilliseconds * waveProvider.WaveFormat.AverageBytesPerSecond / 1000);
         }
 
         private MemoryStream _frameStream = new MemoryStream();
@@ -407,28 +207,6 @@ GlobalVariables.byteSize = 262144;
         }
 
         //_______
-        public bool cAIVOn = false;
-        private void CAIVOn(object sender, RoutedEventArgs e)
-        {
-            cAIVOn= true;
-        }
-        private void CAIVOff(object sender, RoutedEventArgs e)
-        {
-            cAIVOn = false;
-       
-    }
-
-        //_______
-        public bool cAOVOn = false;
-        private void CAOVOn(object sender, RoutedEventArgs e)
-        {
-            cAOVOn= true;
-        }
-        private void CAOVOff(object sender, RoutedEventArgs e)
-        {
-            cAOVOn = false;
-            
-        }
 
     }
 }

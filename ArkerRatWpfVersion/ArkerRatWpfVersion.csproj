@@ -118,6 +118,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RATHostSession.cs" />
+    <Compile Include="RemoteAudioWindow.xaml.cs">
+      <DependentUpon>RemoteAudioWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RemoteDesktopWindow.xaml.cs">
       <DependentUpon>RemoteDesktopWindow.xaml</DependentUpon>
     </Compile>
@@ -145,6 +148,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="RemoteAudioWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="RemoteDesktopWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -234,6 +241,9 @@
     <Resource Include="Resources\restart.png" />
     <Resource Include="Resources\ShutDown.png" />
     <Resource Include="Resources\sleep.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\sound.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

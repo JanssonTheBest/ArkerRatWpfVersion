@@ -200,6 +200,14 @@ namespace ArkerRatWpfVersion
                             Source = TryFindResource("SleepImage") as BitmapImage
                         };
 
+                        MenuItem remoteAudio = new MenuItem();
+                        remoteAudio.Header = "System-sound";
+                        remoteAudio.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("SoundImage") as BitmapImage
+                        };
+
                         dataItem.ContextMenu = new ContextMenu();
                         dataItem.ContextMenu.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(18, 17, 20));
                         dataItem.ContextMenu.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(153, 102, 255));
@@ -208,6 +216,7 @@ namespace ArkerRatWpfVersion
                         dataItem.ContextMenu.Items.Add(reversShellButton);
                         dataItem.ContextMenu.Items.Add(remoteDesktop);
                         dataItem.ContextMenu.Items.Add(fileManager);
+                        dataItem.ContextMenu.Items.Add(remoteAudio);
 
                         // Disconnect
                         dataItem.ContextMenu.Items.Add(unInstall);
@@ -229,6 +238,8 @@ namespace ArkerRatWpfVersion
                                 disconnect.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Disconnect);
                                 remoteDesktop.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteDesktop);
                                 fileManager.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartFileManager);
+                                remoteAudio.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteAudio);
+
 
                                 shutDown.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].ShutDown);
                                 restart.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Restart);

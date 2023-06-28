@@ -34,8 +34,9 @@
         <BitmapImage x:Key="RestartImage" UriSource="Resources/restart.png" />
         <BitmapImage x:Key="LogOutImage" UriSource="Resources/LogOut.png" />
         <BitmapImage x:Key="SleepImage" UriSource="Resources/sleep.png" />
+        <BitmapImage x:Key="SoundImage" UriSource="Resources/sound.png" />
 
-      
+
 
         <SolidColorBrush x:Key="RedBrush" Color="#FF121114"/>
 
