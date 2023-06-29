@@ -87,8 +87,6 @@ namespace ArkerRatWpfVersion
                             string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                             stringBuilder.Append(receivedData);
 
-                            
-
                             lock (GlobalVariables._lock)
                             {
                                 data += stringBuilder.ToString();
@@ -100,9 +98,6 @@ namespace ArkerRatWpfVersion
                             await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
                             await Task.Run(() => SortData("§FileManagerStart§", "§FileManagerEnd§"));
                             await Task.Run(() => SortData("§RemoteAudioStart§", "§RemoteAudioEnd§"));
-
-
-
 
                             stringBuilder.Clear();
                         }

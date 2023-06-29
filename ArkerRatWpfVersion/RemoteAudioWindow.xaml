@@ -59,19 +59,31 @@
                 <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Content="Client input" FontWeight="Bold" Foreground="#FF9890A7" FontSize="16" Margin="0,-5,0,0"></Label>
             </Border>
 
-            <Slider Width="300" HorizontalAlignment="Left" Height="auto" Margin="50,80,0,0" VerticalAlignment="Top" x:Name="outVolume">
-                
+            <Slider Width="300" HorizontalAlignment="Left" Height="auto" Margin="50,120,0,0" VerticalAlignment="Top" x:Name="outVolume"  IsSelectionRangeEnabled="True"  SelectionEnd="10">
+                <Slider.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF7C58D2" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlDarkDarkBrushKey}" Color="#FF9890A7" />
+
+                </Slider.Resources>
             </Slider>
 
-            <Slider Width="300" HorizontalAlignment="Right" Height="auto" Margin="0,80,50,0" VerticalAlignment="Top" x:Name="inVolume" Background="">
 
+
+            <Slider Width="300" HorizontalAlignment="Right" Height="auto" Margin="0,120,50,0" VerticalAlignment="Top" x:Name="inVolume" IsSelectionRangeEnabled="True"  SelectionEnd="10">
+                <Slider.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF7C58D2" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlDarkDarkBrushKey}" Color="#FF9890A7" />
+
+                </Slider.Resources>
             </Slider>
 
-            <ComboBox Width="300" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="50,50,0,0" x:Name="OutputSoundDeviceList" Background="#FF1B1820">
+            <Label Content="Devices" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="50,42,0,0" Height="27" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="13"/>
+            <Label Content="Volume" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="50,92,0,0" Height="27" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="13" />
+
+
+            <ComboBox Width="300" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="50,70,0,0" x:Name="OutputSoundDeviceList" Background="#FF1B1820">
                 <ComboBox.ItemContainerStyle>
 
-
-                    
                     <Style TargetType="ComboBoxItem">
                         <Setter Property="Background" Value="#FF121114">
 
@@ -92,7 +104,11 @@
 
 
             </ComboBox>
-            <ComboBox Width="300" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,50,50,0" x:Name="InputSoundDeviceList" Background="#FF121114" >
+
+            <Label Content="Devices" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,42,150,0" Height="27" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="13"/>
+            <Label Content="Volume" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,92,150,0" Height="27" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="13" />
+
+            <ComboBox Width="300" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,70,50,0" x:Name="InputSoundDeviceList" Background="#FF121114" >
                 <ComboBox.ItemContainerStyle>
 
 
@@ -117,11 +133,64 @@
 
 
             </ComboBox>
-
+            
+            
 
             <Label Content="System-sound" HorizontalAlignment="Left" Margin="65,-18,0,0" Height="25" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="12" Name="windowText"/>
 
             <Image Source="{StaticResource SoundImage}" Height="20" Width="25" Margin="45,-13,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+            <Border CornerRadius="15" Width="700" Height="230" VerticalAlignment="Bottom" Margin="0,0,0,30" Background="#FF121114" Padding="0,15,0,10">
+                <Grid Background="#FF121114">
+
+                    <Border CornerRadius="5"  Height="50" VerticalAlignment="Bottom" Margin="10,0,10,0" Background="#FF1B1820" Padding="5">
+                        <Grid Background="#FF1B1820">
+                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="27" Margin="5,0,0,0" VerticalAlignment="Center" Width="Auto" Background="#FF121114" CornerRadius="5">
+                                <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Content="Record client audio, max 5 minutes:" FontWeight="Bold" Foreground="#FF9890A7" FontSize="16" Margin="0,-5,0,0" ></Label>
+                            </Border>
+
+                            <Border BorderThickness="1" HorizontalAlignment="Center" Height="33" VerticalAlignment="Center" Width="107" Background="#FF121114" CornerRadius="5" Margin="20,0,0,0">
+
+                                <Button Content="Start recording" Foreground="#FF4956D0" Background="Transparent" FontSize="13" BorderThickness="0" x:Name="recordButton" Margin="0,0,0,-1" Click="recordButton_Click"/>
+                            </Border>
+
+                            <Border BorderThickness="1" HorizontalAlignment="Right" Height="27" Margin="0,0,20,7" VerticalAlignment="Bottom" Width="240" Background="#FF121114" CornerRadius="5">
+                                <Button Content="Chose file location for recording..." Margin="0,-3,0,0" FontSize="14" FontWeight="Bold" Foreground="#FF9890A7" Background="Transparent" BorderThickness="0" HorizontalAlignment="Center" Width="250" Name="choseDirectory" Click="choseDirectory_Click"/>
+                            </Border>
+                        </Grid>
+                        </Border>
+                    
+                        <RichTextBox Margin="0,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Background="#FF121114" Foreground="#FF9966FF" x:Name="audioLog" Height="145" TextChanged="audioLog_TextChanged">
+                        <RichTextBox.Resources>
+                            <Style TargetType="{x:Type RichTextBox}">
+                                <Setter Property="BorderBrush" Value="Black" />
+                                <Setter Property="BorderThickness" Value="0,1,0,1" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type RichTextBox}">
+                                            <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                               >
+                                                <ScrollViewer x:Name="PART_ContentHost" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </RichTextBox.Resources>
+                        <FlowDocument>
+                            <Paragraph>
+                                <Run Text="RichTextBox" />
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
+
+                </Grid>
+            </Border>
+
+            
+            
         </Grid>
 
     </Border>
