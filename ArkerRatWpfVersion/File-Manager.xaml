@@ -51,7 +51,7 @@
             </Button>
 
             <Border BorderBrush="#FF1B1820" BorderThickness="1" HorizontalAlignment="Center" Height="391" VerticalAlignment="Center" Width="746" Background="#FF1B1820" CornerRadius="20" Name="customBorder">
-                <ListBox d:ItemsSource="{d:SampleData ItemCount=5}" Name="fileManager" Margin="0,34,0,34" Background="#FF1B1820" BorderThickness="0" Foreground="#FF9966FF" BorderBrush="#00ABADB3" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox d:ItemsSource="{d:SampleData ItemCount=5}" Name="fileManager" Margin="0,34,0,34" Background="#FF1B1820" BorderThickness="0" Foreground="#FF9966FF" BorderBrush="#00ABADB3" ScrollViewer.HorizontalScrollBarVisibility="Disabled" MouseRightButtonDown="fileManager_MouseRightButtonDown">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal"/>

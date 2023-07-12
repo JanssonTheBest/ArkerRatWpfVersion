@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ArkerRatWpfVersion.ArkerNotification"
+﻿<UserControl x:Class="ArkerRatWpfVersion.TextInput"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -10,11 +10,10 @@
              >
 
     <UserControl.Resources>
-        <BitmapImage x:Key="UnknownImage" UriSource="Resources/unknown.png" />
 
     </UserControl.Resources>
 
-    <Border CornerRadius="10" Background="#FF121114" Panel.ZIndex="100"  BorderBrush="White" BorderThickness="0.5">
+    <Border CornerRadius="10" Background="#FF121114" Panel.ZIndex="100" BorderBrush="White" BorderThickness="0.5">
 
         <Border  CornerRadius="10" Background="#FF1B1820" Width="330" Height="88" Margin="0,9,0,0" >
 
@@ -24,7 +23,9 @@
                     <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
 
-                <Image Source="{StaticResource UnknownImage}" HorizontalAlignment="Left" Height="80" Margin="5,4,0,4" ></Image>
+                <Border BorderThickness="1" HorizontalAlignment="Right" Height="19" VerticalAlignment="Bottom" Width="107" Background="#FF121114" CornerRadius="5" Margin="0,0,8,4" >
+                    <Button Content="Ok" Foreground="#FF4956D0" Background="Transparent" FontSize="13" BorderThickness="0" Click="SendResultButton_Click" Margin="0,-3,0,0" x:Name="SendResultButton"/>
+                </Border>
 
                 <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,0,0" VerticalAlignment="Top" Width="8" Height="8" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseWindow" Name="closeButton">
                     <Button.Resources>
@@ -34,11 +35,10 @@
                     </Button.Resources>
                 </Button>
 
-                <Border BorderThickness="1" HorizontalAlignment="Left" Height="auto" Margin="91,5,0,0" VerticalAlignment="Top" Width="Auto" Background="#FF121114" CornerRadius="5">
+                <Border BorderThickness="1" HorizontalAlignment="Left" Height="auto" Margin="10,5,0,0" VerticalAlignment="Top" Width="Auto" Background="#FF121114" CornerRadius="5">
                     <Label HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="Header" FontWeight="Bold" Foreground="#FF9890A7" FontSize="16" x:Name="Header"></Label>
                 </Border>
-
-                <Label Foreground="#FF7C58D2" x:Name="MessageFromArker" Content="Message" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="91,38,0,0"></Label>
+                <TextBox HorizontalAlignment="Left" Margin="10,44,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="310" Background="#FF121114" Foreground="#FF9890A7" x:Name='result' />
 
 
 

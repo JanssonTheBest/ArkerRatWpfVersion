@@ -81,6 +81,7 @@ namespace ARKERRATCLIENT2._0
             }
         }
 
+
         public static void ChangeInputDevice(string deviceID)
         {
             if(!string.IsNullOrEmpty(deviceID))

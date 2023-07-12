@@ -58,6 +58,9 @@ GlobalVariables.byteSize = 262144;
 
         private async void SendScrollToClient(object sender, MouseWheelEventArgs e)
         {
+            if (!mouseInput)
+                return;
+
             e.Handled = true; // Mark the event as handled to prevent it from bubbling up to the window
 
             Point relativeClickPos = e.GetPosition(remoteDesktopVideoFrame);
@@ -69,6 +72,9 @@ GlobalVariables.byteSize = 262144;
         }
         private async void SendKeystrokesToClient(object sender, KeyEventArgs e)
         {
+            if (!keyBoardInput)
+                return;
+
             e.Handled = true;
             await clientSession.SendData("§RemoteDesktopStart§" + "§KI§"+e.Key.ToString().ToLower()+"§RemoteDesktopEnd§");
         }
@@ -124,6 +130,9 @@ GlobalVariables.byteSize = 262144;
 
         private async void ImageControl_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if(!mouseInput)
+                return;
+
             e.Handled = true; // Mark the event as handled to prevent it from bubbling up to the window
 
             Point relativeClickPos = e.GetPosition(remoteDesktopVideoFrame);
@@ -197,13 +206,41 @@ GlobalVariables.byteSize = 262144;
                 catch (Exception ex) { return; }
             }
         }
-
-      
-
+     
         private byte[] CombineFrameChunks()
         {
             byte[] frameBytes = _frameStream.ToArray();
             return frameBytes;
+        }
+
+        bool keyBoardInput= false;
+        private void KeyboardInputButton_Click(object sender, RoutedEventArgs e)
+        {
+            keyBoardInput = !keyBoardInput;
+
+            if (keyBoardInput)
+            {
+                KeyboardInputButton.Content = "Disable keyboard input";
+            }
+            else
+            {
+                KeyboardInputButton.Content = "Enable keyboard input";
+            }
+        }
+
+        bool mouseInput = false;
+        private void MouseInputButton_Click(object sender, RoutedEventArgs e)
+        {
+            mouseInput = !mouseInput;
+
+            if(mouseInput)
+            {
+                MouseInputButton.Content = "Disable mouse input";
+            }
+            else
+            {
+                MouseInputButton.Content = "Enable mouse input";
+            }
         }
 
         //_______

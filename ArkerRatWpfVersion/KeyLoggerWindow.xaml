@@ -1,0 +1,104 @@
+﻿<Window x:Class="ArkerRatWpfVersion.KeyLoggerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ArkerRatWpfVersion"
+        mc:Ignorable="d"
+        Title="KeyLoggerWindow" Height="450" Width="800"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        MouseDown="Window_MouseDown" AllowsTransparency="True" WindowState="Minimized"
+        Closing="Window_Closing"
+        >
+    <Window.Resources>
+        <BitmapImage x:Key="KeyLoggerImage" UriSource="Resources/cyber-attack.png" />
+
+
+    </Window.Resources>
+
+    <Border CornerRadius="20" Background="#FF121114" BorderBrush="White" BorderThickness="0.5">
+        <!-- NAVBAR -->
+        <Grid Background="#FF121114" Margin="0,16,0,20">
+
+            <Border BorderThickness="1" HorizontalAlignment="left" Height="25" VerticalAlignment="top" Width="auto" Background="#FF121114" CornerRadius="5" Margin="55,14,0,0" >
+                <Button Width="auto" Padding="5,0,5,0" Content="Start live keylogger" Foreground="#FF4956D0" Background="Transparent" FontSize="13" BorderThickness="0" Click="LiveKeyLoggerButton_Click" Margin="0,0,0,0" x:Name="LiveKeyLoggerButton"/>
+            </Border>
+            <Border BorderThickness="1" HorizontalAlignment="Center" Height="25" VerticalAlignment="top" Width="auto" Background="#FF121114" CornerRadius="5" Margin="0,14,250,0" >
+                <Button Width="auto" Padding="5,0,5,0" Content="Start offline keylogger" Foreground="#FF4956D0" Background="Transparent" FontSize="13" BorderThickness="0" Click="OfflineKeyLoggerButton_Click" Margin="0,0,0,0" x:Name="OfflineKeyLoggerButton"/>
+            </Border>
+            <Border BorderThickness="1" HorizontalAlignment="Center" Height="25" VerticalAlignment="top" Width="auto" Background="#FF121114" CornerRadius="5" Margin="10,14,0,0" />
+
+
+            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,10,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF5F0707" BorderThickness="0" Click="CloseWindow" Name="closeButton">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="15"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,30,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF0A2108" BorderThickness="0" Click="MaximizeWindow" Name="maxButton">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="15"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button Content="" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,-8,50,0" VerticalAlignment="Top" Width="15" Height="15" Panel.ZIndex="100" Background="#FF6F6B05" BorderThickness="0" Click="MinimizeWindow" Name="minButton">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="15"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+
+            <Label Content="Key-logger" HorizontalAlignment="Left" Margin="65,-18,0,0" Height="25" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="12" Name="windowText" Grid.ColumnSpan="2"/>
+
+            <Image Source="{StaticResource KeyLoggerImage}" Height="20" Width="25" Margin="45,-13,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+            <Border BorderBrush="#FF1B1820" BorderThickness="1" HorizontalAlignment="Center" Height="391" VerticalAlignment="Center" Width="746" Background="#FF1B1820" CornerRadius="20" Name="customBorder" Panel.ZIndex="-5">
+                <Grid>
+                    <Label Content="Live keylogs:" HorizontalAlignment="Left" Margin="25,27,0,0" Height="25" VerticalAlignment="Top" Width="200" Foreground="#FF7C58D2" FontSize="10" Grid.ColumnSpan="2" Panel.ZIndex="10"/>
+
+                    <Border BorderThickness="1" Margin="0,29,0,9" Background="#FF121114" Width="710" CornerRadius="20" HorizontalAlignment="Center">
+
+                        <RichTextBox VerticalAlignment="Center" HorizontalAlignment="Center" Background="#FF121114" Foreground="#FF9966FF" x:Name="keyLogger" Height="316" TextChanged="keyLogger_TextChanged">
+
+                            <RichTextBox.Resources>
+                                <Style TargetType="{x:Type RichTextBox}">
+                                    <Setter Property="BorderBrush" Value="Black" />
+                                    <Setter Property="BorderThickness" Value="0,1,0,1" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type RichTextBox}">
+                                                <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                               >
+                                                    <ScrollViewer x:Name="PART_ContentHost" />
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </RichTextBox.Resources>
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Run Text="RichTextBox" />
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
+                    </Border>
+                </Grid>
+
+                
+
+            </Border>
+        </Grid>
+
+    </Border>
+</Window>
+
