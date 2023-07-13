@@ -445,6 +445,9 @@
                     </TabItem.Header>
 
                     <!-- Content -->
+                    
+                    
+                    
                     <TextBlock TextWrapping="Wrap"><InlineUIContainer>
 <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="1" Margin="60,55,0,0" VerticalAlignment="Top" Width="771"/>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
@@ -452,7 +455,7 @@
 
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
 
-                            <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="338" Margin="76,15,0,0" VerticalAlignment="Top" Width="736" Background="#FF121114" CornerRadius="20">
+                            <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="338" Margin="76,15,0,0" VerticalAlignment="Top" Width="749" Background="#FF121114" CornerRadius="20">
                                 <Border BorderBrush="#FF17151B" BorderThickness="1" HorizontalAlignment="Left" Height="46" Margin="29,38,0,0" VerticalAlignment="Top" Width="230" CornerRadius="5" Background="#FF17151B">
                                     <Label Content="Server" Margin="85,-8,-85,8" Foreground="#FF9966FF" FontSize="13"/>
                                 </Border>
@@ -460,6 +463,8 @@
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                             <Border BorderThickness="1" HorizontalAlignment="Left" Height="91" Margin="107,-295,0,0" VerticalAlignment="Top" Width="229" BorderBrush="#FF1B1820" Background="#FF1B1820" CornerRadius="5">
     <Grid>
+        
+        
         <Label Content="Host (IP / DNS):" Margin="5,8,0,0" VerticalAlignment="Top" Foreground="#FF9966FF" FontSize="11" HorizontalAlignment="Left" RenderTransformOrigin="0.501,0.572"/>
                 <Label Content="Port:" Margin="58,28,0,0" VerticalAlignment="Top" Foreground="#FF9966FF" FontSize="11" HorizontalAlignment="Left" RenderTransformOrigin="0.501,0.572"/>
 
@@ -480,18 +485,37 @@
                             </Border>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                              <Border BorderBrush="#FF1B1820" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="91" Margin="-239,-134,0,0" VerticalAlignment="Top" Width="229" Background="#FF1B1820" CornerRadius="5">
-                                 <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="20" Margin="101,12,0,0" VerticalAlignment="Top" Width="98" Background="#FF121114" CornerRadius="5">
+                                <Grid>
+                                     <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="20" Margin="101,3,0,0" VerticalAlignment="Top" Width="98" Background="#FF121114" CornerRadius="5">
                                      <CheckBox Content="ON / OFF" Foreground="#FF70489E" FontWeight="Bold" FontSize="10" Margin="13,1,-13,-1" Background="#FF1B1820" BorderBrush="#FF704CB8" OpacityMask="#FF70489E" x:Name="autoStartOnOff"/>
                                  </Border>
+                                    
+                                                                                                    <Label Content="Runas adminstrator:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="-4,19,0,0" VerticalAlignment="Center" FontSize="11" Foreground="#FF704CB8"/>
+<Border BorderBrush="#FF121114" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Height="20" Margin="0,19,27,0" VerticalAlignment="center" Width="98" Background="#FF121114" CornerRadius="5">
+                                 <CheckBox Content="ON / OFF" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="14,2,-14,-2" x:Name="runasAdmin"/>
+                             </Border>
+                                    
+                                    
+                                                                <Label Content="File name:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="44,62,0,5" VerticalAlignment="Center" FontSize="11" Foreground="#FF704CB8"/>
+
+                                    
+                                     <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="20" VerticalAlignment="Center" Margin="101,65,0,5"  Width="98" Background="#FF121114" CornerRadius="5">
+            <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="client" x:Name="fileName" VerticalAlignment="Center" Width="80" Height="14" Foreground="#FF9966FF" SelectionBrush="#FF121114" Background="#FF121114" BorderBrush="#FF9966FF" BorderThickness="0" FontSize="10" Margin="3,0,0,0" CaretBrush="#FF9966FF"/>
+                                 </Border>
+                                    
+                                </Grid>
+                                 
+                                
+                                 
                              </Border>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
-                            <Label Content="Auto-Start:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="-202,-124,0,0" VerticalAlignment="Top" FontSize="11" Foreground="#FF704CB8"/>
+                            <Label Content="Auto-Start:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="-202,-133,0,0" VerticalAlignment="Top" FontSize="11" Foreground="#FF704CB8"/>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
-                             <Border BorderBrush="#FF121114" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="20" Margin="-143,-80,0,0" VerticalAlignment="Top" Width="98" Background="#FF121114" CornerRadius="5">
+                             <Border BorderBrush="#FF121114" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="20" Margin="-143,-110,0,0" VerticalAlignment="Top" Width="98" Background="#FF121114" CornerRadius="5">
                                  <CheckBox Content="ON / OFF" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="14,2,-14,-2" x:Name="crypterOnOff"/>
                              </Border>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
-                            <Label Content="Crypter:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="-193,-83,0,0" VerticalAlignment="Top" Foreground="#FF704CB8" FontSize="11"/>
+                            <Label Content="Crypter:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="-193,-113,0,0" VerticalAlignment="Top" Foreground="#FF704CB8" FontSize="11"/>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                              <Border BorderBrush="#FF17151B" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="46" Margin="-13,-112,0,0" VerticalAlignment="Top" Width="210" Background="#FF17151B" CornerRadius="5">
                                  <Label Content="Build / Export" FontSize="13" Foreground="#FF704CB8" Margin="57,-9,-57,9"/>
@@ -515,13 +539,13 @@
                             </Border>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                             <Border BorderBrush="#FF121114" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="18" Margin="665,-295,0,0" VerticalAlignment="Top" Width="107" Background="#FF121114" CornerRadius="5">
-            <TextBox Height="22" VerticalAlignment="Center" x:Name="titleInput" Background="#FF121114" BorderBrush="Transparent" SelectionBrush="#FF9966FF" Margin="2,0,2,0" BorderThickness="0" Foreground="#FF9966FF" CaretBrush="#FF9966FF"/>
+            <TextBox Height="22" VerticalAlignment="Center" x:Name="titleInput" IsEnabled="False" Background="#FF121114" BorderBrush="Transparent" SelectionBrush="#FF9966FF" Margin="2,0,2,0" BorderThickness="0" Foreground="#FF9966FF" CaretBrush="#FF9966FF"/>
                             </Border>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                             <Label Content="Massage-Title: " Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="593,-314,0,0" VerticalAlignment="Top" Foreground="#FF704CB8" FontSize="10"/>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                             <Border BorderBrush="#FF121114" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="70" Margin="665,-285,0,0" VerticalAlignment="Top" Width="107" Background="#FF121114" CornerRadius="5">
-            <TextBox Height="65" VerticalAlignment="Center" x:Name="massageInput" Background="#FF121114" BorderBrush="Transparent" SelectionBrush="#FF9966FF" Margin="1,0,1,0" BorderThickness="0" Foreground="#FF9966FF" CaretBrush="#FF9966FF"/>
+            <TextBox Height="65" VerticalAlignment="Center" x:Name="massageInput" IsEnabled="False" Background="#FF121114" BorderBrush="Transparent" SelectionBrush="#FF9966FF" Margin="1,0,1,0" BorderThickness="0" Foreground="#FF9966FF" CaretBrush="#FF9966FF"/>
                             </Border>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
             <Label Content="Massage-Text: " Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="594,-279,0,0" VerticalAlignment="Top" FontSize="10" Foreground="#FF704CB8"/>
@@ -534,19 +558,30 @@
                             
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                             
-                            <Border BorderThickness="1" HorizontalAlignment="Left" Height="31" Margin="624,-208,0,0" VerticalAlignment="Top" Width="122" Background="#FF121114" CornerRadius="5">
-                            <Button Content="Demo Massage-Box" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" Width="119" Height="21" Foreground="#FF9966FF" BorderBrush="#FF121114" Background="Transparent"  FontSize="11" Margin="2,0,0,0"/>
-                            </Border>
+                           <Border BorderBrush="#FF121114" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="20" Margin="-70,-190,0,0" VerticalAlignment="Top" Width="98" Background="#FF121114" CornerRadius="5">
+                                 <CheckBox Content="ON / OFF" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="14,2,-14,-2" x:Name="msgBoxOnOff" Checked="msgBoxOnOff_Checked" Unchecked="msgBoxOnOff_Unchecked"/>
+                             </Border>
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                             <Border BorderBrush="#FF17151B" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="52" Margin="347,-454,0,0" VerticalAlignment="Top" Width="210" Background="#FF17151B" CornerRadius="5">
                                 <Label Content="File Manipulation" Margin="50,-9,-50,9" Foreground="#FF9966FF" FontSize="13"/>
                             </Border>
-                            </InlineUIContainer><Run Text=" "/><InlineUIContainer>
-                             <Border BorderBrush="#FF1B1820" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="77" Margin="347,-455,0,0" VerticalAlignment="Top" Width="210" Background="#FF1B1820" CornerRadius="5">
-                                 <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="18" Margin="98,16,0,0" VerticalAlignment="Top" Width="100" Background="#FF121114" CornerRadius="5">
-            <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Center" Width="80" Height="14" Foreground="#FF9966FF" SelectionBrush="#FF121114" Background="#FF121114" BorderBrush="#FF9966FF" BorderThickness="0" FontSize="10" Margin="3,0,0,0" CaretBrush="#FF9966FF"/>
+                            
+                    </InlineUIContainer><Run Text=" "/><InlineUIContainer>
+                            
+                        <Border BorderBrush="#FF1B1820" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="77" Margin="347,-455,0,0" VerticalAlignment="Top" Width="210" Background="#FF1B1820" CornerRadius="5">
+                                
+                           <Grid>
+                               <Border BorderBrush="#FF121114" BorderThickness="1" HorizontalAlignment="Left" Height="18" Margin="98,16,0,0" VerticalAlignment="Top" Width="100" Background="#FF121114" CornerRadius="5">
+            <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" IsEnabled="False" VerticalAlignment="Center" Width="80" Height="14" Foreground="#FF9966FF" SelectionBrush="#FF121114" Background="#FF121114" BorderBrush="#FF9966FF" x:Name="fileManip" BorderThickness="0" FontSize="10" Margin="3,0,0,0" CaretBrush="#FF9966FF"/>
                                  </Border>
+                               
+                               <Border BorderBrush="#FF121114" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="20" Margin="10,50,0,0" VerticalAlignment="Top" Width="98" Background="#FF121114" CornerRadius="5">
+                                 <CheckBox Content="ON / OFF" FontSize="10" Background="#FF1B1820" BorderBrush="#FF704CB8" Foreground="#FF70489E" OpacityMask="#FF70489E" FontWeight="Bold" Margin="14,2,-14,-2" x:Name="fileManipOnOff" Checked="fileManipOnOff_Checked" Unchecked="fileManipOnOff_Unchecked"/>
                              </Border>
+                           </Grid>      
+                                 
+                             </Border>
+                        
                             </InlineUIContainer><Run Text=" "/><Run Text=" "/><InlineUIContainer>
                             <Border BorderBrush="#FF121114" BorderThickness="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="14" Margin="460,-434,0,0" VerticalAlignment="Top" Width="74" Background="#FF121114" CornerRadius="5">
             <Label Content="Max 10 000 KB" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="#FF70489E" Height="24" Width="91" FontSize="9" Margin="1,0,0,0"/>
@@ -556,7 +591,7 @@
                             </InlineUIContainer><Run Text=" "/><InlineUIContainer>
                             <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="14" Margin="536,-466,0,0" VerticalAlignment="Top" Width="15" Source="{StaticResource ExclamationMark}"/>
                             </InlineUIContainer><Run Text=" "/><Run Text=" "/><Run Text=" "/><InlineUIContainer>
-                            <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="76" Margin="-150,-425,0,0" VerticalAlignment="Top" Width="78" Source="{StaticResource UnknownImage}" OpacityMask="#4C000000"/>
+                            <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="76" Margin="-150,-408,0,0" VerticalAlignment="Top" Width="78" Source="{StaticResource UnknownImage}" OpacityMask="#4C000000"/>
 
                             </InlineUIContainer></TextBlock>
 

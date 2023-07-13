@@ -8,7 +8,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using MouseKeyboardActivityMonitor;
+using MouseKeyboardActivityMonitor.WinApi;
+using MouseKeyboardActivityMonitor.Controls;
 
 namespace ARKERRATCLIENT2._0
 {
@@ -110,6 +112,7 @@ namespace ARKERRATCLIENT2._0
             int y = int.Parse(cordinates[1].Split('.')[0]);
 
             Cursor.Position = new Point(x, y);
+
             if (cordinates[2] == "Left")
             {
                 MouseHelper.MouseEvent(MouseHelper.MouseEventFlags.LeftDown | MouseHelper.MouseEventFlags.LeftUp);

